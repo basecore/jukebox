@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V27 Final</title>
+    <title>Jukebox V28 VolumeFix</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -218,6 +218,12 @@
             border-radius: 5px; font-size: 0.85em; margin-bottom: 20px;
             border-left: 3px solid orange;
         }
+        
+        .warn-text {
+            background: rgba(231, 76, 60, 0.2); padding: 10px;
+            border-radius: 5px; font-size: 0.85em; margin-top: 5px; margin-bottom: 15px;
+            border-left: 3px solid #e74c3c; color: #e74c3c; font-weight: bold;
+        }
 
         .footer-info {
             margin-top: auto; padding-top: 20px; padding-bottom: 20px;
@@ -275,7 +281,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V27</h1>
+        <h1>🔧 Jukebox V28</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -286,14 +292,18 @@
                 <option value="kids">Direkt Kinder-Modus</option>
             </select>
 
-            <label>Maximale Lautstärke:</label>
+            <label>Maximale Lautstärke (Begrenzung):</label>
             <input type="range" id="max-vol-input" min="10" max="100" value="100" style="width:100%" oninput="updateSettingsUI()">
-            <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 15px;">
+            <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 5px;">
                  <span id="vol-display" style="font-size: 0.9em; font-weight:bold;">100%</span>
                  
                  <button class="btn-admin" style="width: auto; margin:0; padding: 5px 15px; background-color: #fab1a0; color: #333; font-size: 0.8em;" onclick="playTestTone()">
-                    🔊 Test-Ton spielen
+                    🔊 Test-Ton (Limit)
                  </button>
+            </div>
+            
+            <div class="warn-text">
+                ⚠️ Wichtig: Bitte stelle die Handy-Lautstärke (Hardware-Tasten) auf 100%. Die App regelt dann die tatsächliche Begrenzung.
             </div>
             
             <label>Schlaf-Timer:</label>
@@ -401,7 +411,7 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V27 (Robust + AudioTest)</p>
+            <p>Jukebox NFC V28 (Volume Fix)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
         </div>
@@ -459,6 +469,10 @@
         let wakeLock = null;
         const blackCurtain = document.getElementById('black-curtain');
         
+        // INTERNE VARIABLE FÜR KINDER LAUTSTÄRKE (0.0 bis 1.0)
+        // Dies repräsentiert 0% bis 100% vom ERLAUBTEN Maximum
+        let currentKidsVolumePct = 1.0; 
+
         // Settings with Defaults
         let settings = { 
             maxVolume: 1.0, 
@@ -568,7 +582,7 @@
 
         function updateUIFromSettings() {
             document.getElementById('max-vol-input').value = settings.maxVolume * 100; 
-            document.getElementById('vol-display').innerText = (settings.maxVolume * 100) + "%"; 
+            document.getElementById('vol-display').innerText = Math.round(settings.maxVolume * 100) + "%"; 
             document.getElementById('sleep-timer-input').value = settings.sleepTimerMinutes;
             document.getElementById('check-colorful').checked = settings.colorfulControls;
             document.getElementById('start-mode-input').value = settings.startMode || 'parent';
@@ -580,11 +594,16 @@
             document.getElementById('check-ecomode').checked = settings.enableEcoMode || false;
             
             updateBgUIState(); 
-            // Hier NICHT sofort EventListener starten, das passiert beim Klick (siehe updateEcoModeState)
+            // Hier NICHT sofort EventListener starten
         }
 
         function saveSettings() {
+            // Speichere die Maximale Lautstärke
             settings.maxVolume = document.getElementById('max-vol-input').value / 100;
+            
+            // WICHTIG: Sofort anwenden, falls Musik läuft (damit Eltern das Limit hören)
+            applyActualVolume(); 
+
             settings.sleepTimerMinutes = parseInt(document.getElementById('sleep-timer-input').value);
             settings.colorfulControls = document.getElementById('check-colorful').checked;
             settings.startMode = document.getElementById('start-mode-input').value;
@@ -612,7 +631,40 @@
         }
 
         function updateSettingsUI() {
-            const vol = document.getElementById('max-vol-input').value; document.getElementById('vol-display').innerText = vol + "%"; saveSettings();
+            const vol = document.getElementById('max-vol-input').value; 
+            document.getElementById('vol-display').innerText = vol + "%"; 
+            saveSettings();
+        }
+
+        // --- NEU: ZENTRALE LAUTSTÄRKE BERECHNUNG ---
+        function applyActualVolume() {
+            // Die echte Player-Lautstärke ist: (Kind Einstellung %) * (Eltern Limit %)
+            // Beispiel: Kind 50% (0.5) * Limit 50% (0.5) = 0.25 echte Lautstärke
+            audioPlayer.volume = currentKidsVolumePct * settings.maxVolume;
+        }
+
+        function changeVolume(change) {
+            // Ändere die Kinder-Lautstärke (0.0 bis 1.0)
+            currentKidsVolumePct += change;
+            
+            // Begrenzen auf 0 bis 1
+            if(currentKidsVolumePct > 1.0) currentKidsVolumePct = 1.0;
+            if(currentKidsVolumePct < 0.0) currentKidsVolumePct = 0.0;
+            
+            // Auf Audio Player anwenden unter Berücksichtigung des Limits
+            applyActualVolume();
+            updateVolumeUI();
+        }
+
+        function updateVolumeUI() {
+            // Der Balken zeigt NUR die Einstellung des Kindes an (0-100% des erlaubten Bereichs)
+            let pct = currentKidsVolumePct * 100;
+            const bar = document.getElementById('volume-bar'); 
+            bar.style.width = pct + "%";
+            
+            if(pct < 40) bar.style.backgroundColor = "var(--green-safe)"; 
+            else if (pct < 75) bar.style.backgroundColor = "var(--orange-warn)"; 
+            else bar.style.backgroundColor = "var(--red-danger)";
         }
 
         // --- AUDIO TEST FUNCTION ---
@@ -625,11 +677,12 @@
             gainNode.connect(audioCtx.destination);
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); 
-            const sliderValue = document.getElementById('max-vol-input').value;
-            const volume = sliderValue / 100;
-            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            
+            // Test Ton spielt immer mit der MAXIMAL erlaubten Lautstärke
+            gainNode.gain.setValueAtTime(settings.maxVolume, audioCtx.currentTime);
+            
             oscillator.start();
-            showStatus("Spiele Test-Ton... 🔊");
+            showStatus("Spiele Limit-Test... 🔊");
             setTimeout(() => { oscillator.stop(); audioCtx.close(); }, 500);
         }
 
@@ -658,9 +711,8 @@
             }
         });
 
-        // --- ECO MODE (Verbesserte Logik aus Debug-Version) ---
+        // --- ECO MODE ---
         function updateEcoModeState(fromCheckbox = false) {
-            // Hole aktuellen Wert direkt vom Checkbox Element
             const isChecked = document.getElementById('check-ecomode').checked;
             
             if (isChecked) {
@@ -671,17 +723,14 @@
                 blackCurtain.style.display = 'none';
                 if(fromCheckbox) showStatus("Sensoren aus");
             }
-            // Speichern
             if(fromCheckbox) saveSettings();
         }
 
         function handleOrientation(event) {
             const beta = event.beta; 
-            
-            if(beta === null) return; // Wenn Browser blockiert
+            if(beta === null) return; 
 
-            // Threshold wie im Debug Script (funktioniert besser)
-            // > 140 oder < -140
+            // Threshold > 140 oder < -140
             const isFaceDown = (beta > 140 || beta < -140);
 
             if (isFaceDown) {
@@ -820,7 +869,10 @@
             audioPlayer.src = audioUrl;
             audioPlayer.onloadedmetadata = () => {
                 if(startTime > 0 && startTime < audioPlayer.duration - 2) audioPlayer.currentTime = startTime;
-                if(audioPlayer.volume > settings.maxVolume) audioPlayer.volume = settings.maxVolume;
+                
+                // Hier WICHTIG: Setze Lautstärke auf aktuellen Kinder-Wert (skaliert)
+                applyActualVolume();
+                
                 updateVolumeUI();
                 audioPlayer.play().then(() => { 
                     setPlayButtonState(true); 
@@ -879,17 +931,6 @@
         function restartPlaylist() { if(currentPlayingTagId) { showStatus("Start..."); playPlaylistIndex(0, 0); } }
         function skipForward() { if(audioPlayer.src) { audioPlayer.currentTime += 30; showStatus("+30 Sek"); } }
 
-        function changeVolume(change) {
-            let newVol = audioPlayer.volume + change; if(newVol > settings.maxVolume) newVol = settings.maxVolume; if(newVol < 0) newVol = 0;
-            audioPlayer.volume = newVol; updateVolumeUI();
-        }
-
-        function updateVolumeUI() {
-            let pct = (audioPlayer.volume / settings.maxVolume) * 100; if(pct > 100) pct = 100;
-            const bar = document.getElementById('volume-bar'); bar.style.width = pct + "%";
-            if(pct < 40) bar.style.backgroundColor = "var(--green-safe)"; else if (pct < 75) bar.style.backgroundColor = "var(--orange-warn)"; else bar.style.backgroundColor = "var(--red-danger)";
-        }
-
         function setPlayButtonState(isPlaying) {
             const btn = document.getElementById('btn-play-main');
             if (isPlaying) { 
@@ -919,7 +960,7 @@
 
         function fadeOutAndStop() {
             let vol = audioPlayer.volume;
-            const fade = setInterval(() => { if(vol > 0.05) { vol -= 0.05; audioPlayer.volume = vol; } else { clearInterval(fade); audioPlayer.pause(); setPlayButtonState(false); forceSaveCurrentPosition(); audioPlayer.volume = Math.min(settings.maxVolume, 0.5); showStatus("Gute Nacht 😴"); } }, 200);
+            const fade = setInterval(() => { if(vol > 0.05) { vol -= 0.05; audioPlayer.volume = vol; } else { clearInterval(fade); audioPlayer.pause(); setPlayButtonState(false); forceSaveCurrentPosition(); applyActualVolume(); showStatus("Gute Nacht 😴"); } }, 200);
         }
 
         function clearDatabase() { if(confirm("Löschen?")) { db.close(); indexedDB.deleteDatabase(DB_NAME); location.reload(); } }
@@ -960,7 +1001,6 @@
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch((e) => {});
             }
-            // Sicherstellen, dass Sensoren aktiv sind wenn Einstellung true ist
             if(settings.enableEcoMode) updateEcoModeState(false);
         }
 
