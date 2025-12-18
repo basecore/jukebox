@@ -1,4 +1,4 @@
-# 🎵 Jukebox NFC - V22
+# 🎵 Jukebox NFC - V24
 
 Die ultimative **DIY Toniebox-Alternative** für dein Smartphone.
 Verwandle dein Android-Handy in einen kinderleichten, NFC-gesteuerten Hörspiel-Player. Perfekt für unterwegs, im Auto oder im Urlaub.
@@ -11,7 +11,7 @@ Es ist der Beweis, dass man mit einer guten Idee und KI funktionierende Software
 
 ---
 
-## 🚀 Features (V22)
+## 🚀 Features (V24)
 
 * **100% Kostenlos & Offline-Fähig:** Läuft als PWA (Web-App) direkt auf deinem Handy. Keine Werbung, kein Tracking.
 * **Kinder-Modus:**
