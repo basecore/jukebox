@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V20</title>
+    <title>Jukebox V21</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -39,7 +39,7 @@
         #kids-mode {
             display: none; flex: 1; flex-direction: column;
             align-items: center; justify-content: flex-start;
-            background-color: #fff; /* Fallback */
+            background-color: #fff;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -47,7 +47,6 @@
             padding: 20px; padding-top: 40px;
         }
         
-        /* Damit Text auf Bildern lesbar bleibt, bekommt er optional einen Schatten */
         .kids-text-shadow {
             text-shadow: 0 0 10px rgba(255,255,255, 0.8), 0 0 20px rgba(255,255,255, 1);
             background: rgba(255,255,255,0.6);
@@ -158,7 +157,6 @@
             border: 1px solid #555; border-radius: 5px; color: white;
             box-sizing: border-box; margin-bottom: 10px;
         }
-        /* Color Input Styling */
         input[type="color"] {
             width: 100%; height: 50px; padding: 5px; background: none; border: 1px solid #555; cursor: pointer;
         }
@@ -237,7 +235,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
 
-        <h1>🔧 Jukebox V20</h1>
+        <h1>🔧 Jukebox V21</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -250,6 +248,7 @@
 
             <label>Maximale Lautstärke:</label>
             <input type="range" id="max-vol-input" min="10" max="100" value="100" style="width:100%" oninput="updateSettingsUI()">
+            <div style="text-align: right; font-size: 0.8em; margin-bottom: 15px;" id="vol-display">100%</div>
             
             <label>Schlaf-Timer:</label>
             <select id="sleep-timer-input" onchange="saveSettings()" style="margin-bottom: 15px;">
@@ -259,16 +258,16 @@
                 <option value="30">30 Minuten</option>
                 <option value="60">1 Stunde</option>
             </select>
-
-            <div class="checkbox-wrapper">
-                <input type="checkbox" id="check-colorful" onchange="saveSettings()">
-                <span>🎨 Bunte Knöpfe für Kinder</span>
-            </div>
         </div>
 
         <div class="card" style="border-left: 3px solid #e84393;">
             <h2>🎨 Design für Kinder-Modus</h2>
             
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="check-colorful" onchange="saveSettings()">
+                <span>🎨 Bunte Knöpfe für Kinder</span>
+            </div>
+
             <label>Hintergrund-Farbe:</label>
             <input type="color" id="bg-color-input" value="#ffffff" onchange="saveSettings()">
             
@@ -317,7 +316,9 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V20 (Design)</p>
+            <p>Jukebox NFC V21 (Design Layout)</p>
+            <p>Entwickelt von <b>Sebastian Rößer</b></p>
+            <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
         </div>
     </div>
 
@@ -597,7 +598,6 @@
             store.openCursor().onsuccess = e => { 
                 const cursor = e.target.result; 
                 if(cursor) { 
-                    // Verstecke System-Einträge wie Hintergrundbild
                     if(cursor.value.tagId !== SYSTEM_BG_ID) {
                         const div = document.createElement("div"); div.className = "tag-list-item"; let status = (cursor.value.playlist && cursor.value.playlist.length > 0) ? '<span style="color:#2ecc71">✔ OK</span>' : '<span class="missing-audio-badge">⚠️ Audio fehlt</span>'; div.innerHTML = `<div class="tag-info-row"><strong>${cursor.value.name}</strong>${status}</div><div style="font-size:0.75em; color:#aaa; margin-top:2px;">Dateien: ${cursor.value.playlistFileNames ? cursor.value.playlistFileNames.join(', ') : '-'}</div>`; list.appendChild(div); 
                     }
