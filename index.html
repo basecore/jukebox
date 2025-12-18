@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V19</title>
+    <title>Jukebox V20</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -19,7 +19,6 @@
             --red-danger: #ff4757;
             --blue-time: #3498db;
             --purple-admin: #9b59b6;
-            /* Farben für Bunte Knöpfe */
             --yellow-btn: #f1c40f;
             --blue-btn: #3498db;
             --purple-btn: #9b59b6;
@@ -40,8 +39,21 @@
         #kids-mode {
             display: none; flex: 1; flex-direction: column;
             align-items: center; justify-content: flex-start;
-            background: #fff; position: relative;
+            background-color: #fff; /* Fallback */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
             padding: 20px; padding-top: 40px;
+        }
+        
+        /* Damit Text auf Bildern lesbar bleibt, bekommt er optional einen Schatten */
+        .kids-text-shadow {
+            text-shadow: 0 0 10px rgba(255,255,255, 0.8), 0 0 20px rgba(255,255,255, 1);
+            background: rgba(255,255,255,0.6);
+            padding: 5px;
+            border-radius: 10px;
+            backdrop-filter: blur(2px);
         }
 
         #track-title-display {
@@ -54,12 +66,12 @@
         }
         
         #playlist-info {
-            font-size: 1rem; color: #7f8c8d; margin-top: -15px; margin-bottom: 10px; font-weight: bold;
+            font-size: 1rem; color: #555; margin-top: -15px; margin-bottom: 10px; font-weight: bold;
         }
 
         #album-art-container {
             width: 45vw; height: 45vw; border-radius: 20px;
-            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             background-color: #eee; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
             border: 4px solid white; position: relative;
@@ -80,7 +92,7 @@
             gap: 25px; margin-bottom: 15px; width: 100%;
         }
         #volume-display-container {
-            width: 85%; height: 25px; background-color: #eee;
+            width: 85%; height: 25px; background-color: rgba(238,238,238,0.8);
             border-radius: 15px; overflow: hidden; border: 1px solid #ddd;
             margin-bottom: 20px;
         }
@@ -93,53 +105,35 @@
             gap: 30px; width: 100%; margin-bottom: 40px; 
         }
         
-        /* Buttons Styling (SVG Optimiert) */
         .btn-control {
             border: none; border-radius: 50%; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: flex;
             align-items: center; justify-content: center; font-weight: bold;
-            transition: transform 0.1s; 
-            /* Standard Farbe Icon */
-            color: #576574; 
+            transition: transform 0.1s; color: #576574; 
         }
         .btn-control:active { transform: scale(0.92); }
-        
-        /* SVG Icons Größe & Farbe */
-        .btn-control svg {
-            width: 50%; height: 50%; fill: currentColor;
-        }
+        .btn-control svg { width: 50%; height: 50%; fill: currentColor; }
 
-        /* Play Button (Spezialgröße) */
         .btn-play {
-            width: 110px; height: 110px; background-color: var(--green-safe);
-            color: white; /* Icon Weiß */
+            width: 110px; height: 110px; background-color: var(--green-safe); color: white;
         }
-        /* Play Icon etwas größer */
         .btn-play svg { width: 60%; height: 60%; }
-
-        /* Sekundäre Buttons */
         .btn-secondary {
-            width: 75px; height: 75px; background-color: var(--btn-color);
-            color: #2f3542;
+            width: 75px; height: 75px; background-color: var(--btn-color); color: #2f3542;
         }
 
-        /* Bunte Buttons Klassen (Überschreiben Farben) */
         .btn-colorful-vol-down { background-color: var(--yellow-btn) !important; color: #333 !important; }
         .btn-colorful-vol-up { background-color: var(--red-danger) !important; color: white !important; }
         .btn-colorful-back { background-color: var(--blue-btn) !important; color: white !important; }
         .btn-colorful-skip { background-color: var(--purple-btn) !important; color: white !important; }
 
-        /* ZEITLEISTE */
         #time-container {
-            width: 90%; height: 45px; background-color: #ecf0f1;
+            width: 90%; height: 45px; background-color: rgba(236, 240, 241, 0.9);
             border-radius: 12px; position: relative; overflow: hidden;
             border: 1px solid #bdc3c7; cursor: pointer; margin-top: auto; 
             margin-bottom: 20px;
         }
-        #time-progress {
-            height: 100%; width: 0%; background-color: var(--blue-time);
-            transition: width 0.5s linear;
-        }
+        #time-progress { height: 100%; width: 0%; background-color: var(--blue-time); transition: width 0.5s linear; }
         #time-text {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
@@ -164,6 +158,11 @@
             border: 1px solid #555; border-radius: 5px; color: white;
             box-sizing: border-box; margin-bottom: 10px;
         }
+        /* Color Input Styling */
+        input[type="color"] {
+            width: 100%; height: 50px; padding: 5px; background: none; border: 1px solid #555; cursor: pointer;
+        }
+
         .checkbox-wrapper { display: flex; align-items: center; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px;}
         .checkbox-wrapper input { width: auto; margin-right: 15px; transform: scale(1.5); }
         .checkbox-wrapper span { font-size: 0.9em; }
@@ -178,7 +177,7 @@
         .btn-import { background-color: var(--green-safe); color: white; position: relative;}
         .btn-relink { background-color: var(--orange-warn); color: #333; position: relative; margin-top:10px; width: 100%;}
         
-        #import-file-hidden, #relink-file-hidden {
+        #import-file-hidden, #relink-file-hidden, #bg-img-hidden {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             opacity: 0; cursor: pointer;
         }
@@ -238,12 +237,11 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
 
-        <h1>🔧 Jukebox V19</h1>
+        <h1>🔧 Jukebox V20</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
             <h2>⚙️ Einstellungen</h2>
-            
             <label>Start-Modus:</label>
             <select id="start-mode-input" onchange="saveSettings()" style="background: rgba(46, 204, 113, 0.2); border: 1px solid #2ecc71;">
                 <option value="parent">Eltern-Modus (Standard)</option>
@@ -252,7 +250,6 @@
 
             <label>Maximale Lautstärke:</label>
             <input type="range" id="max-vol-input" min="10" max="100" value="100" style="width:100%" oninput="updateSettingsUI()">
-            <div style="text-align: right; font-size: 0.8em; margin-bottom: 15px;" id="vol-display">100%</div>
             
             <label>Schlaf-Timer:</label>
             <select id="sleep-timer-input" onchange="saveSettings()" style="margin-bottom: 15px;">
@@ -267,6 +264,22 @@
                 <input type="checkbox" id="check-colorful" onchange="saveSettings()">
                 <span>🎨 Bunte Knöpfe für Kinder</span>
             </div>
+        </div>
+
+        <div class="card" style="border-left: 3px solid #e84393;">
+            <h2>🎨 Design für Kinder-Modus</h2>
+            
+            <label>Hintergrund-Farbe:</label>
+            <input type="color" id="bg-color-input" value="#ffffff" onchange="saveSettings()">
+            
+            <label style="margin-top:10px;">Oder Hintergrund-Bild:</label>
+            <button class="btn-admin" style="background-color: #6c5ce7; position:relative;">
+                🖼️ Bild auswählen...
+                <input type="file" id="bg-img-hidden" accept="image/*" onchange="saveBackgroundImage(this)">
+            </button>
+            <button class="btn-admin" style="background-color: #ff7675; margin-top:5px;" onclick="deleteBackgroundImage()">
+                ❌ Bild entfernen
+            </button>
         </div>
 
         <div class="card">
@@ -304,16 +317,14 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V19 (Start-Option)</p>
-            <p>Entwickelt von <b>Sebastian Rößer</b></p>
-            <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
+            <p>Jukebox NFC V20 (Design)</p>
         </div>
     </div>
 
     <div id="kids-mode">
         <div id="sleep-indicator">🌙 <span id="sleep-countdown"></span></div>
-        <div id="track-title-display">Bereit zum Spielen!</div>
-        <div id="playlist-info"></div>
+        <div id="track-title-display" class="kids-text-shadow">Bereit zum Spielen!</div>
+        <div id="playlist-info" class="kids-text-shadow"></div>
         
         <div id="album-art-container">
             <span id="album-placeholder">🎵</span>
@@ -324,11 +335,9 @@
             <button id="btn-vol-down" class="btn-control btn-secondary" onclick="changeVolume(-0.1)">
                 <svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>
             </button>
-            
             <button id="btn-play-main" class="btn-control btn-play" onclick="togglePlay()">
                 <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </button>
-            
             <button id="btn-vol-up" class="btn-control btn-secondary" onclick="changeVolume(0.1)">
                 <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
             </button>
@@ -342,7 +351,6 @@
              <button id="btn-reset" class="btn-control btn-secondary" onclick="restartPlaylist()" title="Reset">
                  <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
              </button>
-             
              <button id="btn-skip" class="btn-control btn-secondary" onclick="skipForward()" title="Skip">
                  <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
              </button>
@@ -360,7 +368,7 @@
     <script>
         let db; let isParentMode = true; let ndef; let clickCount = 0; 
         const audioPlayer = document.getElementById('audio-player');
-        let settings = { maxVolume: 1.0, sleepTimerMinutes: 0, colorfulControls: false, startMode: 'parent' };
+        let settings = { maxVolume: 1.0, sleepTimerMinutes: 0, colorfulControls: false, startMode: 'parent', bgColor: '#ffffff' };
         let sleepTimerId = null; let showRemainingTime = true; 
         let currentPlayingTagId = null; let currentTrackIndex = 0; let currentPlaylist = []; 
         let isNfcScanning = false; let isLinkModeActive = false;
@@ -368,7 +376,7 @@
         if (!("NDEFReader" in window)) document.getElementById('nfc-warning').style.display = 'block';
         loadSettings();
 
-        // DB INIT (V15 Structure)
+        // DB INIT
         const DB_NAME = "MusicBoxDB_v15";
         const request = indexedDB.open(DB_NAME, 1);
         request.onupgradeneeded = function(event) {
@@ -379,12 +387,43 @@
         request.onsuccess = function(event) { db = event.target.result; loadTagList(); };
 
         // --- STARTUP LOGIC ---
-        // Wenn in den Settings "kids" steht, direkt umschalten
-        if (settings.startMode === 'kids') {
-            // Kurze Verzögerung, damit DOM sicher da ist
-            setTimeout(() => {
-                goToKidsMode();
-            }, 100);
+        if (settings.startMode === 'kids') { setTimeout(() => { goToKidsMode(); }, 100); }
+
+        // --- BACKGROUND IMAGE LOGIC ---
+        const SYSTEM_BG_ID = "system_bg";
+
+        function saveBackgroundImage(input) {
+            const file = input.files[0];
+            if(!file) return;
+            const tx = db.transaction(["tracks"], "readwrite");
+            const store = tx.objectStore("tracks");
+            store.put({tagId: SYSTEM_BG_ID, name: "System Background", imageBlob: file});
+            tx.oncomplete = () => { showStatus("Hintergrund gespeichert 🖼️"); input.value = ""; };
+        }
+
+        function deleteBackgroundImage() {
+            const tx = db.transaction(["tracks"], "readwrite");
+            const store = tx.objectStore("tracks");
+            store.delete(SYSTEM_BG_ID);
+            tx.oncomplete = () => { showStatus("Hintergrund gelöscht"); };
+        }
+
+        function applyKidsDesign() {
+            // Farbe setzen
+            const kidsDiv = document.getElementById('kids-mode');
+            kidsDiv.style.backgroundColor = settings.bgColor || '#ffffff';
+            
+            // Bild aus DB laden
+            const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
+            const req = store.get(SYSTEM_BG_ID);
+            req.onsuccess = () => {
+                if(req.result && req.result.imageBlob) {
+                    const url = URL.createObjectURL(req.result.imageBlob);
+                    kidsDiv.style.backgroundImage = `url('${url}')`;
+                } else {
+                    kidsDiv.style.backgroundImage = 'none';
+                }
+            };
         }
 
         // --- NFC ---
@@ -397,13 +436,10 @@
                     ndef.onreading = event => {
                         const flash = document.getElementById('flash-overlay');
                         flash.style.opacity = "1"; setTimeout(() => flash.style.opacity = "0", 200);
-                        
                         if (isParentMode) {
                             if (isLinkModeActive) { saveTrackLink(event.serialNumber); isLinkModeActive = false; }
                             else { showStatus("Tag erkannt: " + event.serialNumber); }
-                        } else {
-                            playTrackByTag(event.serialNumber);
-                        }
+                        } else { playTrackByTag(event.serialNumber); }
                     };
                 } catch (error) { console.log(error); isNfcScanning=false; }
             }
@@ -468,6 +504,7 @@
             let fixedCount = 0;
             store.getAll().onsuccess = (e) => {
                 e.target.result.forEach(record => {
+                    if(record.tagId === SYSTEM_BG_ID) return; // Skip System
                     let changed = false;
                     if (record.playlistFileNames && (!record.playlist || record.playlist.length === 0)) {
                         const newPlaylist = [];
@@ -488,7 +525,10 @@
                 const cursor = event.target.result;
                 if (cursor) {
                     const r = cursor.value;
-                    allMetadata.push({tagId: r.tagId, name: r.name, playlistFileNames: r.playlistFileNames||[], imageFileName: r.imageFileName}); cursor.continue();
+                    if(r.tagId !== SYSTEM_BG_ID) {
+                        allMetadata.push({tagId: r.tagId, name: r.name, playlistFileNames: r.playlistFileNames||[], imageFileName: r.imageFileName});
+                    }
+                    cursor.continue();
                 } else {
                     const blob = new Blob([JSON.stringify(allMetadata)], {type: "application/json"});
                     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "jukebox_backup.json";
@@ -533,10 +573,10 @@
             const btn = document.getElementById('btn-play-main');
             if (isPlaying) { 
                 btn.style.backgroundColor = "var(--red-danger)"; 
-                btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; // Pause Icon
+                btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'; 
             } else { 
                 btn.style.backgroundColor = "var(--green-safe)"; 
-                btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'; // Play Icon
+                btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>'; 
             }
         }
         function forceSaveCurrentPosition() {
@@ -554,11 +594,20 @@
         function autoFillName() { const input = document.getElementById('audio-input'); if(input.files.length > 0) document.getElementById('track-name').value = input.files[0].name.replace(/\.[^/.]+$/, ""); }
         function loadTagList() {
             const list = document.getElementById('tag-list'); list.innerHTML = ""; const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
-            store.openCursor().onsuccess = e => { const cursor = e.target.result; if(cursor) { const div = document.createElement("div"); div.className = "tag-list-item"; let status = (cursor.value.playlist && cursor.value.playlist.length > 0) ? '<span style="color:#2ecc71">✔ OK</span>' : '<span class="missing-audio-badge">⚠️ Audio fehlt</span>'; div.innerHTML = `<div class="tag-info-row"><strong>${cursor.value.name}</strong>${status}</div><div style="font-size:0.75em; color:#aaa; margin-top:2px;">Dateien: ${cursor.value.playlistFileNames ? cursor.value.playlistFileNames.join(', ') : '-'}</div>`; list.appendChild(div); cursor.continue(); } };
+            store.openCursor().onsuccess = e => { 
+                const cursor = e.target.result; 
+                if(cursor) { 
+                    // Verstecke System-Einträge wie Hintergrundbild
+                    if(cursor.value.tagId !== SYSTEM_BG_ID) {
+                        const div = document.createElement("div"); div.className = "tag-list-item"; let status = (cursor.value.playlist && cursor.value.playlist.length > 0) ? '<span style="color:#2ecc71">✔ OK</span>' : '<span class="missing-audio-badge">⚠️ Audio fehlt</span>'; div.innerHTML = `<div class="tag-info-row"><strong>${cursor.value.name}</strong>${status}</div><div style="font-size:0.75em; color:#aaa; margin-top:2px;">Dateien: ${cursor.value.playlistFileNames ? cursor.value.playlistFileNames.join(', ') : '-'}</div>`; list.appendChild(div); 
+                    }
+                    cursor.continue(); 
+                } 
+            };
         }
         function goToKidsMode() {
             isParentMode = false; document.getElementById('parent-mode').style.display = 'none'; document.getElementById('kids-mode').style.display = 'flex';
-            applyButtonColors(); updateVolumeUI(); setPlayButtonState(false); if(!isNfcScanning) startNFC();
+            applyButtonColors(); applyKidsDesign(); updateVolumeUI(); setPlayButtonState(false); if(!isNfcScanning) startNFC();
         }
         function handleSecretSwitch() {
             if(isParentMode) return; clickCount++; 
@@ -570,6 +619,7 @@
             settings.maxVolume = document.getElementById('max-vol-input').value / 100; settings.sleepTimerMinutes = parseInt(document.getElementById('sleep-timer-input').value);
             settings.colorfulControls = document.getElementById('check-colorful').checked;
             settings.startMode = document.getElementById('start-mode-input').value;
+            settings.bgColor = document.getElementById('bg-color-input').value;
             localStorage.setItem('jukeboxSettings_v15', JSON.stringify(settings));
         }
         function loadSettings() {
@@ -580,8 +630,8 @@
                 document.getElementById('vol-display').innerText = (settings.maxVolume * 100) + "%"; 
                 document.getElementById('sleep-timer-input').value = settings.sleepTimerMinutes;
                 document.getElementById('check-colorful').checked = settings.colorfulControls;
-                // Neue Einstellung laden, fallback 'parent'
                 document.getElementById('start-mode-input').value = settings.startMode || 'parent';
+                document.getElementById('bg-color-input').value = settings.bgColor || '#ffffff';
             }
         }
         function startSleepTimer() {
