@@ -1,4 +1,4 @@
-# 🎵 Jukebox PWA (v32) - Die DIY "Toniebox" fürs Handy
+# 🎵 Jukebox PWA (v33) - Die DIY "Toniebox" fürs Handy
 
 Eine kinderfreundliche Musik-Player-App, die als Progressive Web App (PWA) direkt im Browser läuft. Sie ermöglicht es, Musik und Hörspiele über **NFC-Tags** (wie bei einer Toniebox) zu starten. Ideal, um alten Smartphones neues Leben als Kinder-Abspielgerät einzuhauchen.
 
@@ -34,10 +34,10 @@ Da dies eine Web-App ist, die auf Standard-Smartphone-Hardware läuft, gibt es U
 
 ---
 
-## ✨ Features (v32)
+## ✨ Features (v33)
 
 ### 🎧 Audio & Steuerung
-* **💾 Smart Resume (Neu in v32):** Die App speichert die Position sofort beim Pausieren oder Minimieren der App. Beim nächsten Start des gleichen Tags geht es exakt dort weiter.
+* **💾 Smart Resume (Neu in v33):** Die App speichert die Position sofort beim Pausieren oder Minimieren der App. Beim nächsten Start des gleichen Tags geht es exakt dort weiter.
 * **🔊 Intelligente Lautstärkebegrenzung:** Du legst ein Limit fest (z.B. 40%). Der Lautstärkebalken im Kinder-Modus skaliert sich darauf (Logarithmisch).
 * **📜 CUE-Sheet Support:** Lade `.cue`-Dateien hoch, um echte Kapitelnamen anzuzeigen und den `⏭️` Skip-Button zu nutzen.
 * **⏱️ Anzeige:** Korrekte Zeitanzeige in `mm:ss`.
