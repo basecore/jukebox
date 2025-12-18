@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V22</title>
+    <title>Jukebox V23</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -40,6 +40,8 @@
             display: none; flex: 1; flex-direction: column;
             align-items: center; justify-content: flex-start;
             background-color: #fff;
+            /* Standard-Hintergrundbild (wird geladen, wenn kein eigenes gewählt ist) */
+            background-image: url('hintergrund.jpg'); 
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -47,12 +49,16 @@
             padding: 20px; padding-top: 40px;
         }
         
+        /* Verbesserte Lesbarkeit auf buntem Hintergrund */
         .kids-text-shadow {
-            text-shadow: 0 0 10px rgba(255,255,255, 0.8), 0 0 20px rgba(255,255,255, 1);
-            background: rgba(255,255,255,0.6);
-            padding: 5px;
-            border-radius: 10px;
-            backdrop-filter: blur(2px);
+            text-shadow: 0 1px 3px rgba(255,255,255, 0.8);
+            background: rgba(255, 255, 255, 0.65);
+            padding: 5px 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: inline-block;
         }
 
         #track-title-display {
@@ -65,7 +71,7 @@
         }
         
         #playlist-info {
-            font-size: 1rem; color: #555; margin-top: -15px; margin-bottom: 10px; font-weight: bold;
+            font-size: 1rem; color: #444; margin-top: -15px; margin-bottom: 10px; font-weight: bold;
         }
 
         #album-art-container {
@@ -91,8 +97,8 @@
             gap: 25px; margin-bottom: 15px; width: 100%;
         }
         #volume-display-container {
-            width: 85%; height: 25px; background-color: rgba(238,238,238,0.8);
-            border-radius: 15px; overflow: hidden; border: 1px solid #ddd;
+            width: 85%; height: 25px; background-color: rgba(255,255,255,0.7);
+            border-radius: 15px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);
             margin-bottom: 20px;
         }
         #volume-bar {
@@ -106,7 +112,7 @@
         
         .btn-control {
             border: none; border-radius: 50%; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: flex;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15); display: flex;
             align-items: center; justify-content: center; font-weight: bold;
             transition: transform 0.1s; color: #576574; 
         }
@@ -127,9 +133,9 @@
         .btn-colorful-skip { background-color: var(--purple-btn) !important; color: white !important; }
 
         #time-container {
-            width: 90%; height: 45px; background-color: rgba(236, 240, 241, 0.9);
+            width: 90%; height: 45px; background-color: rgba(255,255,255, 0.8);
             border-radius: 12px; position: relative; overflow: hidden;
-            border: 1px solid #bdc3c7; cursor: pointer; margin-top: auto; 
+            border: 1px solid rgba(0,0,0,0.1); cursor: pointer; margin-top: auto; 
             margin-bottom: 20px;
         }
         #time-progress { height: 100%; width: 0%; background-color: var(--blue-time); transition: width 0.5s linear; }
@@ -235,7 +241,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
 
-        <h1>🔧 Jukebox V22</h1>
+        <h1>🔧 Jukebox V23</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -268,16 +274,16 @@
                 <span>🎨 Bunte Knöpfe für Kinder</span>
             </div>
 
-            <label>Hintergrund-Farbe:</label>
+            <label>Hintergrund-Farbe (Optional):</label>
             <input type="color" id="bg-color-input" value="#ffffff" onchange="saveSettings()">
             
-            <label style="margin-top:10px;">Oder Hintergrund-Bild:</label>
+            <label style="margin-top:10px;">Eigenes Hintergrund-Bild (Optional):</label>
             <button class="btn-admin" style="background-color: #6c5ce7; position:relative;">
                 🖼️ Bild auswählen...
                 <input type="file" id="bg-img-hidden" accept="image/*" onchange="saveBackgroundImage(this)">
             </button>
             <button class="btn-admin" style="background-color: #ff7675; margin-top:5px;" onclick="deleteBackgroundImage()">
-                ❌ Bild entfernen
+                ❌ Eigenes Bild entfernen (Standard nutzen)
             </button>
         </div>
 
@@ -316,7 +322,7 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V22 (Settings DB)</p>
+            <p>Jukebox NFC V23 (Custom BG)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
         </div>
@@ -369,18 +375,15 @@
     <script>
         let db; let isParentMode = true; let ndef; let clickCount = 0; 
         const audioPlayer = document.getElementById('audio-player');
-        // Default Settings
         let settings = { maxVolume: 1.0, sleepTimerMinutes: 0, colorfulControls: false, startMode: 'parent', bgColor: '#ffffff' };
         let sleepTimerId = null; let showRemainingTime = true; 
         let currentPlayingTagId = null; let currentTrackIndex = 0; let currentPlaylist = []; 
         let isNfcScanning = false; let isLinkModeActive = false;
 
         const SYSTEM_BG_ID = "system_bg";
-        const SYSTEM_SETTINGS_ID = "system_settings"; // ID für DB Speicherung
+        const SYSTEM_SETTINGS_ID = "system_settings"; 
 
         if (!("NDEFReader" in window)) document.getElementById('nfc-warning').style.display = 'block';
-        
-        // Erst laden (lokal), später Sync mit DB
         loadSettings();
 
         // DB INIT
@@ -394,32 +397,25 @@
         request.onsuccess = function(event) { 
             db = event.target.result; 
             loadTagList();
-            syncSettingsFromDB(); // Lade Einstellungen aus der DB
+            syncSettingsFromDB(); 
         };
 
-        // --- BACKGROUND IMAGE LOGIC ---
+        // --- BACKGROUND LOGIC ---
         function saveBackgroundImage(input) {
-            const file = input.files[0];
-            if(!file) return;
-            const tx = db.transaction(["tracks"], "readwrite");
-            const store = tx.objectStore("tracks");
+            const file = input.files[0]; if(!file) return;
+            const tx = db.transaction(["tracks"], "readwrite"); const store = tx.objectStore("tracks");
             store.put({tagId: SYSTEM_BG_ID, name: "System Background", imageBlob: file});
             tx.oncomplete = () => { showStatus("Hintergrund gespeichert 🖼️"); input.value = ""; applyKidsDesign(); };
         }
-
         function deleteBackgroundImage() {
-            const tx = db.transaction(["tracks"], "readwrite");
-            const store = tx.objectStore("tracks");
+            const tx = db.transaction(["tracks"], "readwrite"); const store = tx.objectStore("tracks");
             store.delete(SYSTEM_BG_ID);
-            tx.oncomplete = () => { showStatus("Hintergrund gelöscht"); applyKidsDesign(); };
+            tx.oncomplete = () => { showStatus("Standard wiederhergestellt"); applyKidsDesign(); };
         }
-
         function applyKidsDesign() {
-            // Farbe
             const kidsDiv = document.getElementById('kids-mode');
-            kidsDiv.style.backgroundColor = settings.bgColor || '#ffffff';
             
-            // Bild
+            // Check for Custom Image in DB
             if(!db) return;
             const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
             const req = store.get(SYSTEM_BG_ID);
@@ -428,7 +424,16 @@
                     const url = URL.createObjectURL(req.result.imageBlob);
                     kidsDiv.style.backgroundImage = `url('${url}')`;
                 } else {
-                    kidsDiv.style.backgroundImage = 'none';
+                    // FALLBACK: Benutzereinstellung (Farbe) ODER Hintergrund.jpg
+                    // Wenn Farbe != Weiss, nimm Farbe. Sonst Bild.
+                    if(settings.bgColor && settings.bgColor.toLowerCase() !== '#ffffff') {
+                        kidsDiv.style.backgroundImage = 'none';
+                        kidsDiv.style.backgroundColor = settings.bgColor;
+                    } else {
+                        // Standard Hintergrund-Bild
+                        kidsDiv.style.backgroundImage = "url('hintergrund.jpg')";
+                        kidsDiv.style.backgroundColor = "#fff";
+                    }
                 }
             };
         }
@@ -439,19 +444,11 @@
             const req = store.get(SYSTEM_SETTINGS_ID);
             req.onsuccess = () => {
                 if(req.result && req.result.data) {
-                    console.log("Settings aus DB geladen:", req.result.data);
-                    settings = req.result.data;
-                    updateUIFromSettings();
-                    
-                    // Nach dem Laden prüfen ob Start im Kids Mode
+                    settings = req.result.data; updateUIFromSettings();
                     if (settings.startMode === 'kids') { setTimeout(() => { goToKidsMode(); }, 100); }
-                } else {
-                    // Wenn nichts in DB, aber im LocalStorage (durch loadSettings), dann speichern wir es jetzt in DB
-                    saveSettings();
-                }
+                } else { saveSettings(); }
             };
         }
-
         function updateUIFromSettings() {
             document.getElementById('max-vol-input').value = settings.maxVolume * 100; 
             document.getElementById('vol-display').innerText = (settings.maxVolume * 100) + "%"; 
@@ -460,104 +457,71 @@
             document.getElementById('start-mode-input').value = settings.startMode || 'parent';
             document.getElementById('bg-color-input').value = settings.bgColor || '#ffffff';
         }
-
         function saveSettings() {
-            // Werte aus UI lesen
             settings.maxVolume = document.getElementById('max-vol-input').value / 100;
             settings.sleepTimerMinutes = parseInt(document.getElementById('sleep-timer-input').value);
             settings.colorfulControls = document.getElementById('check-colorful').checked;
             settings.startMode = document.getElementById('start-mode-input').value;
             settings.bgColor = document.getElementById('bg-color-input').value;
-
-            // 1. In LocalStorage (für schnellen Start)
             localStorage.setItem('jukeboxSettings_v15', JSON.stringify(settings));
-
-            // 2. In DB (für Backup)
             if(db) {
                 const tx = db.transaction(["tracks"], "readwrite");
-                tx.objectStore("tracks").put({
-                    tagId: SYSTEM_SETTINGS_ID,
-                    name: "System Settings",
-                    data: settings
-                });
+                tx.objectStore("tracks").put({ tagId: SYSTEM_SETTINGS_ID, name: "System Settings", data: settings });
             }
         }
-
         function loadSettings() {
             const saved = localStorage.getItem('jukeboxSettings_v15');
             if (saved) {
-                settings = JSON.parse(saved);
-                updateUIFromSettings();
-                // Start-Mode Logic (lokal sofort ausführen)
+                settings = JSON.parse(saved); updateUIFromSettings();
                 if (settings.startMode === 'kids') { setTimeout(() => { goToKidsMode(); }, 100); }
             }
         }
-        
         function updateSettingsUI() {
-            const vol = document.getElementById('max-vol-input').value;
-            document.getElementById('vol-display').innerText = vol + "%";
-            saveSettings();
+            const vol = document.getElementById('max-vol-input').value; document.getElementById('vol-display').innerText = vol + "%"; saveSettings();
         }
 
-        // --- EXPORT / IMPORT ---
+        // --- BACKUP ---
         async function exportDatabaseMetadata() {
             showStatus("Exportiere...");
-            const tx = db.transaction(["tracks"], "readonly");
-            const store = tx.objectStore("tracks");
-            const allMetadata = [];
+            const tx = db.transaction(["tracks"], "readonly"); const store = tx.objectStore("tracks"); const allMetadata = [];
             store.openCursor().onsuccess = (event) => {
                 const cursor = event.target.result;
                 if (cursor) {
                     const r = cursor.value;
-                    // Exportiere Tags UND Settings, aber nicht das Bild-Blob (zu groß für JSON String)
                     if(r.tagId !== SYSTEM_BG_ID) {
-                        // Wenn es Settings sind, speichern wir 'data', sonst die Tag-Infos
-                        if(r.tagId === SYSTEM_SETTINGS_ID) {
-                            allMetadata.push({tagId: r.tagId, name: r.name, data: r.data});
-                        } else {
-                            allMetadata.push({tagId: r.tagId, name: r.name, playlistFileNames: r.playlistFileNames||[], imageFileName: r.imageFileName});
-                        }
+                        if(r.tagId === SYSTEM_SETTINGS_ID) { allMetadata.push({tagId: r.tagId, name: r.name, data: r.data}); } 
+                        else { allMetadata.push({tagId: r.tagId, name: r.name, playlistFileNames: r.playlistFileNames||[], imageFileName: r.imageFileName}); }
                     }
                     cursor.continue();
                 } else {
                     const blob = new Blob([JSON.stringify(allMetadata)], {type: "application/json"});
                     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "jukebox_backup.json";
-                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                    showStatus("Export fertig! ✅");
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a); showStatus("Export fertig! ✅");
                 }
             };
         }
-
         async function importDatabaseMetadata(input) {
             const file = input.files[0]; if(!file) return;
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    const tx = db.transaction(["tracks"], "readwrite"); 
-                    const store = tx.objectStore("tracks");
-                    
+                    const tx = db.transaction(["tracks"], "readwrite"); const store = tx.objectStore("tracks");
                     data.forEach(item => {
                         if(item.tagId === SYSTEM_SETTINGS_ID) {
-                            // Settings wiederherstellen
                             store.put({tagId: SYSTEM_SETTINGS_ID, name: "System Settings", data: item.data});
-                            // Auch direkt ins lokale Gedächtnis
-                            settings = item.data;
-                            localStorage.setItem('jukeboxSettings_v15', JSON.stringify(settings));
-                            updateUIFromSettings();
+                            settings = item.data; localStorage.setItem('jukeboxSettings_v15', JSON.stringify(settings)); updateUIFromSettings();
                         } else {
-                            // Tags wiederherstellen (leer)
                             store.put({tagId: item.tagId, name: item.name, playlist: null, imageBlob: null, playlistFileNames: item.playlistFileNames, imageFileName: item.imageFileName, lastTrackIndex:0, lastTime:0});
                         }
                     });
-                    
                     tx.oncomplete = () => { showStatus("Import fertig."); loadTagList(); input.value = ""; };
                 } catch(e) { alert("Fehler beim Import"); }
             };
             reader.readAsText(file);
         }
 
-        // --- NFC & LOGIC ---
+        // --- NFC ---
         async function startNFC() {
             if (isNfcScanning) return;
             if ("NDEFReader" in window) {
@@ -565,8 +529,7 @@
                     ndef = new NDEFReader(); await ndef.scan();
                     isNfcScanning = true; showStatus("Scanner gestartet ✅");
                     ndef.onreading = event => {
-                        const flash = document.getElementById('flash-overlay');
-                        flash.style.opacity = "1"; setTimeout(() => flash.style.opacity = "0", 200);
+                        const flash = document.getElementById('flash-overlay'); flash.style.opacity = "1"; setTimeout(() => flash.style.opacity = "0", 200);
                         if (isParentMode) {
                             if (isLinkModeActive) { saveTrackLink(event.serialNumber); isLinkModeActive = false; }
                             else { showStatus("Tag erkannt: " + event.serialNumber); }
@@ -575,14 +538,14 @@
                 } catch (error) { console.log(error); isNfcScanning=false; }
             }
         }
-        
-        // --- STANDARD FUNCS ---
         function activateLinkMode() {
             const f = document.getElementById('audio-input').files; const n = document.getElementById('track-name').value;
             if(f.length===0 || n==="") { alert("Datei/Name?"); return; }
             isLinkModeActive = true; document.getElementById('scan-status').innerText = ">>> FIGUR JETZT AUFLEGEN <<<";
             if (!isNfcScanning) startNFC();
         }
+
+        // --- PLAYBACK ---
         function playTrackByTag(tagId) {
             if(currentPlayingTagId && currentPlayingTagId !== tagId) forceSaveCurrentPosition();
             const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
@@ -627,9 +590,7 @@
         async function smartRelinkFiles(input) {
             const files = Array.from(input.files); if(files.length === 0) return;
             showStatus(`Prüfe ${files.length} Dateien...`);
-            const tx = db.transaction(["tracks"], "readwrite");
-            const store = tx.objectStore("tracks");
-            let fixedCount = 0;
+            const tx = db.transaction(["tracks"], "readwrite"); const store = tx.objectStore("tracks"); let fixedCount = 0;
             store.getAll().onsuccess = (e) => {
                 e.target.result.forEach(record => {
                     if(record.tagId === SYSTEM_BG_ID || record.tagId === SYSTEM_SETTINGS_ID) return;
@@ -677,6 +638,35 @@
             if(!currentPlayingTagId) return;
             const pos = audioPlayer.currentTime; const tx = db.transaction(["tracks"], "readwrite"); const store = tx.objectStore("tracks"); const getReq = store.get(currentPlayingTagId);
             getReq.onsuccess = function() { const record = getReq.result; if(record) { record.lastTrackIndex = currentTrackIndex; record.lastTime = pos; store.put(record); } };
+        }
+        function saveTrackLink(tagId) {
+            const audioFiles = document.getElementById('audio-input').files; const imgFile = document.getElementById('img-input').files[0]; const name = document.getElementById('track-name').value;
+            const playlistArray = Array.from(audioFiles); const fileNames = playlistArray.map(f => f.name); const imgName = imgFile ? imgFile.name : null;
+            const tx = db.transaction(["tracks"], "readwrite"); const store = tx.objectStore("tracks");
+            store.put({tagId: tagId, name: name, playlist: playlistArray, imageBlob: imgFile, playlistFileNames: fileNames, imageFileName: imgName, lastTrackIndex:0, lastTime:0});
+            tx.oncomplete = () => { showStatus(`Gespeichert: ${name}`); document.getElementById('scan-status').innerText = "OK!"; document.getElementById('track-name').value = ""; document.getElementById('audio-input').value = ""; document.getElementById('img-input').value = ""; loadTagList(); };
+        }
+        function autoFillName() { const input = document.getElementById('audio-input'); if(input.files.length > 0) document.getElementById('track-name').value = input.files[0].name.replace(/\.[^/.]+$/, ""); }
+        function loadTagList() {
+            const list = document.getElementById('tag-list'); list.innerHTML = ""; const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
+            store.openCursor().onsuccess = e => { 
+                const cursor = e.target.result; 
+                if(cursor) { 
+                    if(cursor.value.tagId !== SYSTEM_BG_ID && cursor.value.tagId !== SYSTEM_SETTINGS_ID) {
+                        const div = document.createElement("div"); div.className = "tag-list-item"; let status = (cursor.value.playlist && cursor.value.playlist.length > 0) ? '<span style="color:#2ecc71">✔ OK</span>' : '<span class="missing-audio-badge">⚠️ Audio fehlt</span>'; div.innerHTML = `<div class="tag-info-row"><strong>${cursor.value.name}</strong>${status}</div><div style="font-size:0.75em; color:#aaa; margin-top:2px;">Dateien: ${cursor.value.playlistFileNames ? cursor.value.playlistFileNames.join(', ') : '-'}</div>`; list.appendChild(div); 
+                    }
+                    cursor.continue(); 
+                } 
+            };
+        }
+        function goToKidsMode() {
+            isParentMode = false; document.getElementById('parent-mode').style.display = 'none'; document.getElementById('kids-mode').style.display = 'flex';
+            applyButtonColors(); applyKidsDesign(); updateVolumeUI(); setPlayButtonState(false); if(!isNfcScanning) startNFC();
+        }
+        function handleSecretSwitch() {
+            if(isParentMode) return; clickCount++; 
+            if(clickCount>=5) { forceSaveCurrentPosition(); isParentMode=true; document.getElementById('parent-mode').style.display='flex'; document.getElementById('kids-mode').style.display='none'; audioPlayer.pause(); clickCount=0; } 
+            setTimeout(()=>{clickCount=0;},2000); 
         }
         function startSleepTimer() {
             if(sleepTimerId) clearTimeout(sleepTimerId); document.getElementById('sleep-indicator').style.display = 'none';
