@@ -1,59 +1,93 @@
-# 🎵 Jukebox NFC - V24
+# 🎵 Jukebox PWA (v26) - DIY "Toniebox" für das Handy
 
-Die ultimative **DIY Toniebox-Alternative** für dein Smartphone.
-Verwandle dein Android-Handy in einen kinderleichten, NFC-gesteuerten Hörspiel-Player. Perfekt für unterwegs, im Auto oder im Urlaub.
+Eine kinderfreundliche Musik-Player-App, die als Progressive Web App (PWA) direkt im Browser läuft. Sie ermöglicht es, Musik und Hörspiele über **NFC-Tags** (wie bei einer Toniebox) zu starten. Ideal, um alten Smartphones neues Leben als Kinder-Abspielgerät einzuhauchen.
 
-## ✨ Die Story: "Vibe Coding"
-Dieses Projekt ist ein Experiment in **"Vibe Coding"**.
-Ich habe **keine einzige Zeile Code selbst geschrieben**. Die gesamte App – von der NFC-Logik über das Datenbank-Design bis hin zu den SVG-Icons – wurde vollständig durch Dialoge mit **Google Gemini** erstellt.
+Entwickelt als lokale Lösung ohne Cloud-Zwang, ohne Tracking und komplett kostenlos.
 
-Es ist der Beweis, dass man mit einer guten Idee und KI funktionierende Software bauen kann.
+## ✨ Neue Features in v26
+* **🔋 Eco-Mode (OLED Sparmodus):** Dreht man das Handy auf das Display (Face-down), wird der Bildschirm schwarz, aber die Musik läuft weiter. Spart extrem viel Akku bei OLED-Displays und verhindert versehentliches Tippen.
+* **💡 Screen Wake Lock:** Verhindert, dass das Handy in den Sperrbildschirm geht, während Musik läuft.
+* **🔊 Audio-Test:** Ein Button in den Einstellungen spielt einen Test-Ton, um die maximale Lautstärke sicher für Kinderohren einzustellen.
+* **⏱️ mm:ss Anzeige:** Die Zeit wird nun korrekt zweistellig (04:05) angezeigt.
+* **📱 iOS Support (Beta):** Button zum Freigeben der Bewegungssensoren auf iPhones (für den Eco-Modus). *Hinweis: NFC-Schreiben/Lesen funktioniert primär unter Android Chrome.*
 
----
-
-## 🚀 Features (V24)
-
-* **100% Kostenlos & Offline-Fähig:** Läuft als PWA (Web-App) direkt auf deinem Handy. Keine Werbung, kein Tracking.
+## 🚀 Funktionen
+* **NFC-Steuerung:** Musik durch Auflegen von Figuren/Karten starten.
 * **Kinder-Modus:**
-    * Vollbild-Player mit großen Tasten.
-    * **NEU:** Personaliserbares Design! Wähle eine **Hintergrundfarbe** oder lade ein **eigenes Bild** hoch (wird in der Datenbank gespeichert).
-    * **NEU:** Bunte Knöpfe optional aktivierbar (Rot, Gelb, Blau, Lila) für einfache Anweisungen ("Drück den roten Knopf").
-* **Smarte Technik:**
-    * **Playlist-Support:** Spielt Hörbücher mit vielen Kapiteln (CD1, CD2...) nacheinander ab.
-    * **Merk-Funktion:** Die App weiß genau, wo das Kind bei "Benjamin Blümchen" aufgehört hat (z.B. Track 3, Minute 12).
-    * **Smart Backup:** Sichere deine gesamte Datenbank (inkl. Einstellungen & Design!). Beim Handywechsel kannst du deine MP3s einfach neu auswählen ("Smart Repair"), und alles ist wieder da.
-* **Einstellungen:** Start-Modus (direkt Kinder-Modus oder Admin), Max-Lautstärke, Schlaf-Timer.
+    * Große, bunte Tasten.
+    * Gesperrte Einstellungen.
+    * Geheimer Ausweg (5x Tippen).
+* **Eltern-Bereich:**
+    * Tags anlernen & verwalten.
+    * Maximale Lautstärke begrenzen.
+    * Schlaf-Timer (Fade-out).
+    * Design anpassen (Hintergrundbild oder Farbe).
+    * Datenbank Backup & Restore.
+* **Offline-Fähig:** Speichert Musik und Cover direkt im Browser (IndexedDB).
 
-## ⚠️ WICHTIGE HINWEISE
+## 🛠️ Installation & Voraussetzungen
 
-1.  **Hardware:** Du benötigst ein **Android-Smartphone mit NFC** und den **Chrome Browser**. (Firefox unterstützt kein Web-NFC).
-2.  **Keine Original Tonies:** Die App funktioniert mit **leeren NTAG213 oder NTAG215 Stickern** (Cent-Artikel). Originale Tonie-Figuren sind verschlüsselt und funktionieren nicht.
-3.  **Hosting:** Die App muss über **HTTPS** laufen (z.B. GitHub Pages), sonst verweigert Android den NFC-Zugriff.
+### Benötigte Hardware
+1.  **Android Smartphone** mit NFC (empfohlen).
+2.  **NFC-Tags** (NTAG213, NTAG215 oder NTAG216) – z.B. Sticker, Karten oder Schlüsselanhänger.
+3.  Optional: Bluetooth-Lautsprecher für besseren Klang.
 
-## 🛠️ Installation (in 5 Minuten)
+### Software-Setup (Hosting)
+Da die App auf Hardware-Funktionen (NFC, Service Worker) zugreift, muss sie entweder über **HTTPS** oder via **localhost** laufen.
 
-Da dies eine Web-App ist, musst du nichts aus dem App-Store laden.
+**Option A: Einfach (GitHub Pages / Netlify)**
+1.  Lade die Dateien (`index.html`, `manifest.json`, `sw.js`, Icons) in ein GitHub Repository hoch.
+2.  Aktiviere "GitHub Pages" in den Einstellungen.
+3.  Öffne die URL auf dem Handy.
 
-1.  **Hosting:** Lade die Dateien (`index.html`, `manifest.json`, `sw.js`, `icon.png`) in ein öffentliches GitHub Repository hoch und aktiviere **GitHub Pages** in den Einstellungen.
-2.  **Aufrufen:** Öffne deine neue Webseite (`https://dein-name.github.io/jukebox/`) in **Chrome** auf dem Android-Handy.
-3.  **Installieren:**
-    * Tippe auf das Menü (3 Punkte).
-    * Wähle **"App installieren"** oder **"Zum Startbildschirm hinzufügen"**.
-    * *Hinweis bei Samsung/iodeOS:* Die App landet oft erst im App-Menü (nicht direkt auf dem Homescreen). Suche dort nach "Jukebox".
+**Option B: Lokal (Android)**
+1.  Verbinde das Handy mit dem PC.
+2.  Erstelle einen Ordner `Jukebox` auf dem Handy.
+3.  Kopiere alle Dateien hinein.
+4.  Nutze eine App wie "Web Server for Chrome" auf dem Handy, um den Ordner auf `localhost:8080` bereitzustellen.
 
-## 🎮 Bedienung
+### PWA Installation
+1.  Öffne die URL in **Google Chrome** auf dem Android-Gerät.
+2.  Tippe auf das Menü (3 Punkte) -> **"Zum Startbildschirm hinzufügen"** oder **"App installieren"**.
+3.  Starte die App nun über das Icon auf dem Homescreen (damit verschwindet die Adressleiste).
 
-### Eltern-Modus (Admin)
-* **Neuen Tag anlernen:** Wähle Audio-Dateien (eine oder mehrere für Playlists), optional ein Bild und einen Namen. Klicke auf "Scannen" und halte den NFC-Tag an das Handy.
-* **Design:** Wähle unter "Design für Kinder-Modus" ein Hintergrundbild oder eine Farbe.
-* **Backup:** Erstelle regelmäßig ein Backup. Die Datei enthält alle Verknüpfungen und Einstellungen.
+## 📖 Bedienungsanleitung
 
-### Kinder-Modus
-* Klicke auf den großen grünen Button oben.
-* Das Kind muss nur noch den Tag an das Handy halten -> Musik spielt!
-* **Zurück zum Admin:** Tippe **5x schnell** in die obere rechte Ecke des Bildschirms.
+### 1. Musik hinzufügen (Eltern-Modus)
+1.  Klicke auf **"Neuen Tag anlernen"**.
+2.  Wähle eine oder mehrere MP3-Dateien aus (`1. Audio Datei`).
+3.  (Optional) Wähle ein Cover-Bild (`2. Cover Bild`).
+4.  Vergib einen Namen.
+5.  Klicke auf **"📡 Tag scannen & speichern"**.
+6.  Halte den NFC-Tag an die Rückseite des Handys.
+7.  *Fertig!*
 
----
+### 2. Kinder-Modus aktivieren
+1.  Klicke ganz oben auf **"▶ ZUM KINDER-MODUS"**.
+2.  Das Design ändert sich, Menüs verschwinden.
+3.  Das Kind kann nun Tags auflegen, um Musik zu hören.
 
-*Viel Spaß mit deiner Jukebox!*
-*Created by **Sebastian Rößer** with the help of **Google Gemini**.*
+### 3. Kinder-Modus verlassen (WICHTIG!)
+Es gibt keinen sichtbaren "Zurück"-Button, damit Kinder nicht aus Versehen die Einstellungen öffnen.
+➡️ **Tippe 5x schnell hintereinander in die obere rechte Ecke des Bildschirms.**
+
+### 4. Einstellungen
+* **Display anlassen:** Aktivieren, damit das Display an bleibt (Cover sichtbar).
+* **Stromsparen beim Umdrehen:** Aktivieren, Handy auf das Display legen -> Bildschirm aus (Audio an).
+* **Lautstärke:** Schieberegler nutzen und mit dem "Test-Ton" prüfen.
+
+## 📂 Dateistruktur
+
+* `index.html` - Der komplette Code der App (Logic & Design).
+* `manifest.json` - Konfiguration für die Installation als App.
+* `sw.js` - Service Worker (für Offline-Support, muss im selben Ordner liegen).
+* `icon.png` / `icon512_rounded.png` - App Icons.
+
+## ⚠️ Wichtige Hinweise
+* **Browser:** Nutze **Chrome** auf Android. Firefox oder Samsung Internet unterstützen WebNFC oft nicht vollständig.
+* **iOS/iPhone:** Apple unterstützt *Web NFC* aktuell (Stand 2025) noch nicht in Safari. Die App läuft dort als Player, aber das Scannen von Tags funktioniert nur unter Android.
+* **Speicher:** Die Musik wird im Browserspeicher abgelegt. Wenn du die "Browserdaten löschst", ist die Musik weg! Nutze die **Backup-Funktion** in den Einstellungen.
+
+## 👨‍💻 Credits
+Entwickelt von Sebastian Rößer.
+Ein Open-Source Projekt für Eltern, die die Kontrolle über ihre Audiodaten behalten wollen.
