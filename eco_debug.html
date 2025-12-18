@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jukebox DEBUG</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2ecc71">
+    <link rel="icon" type="image/png" href="icon.png">
+
+    <style>
+        /* Grundstyles wie vorher */
+        body { font-family: sans-serif; background-color: #f4f7f6; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
+        
+        /* Debug Anzeige Style */
+        #debug-console {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.8); color: lime;
+            padding: 10px; font-family: monospace; font-size: 14px;
+            z-index: 10000; pointer-events: none;
+            border-bottom: 2px solid lime;
+        }
+
+        #black-curtain {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: black; z-index: 9999;
+        }
+
+        .container { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        h1 { color: #333; }
+        button { font-size: 1.5rem; padding: 20px; background: #2ecc71; border: none; border-radius: 20px; color: white; margin-top: 20px;}
+        .instruction { padding: 20px; text-align: center; color: #555; }
+    </style>
+</head>
+<body>
+
+    <div id="debug-console">
+        SENSOR TEST<br>
+        Beta (Neigung): <span id="val-beta">Warte...</span><br>
+        Status: <span id="val-status">Inaktiv</span>
+    </div>
+
+    <div id="black-curtain"></div>
+
+    <div class="container">
+        <h1>Sensor Test</h1>
+        <p class="instruction">
+            1. Aktiviere den Schalter unten.<br>
+            2. Kippe das Handy nach vorne/hinten.<br>
+            3. Ändern sich die grünen Zahlen oben?
+        </p>
+        
+        <label style="font-size: 1.2rem; display: flex; align-items: center; gap: 10px; background: #ddd; padding: 15px; border-radius: 10px;">
+            <input type="checkbox" id="sensor-switch" onchange="toggleSensors(this.checked)" style="transform: scale(1.5);">
+            Sensoren aktivieren
+        </label>
+        
+        <button onclick="requestIOS()" style="background: #3498db; font-size: 1rem; padding: 10px; margin-top: 30px;">
+            Auf iPhone hier tippen (Erlaubnis)
+        </button>
+    </div>
+
+    <script>
+        const debugBeta = document.getElementById('val-beta');
+        const debugStatus = document.getElementById('val-status');
+        const curtain = document.getElementById('black-curtain');
+
+        function toggleSensors(isActive) {
+            if (isActive) {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    // iOS braucht extra Klick auf den blauen Button
+                    debugStatus.innerText = "Warte auf iPhone Erlaubnis...";
+                } else {
+                    window.addEventListener('deviceorientation', handleOrientation);
+                    debugStatus.innerText = "Lausche auf Daten...";
+                }
+            } else {
+                window.removeEventListener('deviceorientation', handleOrientation);
+                debugStatus.innerText = "Deaktiviert";
+                debugBeta.innerText = "---";
+                curtain.style.display = 'none';
+            }
+        }
+
+        function requestIOS() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    if (response == 'granted') {
+                        document.getElementById('sensor-switch').checked = true;
+                        window.addEventListener('deviceorientation', handleOrientation);
+                        debugStatus.innerText = "iOS Erlaubnis erteilt!";
+                    } else {
+                        alert("Erlaubnis verweigert.");
+                    }
+                })
+                .catch(console.error);
+            } else {
+                alert("Das ist kein iPhone oder iOS Version zu alt/neu.");
+            }
+        }
+
+        function handleOrientation(event) {
+            const beta = event.beta; // Neigung in Grad
+            
+            // Debug Werte schreiben
+            debugBeta.innerText = beta ? beta.toFixed(1) : "null (Browser blockiert!)";
+
+            // Logik prüfen
+            if (beta === null) {
+                debugStatus.innerText = "FEHLER: Browser liefert keine Daten (file:// ?)";
+                debugStatus.style.color = "red";
+                return;
+            }
+
+            // Wenn Handy auf dem Gesicht liegt (Werte sind ca 180 oder -180)
+            // Wir machen den Bereich etwas größer: > 140 oder < -140
+            if (beta > 140 || beta < -140) {
+                curtain.style.display = 'block';
+                debugStatus.innerText = "SCHWARZ (Eco Mode)";
+                debugStatus.style.color = "lime";
+            } else {
+                curtain.style.display = 'none';
+                debugStatus.innerText = "Sichtbar";
+                debugStatus.style.color = "white";
+            }
+        }
+    </script>
+</body>
+</html>
