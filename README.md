@@ -22,7 +22,7 @@ Da dies eine Web-App ist, die auf Standard-Smartphone-Hardware läuft, gibt es U
 1.  **❌ Keine "Wegnahme"-Erkennung:**
     * Die Musik stoppt **nicht**, wenn die Figur vom Handy genommen wird.
     * *Grund:* Smartphone-NFC-Leser registrieren nur den Moment des "Scannens" (einmaliges Event).
-    * *Lösung:* Zum Stoppen muss der Pause-Button auf dem Display gedrückt werden.
+    * *Lösung:* Zum Stoppen muss der Pause-Button auf dem Display gedrückt werden oder ein anderer NFC-Tag gelesen werden.
 
 2.  **❌ Keine Original-Tonies:**
     * Original Tonie-Figuren können oft nicht gelesen werden (proprietäre Chips/Verschlüsselung oder Störung durch Magnete).
