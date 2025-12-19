@@ -69,8 +69,7 @@ def find_opus2tonie():
         result = subprocess.run([sys.executable, "-m", "pip", "show", "tonietoolbox"],
                               capture_output=True, text=True)
         if "Location:" in result.stdout:
-            location = result.stdout.split("Location:")[1].strip().split("
-")[0]
+            location = result.stdout.split("Location:")[1].strip().split("\n")[0]
             path = os.path.join(location, "tonietoolbox", "opus2tonie.py")
             if os.path.exists(path):
                 return path
@@ -210,14 +209,10 @@ def create_cue_file(output_cue, title, artist, track_names, durations, mp3_filen
     
     try:
         with open(output_cue, 'w', encoding='utf-8') as f:
-            f.write(f'REM CREATED BY TAF2MP3 CONVERTER
-')
-            f.write(f'TITLE "{title}"
-')
-            f.write(f'PERFORMER "{artist}"
-')
-            f.write(f'FILE "{mp3_filename}" MP3
-')
+            f.write(f'REM CREATED BY TAF2MP3 CONVERTER\n')
+            f.write(f'TITLE "{title}"\n')
+            f.write(f'PERFORMER "{artist}"\n')
+            f.write(f'FILE "{mp3_filename}" MP3\n')
             
             current_time_ms = 0.0  # Millisekunden für maximale Genauigkeit
             
@@ -230,12 +225,9 @@ def create_cue_file(output_cue, title, artist, track_names, durations, mp3_filen
                 seconds = remaining_frames // 75
                 frames = remaining_frames % 75
                 
-                f.write(f'  TRACK {idx:02d} AUDIO
-')
-                f.write(f'    TITLE "{track_name}"
-')
-                f.write(f'    INDEX 01 {minutes:02d}:{seconds:02d}:{frames:02d}
-')
+                f.write(f'  TRACK {idx:02d} AUDIO\n')
+                f.write(f'    TITLE "{track_name}"\n')
+                f.write(f'    INDEX 01 {minutes:02d}:{seconds:02d}:{frames:02d}\n')
                 
                 # Addiere echte Dauer in Millisekunden
                 current_time_ms += duration * 1000
@@ -349,8 +341,7 @@ def convert_taf_to_mp3():
         try:
             with open(concat_file, 'w') as f:
                 for opus_file in opus_files:
-                    f.write(f"file '{os.path.abspath(opus_file)}'
-")
+                    f.write(f"file '{os.path.abspath(opus_file)}'\n")
             
             cmd = [
                 'ffmpeg', '-y', '-f', 'concat', '-safe', '0',
@@ -448,6 +439,4 @@ if __name__ == "__main__":
     try:
         convert_taf_to_mp3()
     except KeyboardInterrupt:
-        print("
-
-⚠️  Abgebrochen")
+        print("\n\n⚠️  Abgebrochen")
