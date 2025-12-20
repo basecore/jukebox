@@ -606,10 +606,21 @@
         }
 
         function playTestTone() {
-            const AudioContext = window.AudioContext || window.webkitAudioContext; const audioCtx = new AudioContext(); const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); 
-            const sliderLinear = settings.maxVolume; gainNode.gain.setValueAtTime(Math.pow(sliderLinear, 2), audioCtx.currentTime);
-            oscillator.start(); showStatus("Spiele Limit-Test... 🔊"); setTimeout(() => { oscillator.stop(); audioCtx.close(); }, 500);
+            // Erstelle ein temporäres Audio-Objekt für den Test
+            const testAudio = new Audio('assets/limit.mp3');
+            
+            // Lautstärke anwenden (wir nutzen dieselbe Kurve wie beim Musik-Player)
+            // settings.maxVolume ist der Wert vom Slider (0.0 bis 1.0)
+            // Wir quadrieren ihn, damit es exakt so laut ist wie die Musik später
+            testAudio.volume = Math.pow(settings.maxVolume, 2);
+            
+            showStatus("🔊 Spiele Test-Datei...");
+            
+            // Abspielen
+            testAudio.play().catch(e => {
+                console.log("Fehler beim Abspielen:", e);
+                showStatus("Fehler: Datei nicht gefunden?");
+            });
         }
 
         async function requestWakeLock() {
