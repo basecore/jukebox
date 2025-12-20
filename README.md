@@ -10,7 +10,7 @@ Entwickelt als lokale Lösung ohne Cloud-Zwang, ohne Tracking und komplett koste
 
 | **Eltern-Modus (Admin)** | **Kinder-Modus (Player)** |
 |:---:|:---:|
-| <img src="parent1.png" width="180"> <img src="parent2.png" width="180"> <img src="parent3.png" width="180"> | <img src="children1.png" width="180"> <img src="children2.png" width="180"> <img src="children3.png" width="180"> |
+| <img src="docs/screenshots/parent1.png" width="180"> <img src="docs/screenshots/parent2.png" width="180"> <img src="docs/screenshots/parent3.png" width="180"> | <img src="docs/screenshots/children1.png" width="180"> <img src="docs/screenshots/children2.png" width="180"> <img src="docs/screenshots/children3.png" width="180"> |
 | *Tag-Verwaltung, Settings & Upload* | *Einfache Bedienung, Cover & Visuals* |
 
 ---
@@ -34,7 +34,7 @@ Da dies eine Web-App ist, die auf Standard-Smartphone-Hardware läuft, gibt es U
     * **Möglichkeit ("Klopf-Methode"):** Wenn du eine Tonie-Figur verwenden willst, klopfe sie mehrmals schnell gegen eine echte Toniebox (aktiviert). Dies öffnet kurzzeitig den Privacy-Modus, sodass das Handy die ID lesen kann.
     * **Nachteil:** Sobald die Figur wieder regulär auf einer Toniebox stand, ist der Modus wieder zu und du musst erneut "klopfen", bevor das Handy sie erkennt.
     * **Wichtig:** Die App liest **nicht** die Musik von der Figur! Du musst die Audio-Datei (MP3) selbst besitzen und auf das Handy laden.
-    * *Tipp:* Um Audio von deinen eigenen Tonies zu sichern/konvertieren, nutze das Python-Script `taf2mp3_smart.py` in diesem Repository.
+    * *Tipp:* Um Audio von deinen eigenen Tonies zu sichern/konvertieren, nutze das Python-Script `tools/taf2mp3_smart.py` in diesem Repository.
 
 ---
 
@@ -73,12 +73,12 @@ Damit Sensoren (Eco-Modus) und NFC funktionieren, **MUSS** die App über einen S
 
 **Option A: Lokal auf dem Handy (Offline / Empfohlen)**
 1.  Erstelle einen Ordner `Jukebox` auf dem internen Speicher des Handys.
-2.  Kopiere alle Dateien (`index.html`, `manifest.json`, `sw.js`, Icons, Bilder) dort hinein.
+2.  Kopiere alle Dateien und Ordner (`index.html`, `assets/`, `sw.js`, etc.) dort hinein.
 3.  Installiere eine Webserver-App (z.B. *"Web Server for Chrome"*).
 4.  Starte den Server und öffne die Adresse (meist `http://127.0.0.1:8080`) in **Chrome**.
 
 **Option B: Online (GitHub Pages)**
-1.  Lade die Dateien in ein GitHub Repository hoch (inkl. aller Bilder).
+1.  Lade die Dateien in ein GitHub Repository hoch (inkl. aller Unterordner).
 2.  Aktiviere "GitHub Pages" in den Repository-Einstellungen.
 3.  Öffne die URL (`https://dein-name.github.io/...`) auf dem Handy.
 
@@ -110,14 +110,18 @@ Es gibt keinen sichtbaren "Zurück"-Button.
 
 ---
 
-## 📂 Dateistruktur
+## 📂 Dateistruktur (Cleaned)
 
 * `index.html` - Der komplette Code der App.
 * `manifest.json` - PWA Konfiguration.
 * `sw.js` - Service Worker (für Offline-Support).
-* `icon.png` - App Icon.
-* `parent1.png`... - Screenshots.
-* `taf2mp3_smart.py` - Script zum Konvertieren von Tonie-Dateien (siehe Limitierungen).
+* `assets/`
+    * `img/` - Hintergrundbilder.
+    * `icons/` - App Icons für Android/iOS.
+* `docs/screenshots/` - Bilder für diese Anleitung.
+* `tools/`
+    * `taf2mp3_smart.py` - Script zum Konvertieren von Tonie-Dateien.
+    * `eco_debug.html` - Test-Tool für Sensoren.
 
 ## 👨‍💻 Credits
 Entwickelt von Sebastian Rößer.
