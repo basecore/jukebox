@@ -7,8 +7,8 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
-    <link rel="icon" type="image/png" href="icon.png">
-    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="assets/icons/icon.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon.png">
 
     <style>
         /* --- GRUNDDESIGN --- */
@@ -539,15 +539,15 @@
             const kidsDiv = document.getElementById('kids-mode');
             const mode = settings.bgMode;
             kidsDiv.style.backgroundImage = ''; kidsDiv.style.backgroundColor = '';
-            if (mode === 'default') { kidsDiv.style.backgroundImage = "url('hintergrund.jpg')"; kidsDiv.style.backgroundColor = "#fff"; } 
+            if (mode === 'default') { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; kidsDiv.style.backgroundColor = "#fff"; } 
             else if (mode === 'color') { kidsDiv.style.backgroundColor = settings.bgColor || '#ffffff'; }
             else if (mode === 'image') { 
-                if(!db) { kidsDiv.style.backgroundImage = "url('hintergrund.jpg')"; return; }
+                if(!db) { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; return; }
                 const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
                 const req = store.get(SYSTEM_BG_ID);
                 req.onsuccess = () => {
                     if(req.result && req.result.imageBlob) { const url = URL.createObjectURL(req.result.imageBlob); kidsDiv.style.backgroundImage = `url('${url}')`; } 
-                    else { kidsDiv.style.backgroundImage = "url('hintergrund.jpg')"; }
+                    else { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; }
                 };
             }
         }
