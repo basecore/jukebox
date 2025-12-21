@@ -7,6 +7,7 @@ import requests
 import shutil
 import sys
 import struct
+import time
 
 # --- KONFIGURATION ---
 SOURCE_DIR = "."         
@@ -16,11 +17,10 @@ HEADER_SIZE = 4096
 OPUS_SAMPLE_RATE = 48000.0
 
 # ==========================================
-# TEIL 1: HEADER & OGG ANALYSE (THEORETISCH)
+# TEIL 1: ANALYSE-FUNKTIONEN (ROBUST)
 # ==========================================
 
 def read_varint(data, offset):
-    """Liest einen Protobuf-Wert Byte für Byte."""
     value = 0
     shift = 0
     curr = offset
@@ -34,16 +34,11 @@ def read_varint(data, offset):
     return value, curr
 
 def get_chapters_robust(filepath):
-    """
-    Findet die Kapitel-Marker im Header via Brute-Force-Suche.
-    Findet garantiert die 25 Tracks, auch wenn der Header 'unsauber' ist.
-    """
+    """Findet Kapitel-Marker im Header (Brute Force)."""
     best_chapters = []
     try:
         with open(filepath, "rb") as f:
             data = f.read(HEADER_SIZE)
-            
-            # Suche nach Byte 0x22 (Protobuf Tag für Feld 4 / ChapterPages)
             for i in range(len(data) - 2):
                 if data[i] == 0x22:
                     try:
@@ -51,63 +46,40 @@ def get_chapters_robust(filepath):
                         start = i + 2
                         end = start + length
                         if end > len(data): continue
-                        
                         temp = []
                         curr = start
                         while curr < end:
                             val, curr = read_varint(data, curr)
                             temp.append(val)
-                        
-                        # Plausibilitäts-Check: 
-                        # Sind die Page-Nummern aufsteigend? (Kapitel 2 > Kapitel 1)
-                        # Wir nehmen die längste gefundene valide Liste.
                         if len(temp) > len(best_chapters):
                             if all(temp[j] <= temp[j+1] for j in range(len(temp)-1)):
                                 best_chapters = temp
                     except: continue
     except: pass
-
-    # Kapitel 0 (Start) ist immer implizit dabei
     return sorted(list(set([0] + best_chapters)))
 
 def scan_ogg_timestamps(filepath):
-    """
-    Liest die exakten Zeitstempel (Granules) aus den OGG-Pages.
-    """
+    """Liest Zeitstempel aus OGG-Pages."""
     page_map = {}
     try:
         with open(filepath, "rb") as f:
             f.seek(HEADER_SIZE)
             file_size = os.fstat(f.fileno()).st_size
-            
             while f.tell() < file_size:
-                # Sync suchen
                 pos = f.tell()
                 sig = f.read(4)
                 if sig != b'OggS':
                     if not sig: break
-                    f.seek(pos + 1)
-                    continue
-                
+                    f.seek(pos + 1); continue
                 head = f.read(23)
                 if len(head) < 23: break
-                
-                # Header auspacken: Granule ist Index 2 (Q), PageSeq ist Index 4 (L)
                 data = struct.unpack("<BBQLLLB", head)
-                granule = data[2] 
-                seq = data[4]
-                n_segs = data[6]
-                
-                # Inhalt überspringen
-                seg_table = f.read(n_segs)
-                f.seek(sum(seg_table), 1)
-                
-                page_map[seq] = granule
+                page_map[data[4]] = data[2] 
+                f.seek(sum(f.read(data[6])), 1)
     except: pass
     return page_map
 
 def granule_to_cue(granule):
-    """Rechnet Samples (48kHz) in CUE-Zeit um."""
     seconds = granule / OPUS_SAMPLE_RATE
     m = int(seconds // 60)
     s = int(seconds % 60)
@@ -115,19 +87,16 @@ def granule_to_cue(granule):
     return f"{m:02d}:{s:02d}:{f:02d}"
 
 # ==========================================
-# TEIL 2: HELFER & UI
+# TEIL 2: HELFER
 # ==========================================
 
-def show_header():
-    print("=" * 70)
-    print("TAF 2 MP3 THEORETICAL (Robust Header Scan)".center(70))
-    print("=" * 70)
+def clean_filename(name):
+    return "".join([c if c.isalnum() or c in " .-_()" else "_" for c in name]).strip()
 
 def load_json_db(path):
     print(f"📂 Lade Datenbank: {path}")
     try:
-        with open(path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        with open(path, 'r', encoding='utf-8') as f: data = json.load(f)
         db = {}
         for entry in data:
             pic = entry.get('pic')
@@ -140,9 +109,9 @@ def load_json_db(path):
                     'tracks': entry.get('tracks', [])
                 }
         print(f"✓ {len(db)} Einträge geladen.")
-        print()
         return db
-    except:
+    except: 
+        print("⚠️  tonies.json nicht gefunden.")
         return {}
 
 def get_hash(path):
@@ -157,7 +126,7 @@ def get_hash(path):
         return s.hexdigest().lower()
     except: return None
 
-def download_cover(url, target):
+def dl_cover(url, target):
     try:
         r = requests.get(url, timeout=10)
         if r.status_code == 200:
@@ -166,29 +135,85 @@ def download_cover(url, target):
     except: pass
     return False
 
-def clean_filename(name):
-    return "".join([c if c.isalnum() or c in " .-_()" else "_" for c in name]).strip()
+# ==========================================
+# TEIL 3: PROGRESS BAR FUNKTION
+# ==========================================
+
+def convert_audio_with_progress(audio_data, mp3_path, title, series, cover_path=None):
+    """Führt FFmpeg aus und zeigt einen Fortschrittsbalken basierend auf Input-Daten."""
+    cmd = ['ffmpeg', '-y', '-f', 'ogg', '-i', 'pipe:0']
+    
+    if cover_path:
+        cmd += ['-i', cover_path, '-map', '0:0', '-map', '1:0', '-c:v', 'copy', 
+                '-id3v2_version', '3', '-metadata:s:v', 'title="Cover"', 
+                '-metadata:s:v', 'comment="Front"']
+    
+    cmd += ['-c:a', 'libmp3lame', '-q:a', '2', 
+            '-metadata', f'title={title}', 
+            '-metadata', f'artist={series}', 
+            mp3_path]
+
+    # Prozess starten, stdin als Pipe
+    process = subprocess.Popen(
+        cmd, 
+        stdin=subprocess.PIPE, 
+        stdout=subprocess.DEVNULL, 
+        stderr=subprocess.DEVNULL
+    )
+
+    total_size = len(audio_data)
+    chunk_size = 64 * 1024 # 64KB Chunks
+    bytes_written = 0
+
+    display_name = os.path.basename(mp3_path)
+    
+    try:
+        # Daten stückweise schreiben
+        for i in range(0, total_size, chunk_size):
+            chunk = audio_data[i:i+chunk_size]
+            process.stdin.write(chunk)
+            bytes_written += len(chunk)
+            
+            # Prozent berechnen
+            percent = int((bytes_written / total_size) * 100)
+            
+            # Ausgabe auf gleicher Zeile (\r)
+            sys.stdout.write(f"\r  -> Audio: {display_name} ... {percent}%")
+            sys.stdout.flush()
+            
+        process.stdin.close()
+        process.wait()
+        
+        # Zeile abschließen mit Haken
+        sys.stdout.write(f"\r  -> Audio: {display_name} ✓          \n")
+        sys.stdout.flush()
+        return True
+    except Exception as e:
+        print(f"\n  ✗ Fehler bei FFmpeg: {e}")
+        return False
 
 # ==========================================
-# TEIL 3: HAUPTPROGRAMM
+# TEIL 4: HAUPTPROGRAMM
 # ==========================================
 
 def main():
-    show_header()
+    print("=" * 70)
+    print("TAF 2 MP3 DETAIL (Info & Progress)".center(70))
+    print("=" * 70)
     
-    # 1. Dateien suchen
+    # 1. Dateien suchen & Auflisten
     taf_files = sorted(glob.glob(os.path.join(SOURCE_DIR, "*.taf")))
+    
     if not taf_files:
         print("✗ Keine .taf Dateien gefunden!")
-        input("Enter zum Beenden...")
-        return
+        input("Enter..."); return
 
-    print("📁 Gefundene Dateien:")
+    print(f"Gefunden: {len(taf_files)} Dateien")
     for i, f in enumerate(taf_files, 1):
         print(f"  {i}. {os.path.basename(f)}")
     print("-" * 70)
     
-    input("Drücken Sie Enter zum Starten...")
+    # input("Drücke Enter zum Starten...")
     print()
 
     db = load_json_db(JSON_FILE)
@@ -196,77 +221,75 @@ def main():
 
     for i, taf_path in enumerate(taf_files, 1):
         filename = os.path.basename(taf_path)
-        base_name = os.path.splitext(filename)[0]
-        mp3_out = os.path.join(OUTPUT_DIR, f"{base_name}.mp3")
+        original_base = os.path.splitext(filename)[0]
         
-        print(f"[{i}/{len(taf_files)}] Verarbeite: {filename}")
+        print(f"[{i}/{len(taf_files)}] Lade: {filename}")
         
-        # A) Metadaten
-        sys.stdout.write("  -> Metadaten... ")
+        # A) Metadaten ermitteln
         file_hash = get_hash(taf_path)
         meta = db.get(file_hash, {})
-        title = meta.get('title', base_name)
+        
+        title = meta.get('title', original_base)
         series = meta.get('series', title)
         track_names = meta.get('tracks', [])
-        print(f"'{title}'")
         
-        # B) Cover
+        final_name = clean_filename(title)
+        print(f"  -> Ziel: '{final_name}'")
+        
+        # Pfade
+        mp3_path = os.path.join(OUTPUT_DIR, f"{final_name}.mp3")
+        cue_path = os.path.join(OUTPUT_DIR, f"{final_name}.cue")
+        jpg_path = os.path.join(OUTPUT_DIR, f"{final_name}.jpg")
+
+        # B) Cover laden
         cover_tmp = "temp_cover.jpg"
         has_cover = False
-        if meta.get('pic'):
-            if download_cover(meta['pic'], cover_tmp): has_cover = True
+        
+        # Prüfen ob Cover schon da ist
+        if os.path.exists(jpg_path):
+            print(f"  -> Cover: {os.path.basename(jpg_path)} (Existiert bereits) ✓")
+            has_cover = True
+            shutil.copy(jpg_path, cover_tmp) # Für FFmpeg bereitstellen
+        elif meta.get('pic'):
+            if dl_cover(meta['pic'], cover_tmp): 
+                has_cover = True
+                shutil.copy(cover_tmp, jpg_path)
+                print(f"  -> Cover: {os.path.basename(jpg_path)} ✓")
 
-        # C) MP3 Konvertierung
-        if not os.path.exists(mp3_out):
-            sys.stdout.write("  -> Audio (FFmpeg)... ")
-            sys.stdout.flush()
+        # C) Audio Konvertierung (mit Progress Bar)
+        if not os.path.exists(mp3_path):
             try:
                 with open(taf_path, "rb") as f:
                     f.seek(HEADER_SIZE)
                     audio_data = f.read()
                 
-                cmd = ['ffmpeg', '-y', '-f', 'ogg', '-i', 'pipe:0']
-                if has_cover:
-                    cmd += ['-i', cover_tmp, '-map', '0:0', '-map', '1:0', '-c:v', 'copy', '-id3v2_version', '3', '-metadata:s:v', 'title="Cover"', '-metadata:s:v', 'comment="Front"']
+                # Rufe die neue Funktion mit Fortschrittsanzeige auf
+                convert_audio_with_progress(audio_data, mp3_path, title, series, cover_tmp if has_cover else None)
                 
-                cmd += ['-c:a', 'libmp3lame', '-q:a', '2', '-metadata', f'title={title}', '-metadata', f'artist={series}', mp3_out]
-                subprocess.run(cmd, input=audio_data, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                print("✓")
-            except Exception as e: print(f"✗ {e}")
+            except Exception as e:
+                print(f"  ✗ Audio Fehler: {e}")
         else:
-            print("  -> MP3 existiert schon.")
+            print(f"  -> Audio: {os.path.basename(mp3_path)} (Existiert bereits) ✓")
 
-        # D) CUE (THEORETISCH / ROBUST)
-        sys.stdout.write("  -> CUE (Header Scan)... ")
-        sys.stdout.flush()
-        
-        # 1. Kapitel-Liste (Robust)
+        # D) CUE Sheet
         chapters = get_chapters_robust(taf_path)
         
         if chapters and len(chapters) > 1:
-            # 2. Zeitstempel (Ogg Scan)
             page_map = scan_ogg_timestamps(taf_path)
-            
-            clean_title = clean_filename(title)
-            cue_path = os.path.join(OUTPUT_DIR, f"{clean_title}.cue")
-            if has_cover: shutil.copy(cover_tmp, os.path.join(OUTPUT_DIR, f"{clean_title}.jpg"))
-
             try:
                 with open(cue_path, "w", encoding="utf-8") as f:
-                    f.write(f'REM CREATED BY TAF2MP3 THEORETICAL\n')
+                    f.write(f'REM CREATED BY TAF2MP3 DETAIL\n')
                     f.write(f'TITLE "{title}"\nPERFORMER "{series}"\n')
-                    f.write(f'FILE "{os.path.basename(mp3_out)}" MP3\n')
+                    f.write(f'FILE "{os.path.basename(mp3_path)}" MP3\n')
                     
                     track_no = 1
                     for page_idx in chapters:
                         time_str = "00:00:00"
                         if page_idx > 0:
                             prev = page_idx - 1
-                            # Lücken-Fallback
                             tries = 100
                             while prev >= 0 and prev not in page_map and tries > 0:
                                 prev -= 1; tries -= 1
-                            
                             if prev in page_map:
                                 time_str = granule_to_cue(page_map[prev])
                         
@@ -277,18 +300,22 @@ def main():
                         f.write(f'    TITLE "{t_name}"\n')
                         f.write(f'    INDEX 01 {time_str}\n')
                         track_no += 1
-                        
-                print(f"✓ ({len(chapters)} Tracks)")
-            except Exception as e: print(f"✗ {e}")
+                
+                print(f"  -> CUE Sheet: {os.path.basename(cue_path)} ✓ ({len(chapters)} Tracks)")
+            except Exception as e: 
+                print(f"  ✗ CUE Fehler: {e}")
         else:
-            print(f"✗ Fehler: Nur {len(chapters)} Kapitel gefunden.")
+            print("  ✗ CUE Sheet: Keine Kapitel gefunden.")
 
+        # Cleanup
         if os.path.exists(cover_tmp): os.remove(cover_tmp)
-        print()
+        print() # Leerzeile
 
     print("=" * 70)
-    print("Fertig!")
-    input("Enter...")
+    print("Fertig! Alle Dateien befinden sich in:")
+    print(f"📂 {os.path.abspath(OUTPUT_DIR)}")
+    print("=" * 70)
+    input("Drücken Sie Enter zum Beenden...")
 
 if __name__ == "__main__":
     main()
