@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V33 AutoNFC</title>
+    <title>Jukebox V35 ManualSave</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
-    <link rel="icon" type="image/png" href="assets/icons/icon.png">
-    <link rel="apple-touch-icon" href="assets/icons/icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
 
     <style>
         /* --- GRUNDDESIGN --- */
@@ -174,6 +174,11 @@
             border-radius: 10px; margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.1);
         }
+        
+        .card.editing-highlight {
+            border: 2px solid #3498db;
+            background: rgba(52, 152, 219, 0.1);
+        }
 
         h2 { margin-top: 0; font-size: 1.1rem; color: #74b9ff; }
 
@@ -191,6 +196,8 @@
         .checkbox-wrapper span { font-size: 0.9em; }
 
         label { display: block; margin-bottom: 5px; font-size: 0.9em; color: #aaa; }
+        
+        .file-info { font-size: 0.8em; color: #00cec9; margin-top:-5px; margin-bottom: 10px; display: block; font-style: italic; }
 
         button.btn-admin {
             background-color: #74b9ff; border: none; padding: 12px;
@@ -246,6 +253,7 @@
             padding: 5px 10px; border-radius: 4px; font-size: 0.8em;
             cursor: pointer; position: relative;
         }
+        .btn-edit { background-color: #3498db; color: white; }
         .missing-audio-badge { color: #ff4757; font-weight: bold; font-size: 0.8em; }
 
         #mode-switch-secret { position: fixed; top: 0; right: 0; width: 80px; height: 80px; z-index: 9999; }
@@ -289,7 +297,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V33</h1>
+        <h1>🔧 Jukebox V35</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -330,11 +338,8 @@
             <div class="checkbox-wrapper">
                 <input type="checkbox" id="check-wakelock" onchange="saveSettings()">
                 <div>
-                    <strong>Display immer anlassen</strong><br>
-                    <span style="font-size:0.85em; color:#ddd;">
-                        Verhindert die automatische Bildschirmsperre. <br>
-                        ⚠️ <b>Wichtig:</b> Nur so können Kinder selbstständig <b>Pause drücken</b> oder die <b>Lautstärke ändern</b>.
-                    </span>
+                    <strong>Display anlassen (Aggressiv)</strong><br>
+                    <span style="font-size:0.8em; color:#ccc;">Nutzt Video-Trick gegen Sperrbildschirm</span>
                 </div>
             </div>
 
@@ -342,9 +347,7 @@
                 <input type="checkbox" id="check-ecomode" onchange="updateEcoModeState(true)">
                 <div>
                     <strong>Stromsparen beim Umdrehen</strong><br>
-                    <span style="font-size:0.85em; color:#ddd;">
-                        Handy aufs Display legen = Bildschirm schwarz (Audio läuft weiter).
-                    </span>
+                    <span style="font-size:0.8em; color:#ccc;">Handy aufs Display legen = Schwarz</span>
                 </div>
             </div>
 
@@ -386,21 +389,31 @@
             </div>
         </div>
 
-        <div class="card">
-            <h2>🎵 Neuen Tag anlernen</h2>
+        <div class="card" id="scan-card">
+            <h2 id="form-title">🎵 Neuen Tag anlernen</h2>
+            
             <label>1. Audio Datei(en)</label>
+            <span id="audio-info" class="file-info"></span>
             <input type="file" id="audio-input" multiple accept="audio/*, .m4a, .mp3, .ogg, .wav, .flac" onchange="autoFillName()">
             
-            <label>2. Cue-Datei (Optional für Kapitel)</label>
+            <label>2. Cue-Datei (Optional)</label>
+            <span id="cue-info" class="file-info"></span>
             <input type="file" id="cue-input" accept=".cue">
 
             <label>3. Cover Bild</label>
+            <span id="img-info" class="file-info"></span>
             <input type="file" id="img-input" accept="image/*">
             
             <label>4. Name</label>
             <input type="text" id="track-name" placeholder="Name...">
             
-            <button class="btn-admin" onclick="activateLinkMode()">📡 Tag scannen & speichern</button>
+            <div style="display:flex; gap:10px; flex-direction:column;">
+                <button id="btn-save-tag" class="btn-admin" onclick="activateLinkMode()">📡 Tag scannen & speichern</button>
+                <button id="btn-save-manual" class="btn-admin" style="background-color:#7f8c8d; margin-top:0;" onclick="saveManualTrack()">💾 Ohne NFC speichern (für später)</button>
+                
+                <button id="btn-cancel-edit" class="btn-admin" style="background-color:#95a5a6; display:none;" onclick="cancelEdit()">Abbrechen</button>
+            </div>
+            
             <p id="scan-status" style="color: #74b9ff; margin-top: 10px; font-weight:bold; min-height: 20px;"></p>
         </div>
 
@@ -427,7 +440,7 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V33 (Auto NFC Start)</p>
+            <p>Jukebox NFC V35 (Manual Save)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
         </div>
@@ -495,7 +508,8 @@
         let currentPlayingTagId = null; let currentTrackIndex = 0; let currentPlaylist = []; 
         let isNfcScanning = false; let isLinkModeActive = false;
 
-        let currentCueTracks = null; // Array of {time: seconds, title: string}
+        let currentCueTracks = null; 
+        let editingOriginalTagId = null;
 
         const SYSTEM_BG_ID = "system_bg";
         const SYSTEM_SETTINGS_ID = "system_settings"; 
@@ -519,6 +533,7 @@
              syncSettingsFromDB(); 
         };
 
+        // --- BACKGROUND & DESIGN LOGIC ---
         function updateBgUIState() {
             const mode = document.getElementById('bg-mode-select').value;
             document.getElementById('bg-color-container').style.display = 'none';
@@ -544,15 +559,15 @@
             const kidsDiv = document.getElementById('kids-mode');
             const mode = settings.bgMode;
             kidsDiv.style.backgroundImage = ''; kidsDiv.style.backgroundColor = '';
-            if (mode === 'default') { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; kidsDiv.style.backgroundColor = "#fff"; } 
+            if (mode === 'default') { kidsDiv.style.backgroundImage = "url('hintergrund.jpg')"; kidsDiv.style.backgroundColor = "#fff"; } 
             else if (mode === 'color') { kidsDiv.style.backgroundColor = settings.bgColor || '#ffffff'; }
             else if (mode === 'image') { 
-                if(!db) { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; return; }
+                if(!db) { kidsDiv.style.backgroundImage = "url('hintergrund.jpg')"; return; }
                 const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
                 const req = store.get(SYSTEM_BG_ID);
                 req.onsuccess = () => {
                     if(req.result && req.result.imageBlob) { const url = URL.createObjectURL(req.result.imageBlob); kidsDiv.style.backgroundImage = `url('${url}')`; } 
-                    else { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; }
+                    else { kidsDiv.style.backgroundImage = "url('hintergrund.jpg')"; }
                 };
             }
         }
@@ -563,7 +578,6 @@
             req.onsuccess = () => {
                 if(req.result && req.result.data) {
                     settings = req.result.data; updateUIFromSettings();
-                    // Wenn Startmodus "Kids" ist, gehen wir dahin UND versuchen NFC zu starten
                     if (settings.startMode === 'kids') { setTimeout(() => { goToKidsMode(); }, 100); }
                 } else { saveSettings(); }
             };
@@ -611,23 +625,13 @@
         }
 
         function playTestTone() {
-            // Erstelle ein temporäres Audio-Objekt für den Test
-            const testAudio = new Audio('assets/limit.mp3');
-            
-            // Lautstärke anwenden (wir nutzen dieselbe Kurve wie beim Musik-Player)
-            // settings.maxVolume ist der Wert vom Slider (0.0 bis 1.0)
-            // Wir quadrieren ihn, damit es exakt so laut ist wie die Musik später
-            testAudio.volume = Math.pow(settings.maxVolume, 2);
-            
-            showStatus("🔊 Spiele Test-Datei...");
-            
-            // Abspielen
-            testAudio.play().catch(e => {
-                console.log("Fehler beim Abspielen:", e);
-                showStatus("Fehler: Datei nicht gefunden?");
-            });
+            const AudioContext = window.AudioContext || window.webkitAudioContext; const audioCtx = new AudioContext(); const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination); oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); 
+            const sliderLinear = settings.maxVolume; gainNode.gain.setValueAtTime(Math.pow(sliderLinear, 2), audioCtx.currentTime);
+            oscillator.start(); showStatus("Spiele Limit-Test... 🔊"); setTimeout(() => { oscillator.stop(); audioCtx.close(); }, 500);
         }
 
+        // --- WAKE LOCK & ECO ---
         async function requestWakeLock() {
             if (!settings.enableWakeLock) return;
             if ('wakeLock' in navigator) { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) { console.error(err); } }
@@ -636,11 +640,7 @@
         async function releaseWakeLock() { if (wakeLock !== null) { await wakeLock.release(); wakeLock = null; } stubbornVideo.pause(); }
         document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && settings.enableWakeLock) { requestWakeLock(); } });
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'hidden') {
-                forceSaveCurrentPosition();
-            }
-        });
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { forceSaveCurrentPosition(); } });
         window.addEventListener('beforeunload', () => { forceSaveCurrentPosition(); });
 
         function updateEcoModeState(fromCheckbox = false) {
@@ -662,6 +662,7 @@
             } else { alert("Auf diesem Gerät nicht nötig/möglich."); }
         }
 
+        // --- DB EXPORT/IMPORT ---
         async function exportDatabaseMetadata() {
             showStatus("Exportiere...");
             const tx = db.transaction(["tracks"], "readonly"); const store = tx.objectStore("tracks"); const allMetadata = [];
@@ -692,6 +693,7 @@
             }; reader.readAsText(file);
         }
 
+        // --- NFC LOGIC ---
         async function startNFC() {
             if (isNfcScanning) return; if ("NDEFReader" in window) {
                 try {
@@ -702,21 +704,79 @@
                             if (isLinkModeActive) { saveTrackLink(event.serialNumber); isLinkModeActive = false; } else { showStatus("Tag erkannt: " + event.serialNumber); }
                         } else { playTrackByTag(event.serialNumber); }
                     };
-                } catch (error) { console.log("NFC Fehler (Autostart blockiert?):", error); isNfcScanning=false; }
+                } catch (error) { console.log("NFC Fehler:", error); isNfcScanning=false; }
             }
         }
 
         function activateLinkMode() {
-            const f = document.getElementById('audio-input').files; const n = document.getElementById('track-name').value;
-            if(f.length===0 || n==="") { alert("Datei/Name?"); return; }
+            // Check if input is valid
+            const n = document.getElementById('track-name').value;
+            const hasAudio = document.getElementById('audio-input').files.length > 0;
+            
+            if(!editingOriginalTagId && !hasAudio) { alert("Bitte Audio wählen!"); return; }
+            if(n === "") { alert("Bitte Name eingeben!"); return; }
+
             isLinkModeActive = true; document.getElementById('scan-status').innerText = ">>> FIGUR JETZT AUFLEGEN <<<";
             if (!isNfcScanning) startNFC();
         }
 
+        // --- MANUELLES SPEICHERN ---
+        function saveManualTrack() {
+            const n = document.getElementById('track-name').value;
+            const hasAudio = document.getElementById('audio-input').files.length > 0;
+            if(!editingOriginalTagId && !hasAudio) { alert("Bitte Audio wählen!"); return; }
+            if(n === "") { alert("Bitte Name eingeben!"); return; }
+
+            // Generiere ID falls keine existiert (edit mode behält die alte)
+            const targetId = editingOriginalTagId ? editingOriginalTagId : "manual_" + Date.now();
+            
+            saveTrackLink(targetId);
+        }
+
+        // --- EDITING LOGIC ---
+        function loadTagForEdit(id) {
+            const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
+            store.get(id).onsuccess = (e) => {
+                const r = e.target.result;
+                if(r) {
+                    editingOriginalTagId = id;
+                    document.getElementById('track-name').value = r.name;
+                    document.getElementById('form-title').innerText = "✏️ Tag bearbeiten (ID: " + id + ")";
+                    document.getElementById('btn-save-tag').innerText = "Speichern & Scannen (Tag wechseln)";
+                    document.getElementById('btn-save-manual').innerText = "💾 Nur Speichern (Update)";
+                    document.getElementById('btn-cancel-edit').style.display = "inline-block";
+                    
+                    document.getElementById('audio-info').innerText = "Aktuell: " + (r.playlistFileNames ? r.playlistFileNames.length + " Dateien" : "Vorhanden");
+                    document.getElementById('cue-info').innerText = r.cueTracks ? "Aktuell: Cue vorhanden" : "Aktuell: Keine";
+                    document.getElementById('img-info').innerText = r.imageFileName ? "Aktuell: " + r.imageFileName : "Aktuell: Standard";
+                    
+                    document.getElementById('scan-card').classList.add("editing-highlight");
+                    document.getElementById('parent-mode').scrollTop = 0;
+                }
+            };
+        }
+
+        function cancelEdit() {
+            editingOriginalTagId = null;
+            document.getElementById('track-name').value = "";
+            document.getElementById('audio-input').value = "";
+            document.getElementById('cue-input').value = "";
+            document.getElementById('img-input').value = "";
+            
+            document.getElementById('audio-info').innerText = "";
+            document.getElementById('cue-info').innerText = "";
+            document.getElementById('img-info').innerText = "";
+            
+            document.getElementById('form-title').innerText = "🎵 Neuen Tag anlernen";
+            document.getElementById('btn-save-tag').innerText = "📡 Tag scannen & speichern";
+            document.getElementById('btn-save-manual').innerText = "💾 Ohne NFC speichern (für später)";
+            document.getElementById('btn-cancel-edit').style.display = "none";
+            document.getElementById('scan-card').classList.remove("editing-highlight");
+            document.getElementById('scan-status').innerText = "";
+        }
+
         function parseCueSheet(cueText) {
-            const tracks = [];
-            const lines = cueText.split('\n');
-            let currentTrack = null;
+            const tracks = []; const lines = cueText.split('\n'); let currentTrack = null;
             lines.forEach(line => {
                 line = line.trim();
                 if (line.startsWith('TRACK')) { currentTrack = {}; }
@@ -730,6 +790,7 @@
             }); return tracks;
         }
 
+        // --- PLAYBACK ---
         function playTrackByTag(tagId) {
             if(currentPlayingTagId && currentPlayingTagId !== tagId) forceSaveCurrentPosition();
             const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
@@ -743,7 +804,6 @@
                     else { imgEl.style.display="none"; placeEl.style.display="block"; }
                     
                     currentPlayingTagId = tagId; currentPlaylist = track.playlist;
-                    
                     currentCueTracks = track.cueTracks || null;
                     const nextBtn = document.getElementById('btn-next-track');
                     if(currentCueTracks && currentCueTracks.length > 0) { nextBtn.style.display = "flex"; } else { nextBtn.style.display = "none"; }
@@ -818,11 +878,7 @@
                 if(audioPlayer.src) { audioPlayer.play(); setPlayButtonState(true); startSleepTimer(); requestWakeLock(); } 
                 else { showStatus("Tag?"); } 
             } else { 
-                audioPlayer.pause(); 
-                setPlayButtonState(false); 
-                stopSleepTimer(); 
-                releaseWakeLock(); 
-                forceSaveCurrentPosition();
+                audioPlayer.pause(); setPlayButtonState(false); stopSleepTimer(); releaseWakeLock(); forceSaveCurrentPosition();
             } 
         }
         function restartPlaylist() { if(currentPlayingTagId) { showStatus("Start..."); playPlaylistIndex(0, 0); } }
@@ -907,20 +963,77 @@
                 let name = input.files[0].name; if(name.lastIndexOf('.') > 0) { name = name.substring(0, name.lastIndexOf('.')); } nameField.value = name;
             }
         }
+
+        // --- SPEICHERN (UPDATED MIT EDIT-LOGIC & MANUAL SAVE) ---
         function saveTrackLink(tagId) {
-            const audioFiles = Array.from(document.getElementById('audio-input').files); const imgFile = document.getElementById('img-input').files[0]; 
-            const cueFile = document.getElementById('cue-input').files[0];
+            const audioInput = document.getElementById('audio-input');
+            const imgInput = document.getElementById('img-input');
+            const cueInput = document.getElementById('cue-input');
             const name = document.getElementById('track-name').value;
 
-            if (audioFiles.length === 0 || !name) { alert("Bitte Audio und Name wählen!"); return; }
-            const fileNames = audioFiles.map(f => f.name);
-            const finishSave = (cueTracks) => {
-                const record = { tagId: tagId, name: name, playlist: audioFiles, playlistFileNames: fileNames, imageBlob: imgFile || null, imageFileName: imgFile ? imgFile.name : null, cueTracks: cueTracks || null, lastTrackIndex: 0, lastTime: 0 };
-                const tx = db.transaction(["tracks"], "readwrite"); tx.objectStore("tracks").put(record);
-                tx.oncomplete = () => { showStatus("Tag gespeichert! ✅"); loadTagList(); document.getElementById('track-name').value = ""; document.getElementById('audio-input').value = ""; document.getElementById('img-input').value = ""; document.getElementById('cue-input').value = ""; document.getElementById('scan-status').innerText = ""; };
+            // Logik: Wir holen uns ggf. die alten Daten, wenn wir im Edit Mode sind
+            const finalize = (oldRecord = null, newCueTracks = null) => {
+                
+                let finalAudio = audioInput.files.length > 0 ? Array.from(audioInput.files) : (oldRecord ? oldRecord.playlist : []);
+                let finalFileNames = audioInput.files.length > 0 ? Array.from(audioInput.files).map(f=>f.name) : (oldRecord ? oldRecord.playlistFileNames : []);
+                
+                let finalImg = imgInput.files.length > 0 ? imgInput.files[0] : (oldRecord ? oldRecord.imageBlob : null);
+                let finalImgName = imgInput.files.length > 0 ? imgInput.files[0].name : (oldRecord ? oldRecord.imageFileName : null);
+                
+                let finalCue = newCueTracks ? newCueTracks : (oldRecord ? oldRecord.cueTracks : null);
+
+                if(finalAudio.length === 0) { alert("Kein Audio vorhanden!"); return; }
+
+                const record = { 
+                    tagId: tagId, 
+                    name: name, 
+                    playlist: finalAudio, 
+                    playlistFileNames: finalFileNames, 
+                    imageBlob: finalImg, 
+                    imageFileName: finalImgName, 
+                    cueTracks: finalCue, 
+                    lastTrackIndex: oldRecord ? oldRecord.lastTrackIndex : 0, 
+                    lastTime: oldRecord ? oldRecord.lastTime : 0 
+                };
+
+                const tx = db.transaction(["tracks"], "readwrite"); 
+                const store = tx.objectStore("tracks");
+                
+                store.put(record);
+
+                // Wenn wir editiert haben und die Tag ID sich geändert hat (z.B. Wechsel von Manual auf NFC), alten löschen
+                if (editingOriginalTagId && editingOriginalTagId !== tagId) {
+                    store.delete(editingOriginalTagId);
+                    showStatus("Tag gewechselt & gespeichert! (Alt gelöscht)");
+                } else {
+                    showStatus("Gespeichert!");
+                }
+
+                tx.oncomplete = () => { cancelEdit(); loadTagList(); };
             };
-            if(cueFile) { const reader = new FileReader(); reader.onload = (e) => { const parsedTracks = parseCueSheet(e.target.result); finishSave(parsedTracks); }; reader.readAsText(cueFile); } else { finishSave(null); }
+
+            // Workflow Start
+            const cueFile = cueInput.files[0];
+            
+            const processCueAndSave = (oldRecord) => {
+                if(cueFile) {
+                    const reader = new FileReader(); 
+                    reader.onload = (e) => { const parsedTracks = parseCueSheet(e.target.result); finalize(oldRecord, parsedTracks); }; 
+                    reader.readAsText(cueFile);
+                } else {
+                    finalize(oldRecord, null);
+                }
+            };
+
+            if (editingOriginalTagId) {
+                const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
+                store.get(editingOriginalTagId).onsuccess = (e) => { processCueAndSave(e.target.result); };
+            } else {
+                if(audioInput.files.length === 0) { alert("Bitte Audio wählen!"); return; }
+                processCueAndSave(null);
+            }
         }
+
         function loadTagList() {
             const list = document.getElementById('tag-list'); if(!list) return; list.innerHTML = "";
             const tx = db.transaction(["tracks"], "readonly"); const store = tx.objectStore("tracks");
@@ -929,7 +1042,17 @@
                     const track = cursor.value;
                     if(track.tagId !== SYSTEM_BG_ID && track.tagId !== SYSTEM_SETTINGS_ID) {
                         const div = document.createElement('div'); div.className = "tag-list-item";
-                        div.innerHTML = `<div class="tag-info-row"><strong>${track.name}</strong><span style="font-size:0.8em; color:#aaa;">ID: ${track.tagId}</span></div><div class="tag-action-row"><button class="btn-fix-audio" onclick="playTrackByTag('${track.tagId}')">▶ Testen</button><button class="btn-fix-audio" style="background:#ff7675; color:white;" onclick="deleteTrack('${track.tagId}')">Löschen</button></div>`;
+                        div.innerHTML = `
+                            <div class="tag-info-row">
+                                <strong>${track.name}</strong>
+                                <span style="font-size:0.8em; color:#aaa;">ID: ${track.tagId}</span>
+                            </div>
+                            <div class="tag-action-row">
+                                <button class="btn-fix-audio btn-edit" onclick="loadTagForEdit('${track.tagId}')">✏️ Bearbeiten</button>
+                                <button class="btn-fix-audio" onclick="playTrackByTag('${track.tagId}')">▶ Testen</button>
+                                <button class="btn-fix-audio" style="background:#ff7675; color:white;" onclick="deleteTrack('${track.tagId}')">Löschen</button>
+                            </div>
+                        `;
                         list.appendChild(div);
                     } cursor.continue();
                 }
