@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V40 LimitFile</title>
+    <title>Jukebox V41 Progress</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -303,7 +303,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V40</h1>
+        <h1>🔧 Jukebox V41</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -459,7 +459,7 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V40 (Limit File & Bulk Fix)</p>
+            <p>Jukebox NFC V41 (Progress Import)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
         </div>
@@ -648,10 +648,8 @@
             if(pct < 40) bar.style.backgroundColor = "var(--green-safe)"; else if (pct < 75) bar.style.backgroundColor = "var(--orange-warn)"; else bar.style.backgroundColor = "var(--red-danger)";
         }
 
-        // --- LIMIT FILE FIX ---
         function playTestTone() {
             const testAudio = new Audio('assets/limit.mp3');
-            // Logarithmische Kurve wie im Player: (SliderValue^2)
             testAudio.volume = Math.pow(settings.maxVolume, 2);
             showStatus("🔊 Spiele Test-Datei...");
             testAudio.play().catch(e => {
@@ -722,7 +720,7 @@
             }; reader.readAsText(file);
         }
 
-        // --- BULK IMPORT (SEQUENTIELL FIX) ---
+        // --- BULK IMPORT (SEQUENTIELL FIX + LIVE PROGRESS) ---
         async function handleBulkImport(input) {
             const files = Array.from(input.files);
             if(files.length === 0) return;
@@ -746,9 +744,10 @@
                 else if (ext === 'cue') { groups[basePath].cue = f; }
             });
 
-            // 2. Verarbeitung SEQUENTIELL
+            // Verarbeitung SEQUENTIELL mit Fortschrittsanzeige
             let count = 0;
             const groupKeys = Object.keys(groups);
+            const totalGroups = groupKeys.length;
 
             const readFileAsText = (file) => {
                 return new Promise((resolve, reject) => {
@@ -758,9 +757,16 @@
                 });
             };
 
-            for (const key of groupKeys) {
+            for (let i = 0; i < totalGroups; i++) {
+                const key = groupKeys[i];
                 const g = groups[key];
+                
                 if(g.audio.length === 0) continue;
+
+                // Live Update
+                const statusEl = document.getElementById('status-msg');
+                statusEl.innerText = `Importiere ${i+1}/${totalGroups}: ${g.name}`;
+                statusEl.style.display = 'block';
 
                 let cueTracks = null;
                 if(g.cue) {
@@ -770,29 +776,43 @@
                     } catch(e) { console.log("CUE Skip", e); }
                 }
 
-                await new Promise((resolve, reject) => {
-                    const tx = db.transaction(["tracks"], "readwrite");
-                    const store = tx.objectStore("tracks");
-                    
-                    const fileNames = g.audio.map(f => f.name);
-                    const tagId = "manual_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
-                    
-                    const record = {
-                        tagId: tagId,
-                        name: g.name.replace(/_/g, ' '),
-                        playlist: g.audio,
-                        playlistFileNames: fileNames,
-                        imageBlob: g.img,
-                        imageFileName: g.img ? g.img.name : null,
-                        cueTracks: cueTracks,
-                        lastTrackIndex: 0, lastTime: 0
-                    };
-                    
-                    store.put(record);
-                    
-                    tx.oncomplete = () => { count++; resolve(); };
-                    tx.onerror = (e) => { console.log("DB Error", e); resolve(); };
-                });
+                try {
+                    await new Promise((resolve, reject) => {
+                        const tx = db.transaction(["tracks"], "readwrite");
+                        const store = tx.objectStore("tracks");
+                        
+                        const fileNames = g.audio.map(f => f.name);
+                        const tagId = "manual_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
+                        
+                        const record = {
+                            tagId: tagId,
+                            name: g.name.replace(/_/g, ' '),
+                            playlist: g.audio,
+                            playlistFileNames: fileNames,
+                            imageBlob: g.img,
+                            imageFileName: g.img ? g.img.name : null,
+                            cueTracks: cueTracks,
+                            lastTrackIndex: 0, lastTime: 0
+                        };
+                        
+                        store.put(record);
+                        
+                        tx.oncomplete = () => { count++; resolve(); };
+                        
+                        // FEHLER BEHANDLUNG FÜR SPEICHERVOLL
+                        tx.onerror = (e) => { 
+                            if(e.target.error.name === "QuotaExceededError") {
+                                alert("SPEICHER VOLL! Browser lässt keine weiteren Dateien zu.");
+                                reject("QuotaExceeded");
+                            } else {
+                                console.log("DB Error", e); 
+                                resolve(); // Weiter mit nächstem
+                            }
+                        };
+                    });
+                } catch(err) {
+                    if(err === "QuotaExceeded") break; // Stop loop
+                }
             }
 
             showStatus(`${count} Hörspiele importiert! 🎉`);
