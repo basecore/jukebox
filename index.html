@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V36 BulkImport</title>
+    <title>Jukebox V38 PathFix</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
-    <link rel="icon" type="image/png" href="icon.png">
-    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="assets/icons/icon.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon.png">
 
     <style>
         /* --- GRUNDDESIGN --- */
@@ -233,6 +233,12 @@
             border-radius: 5px; font-size: 0.85em; margin-top: 5px; margin-bottom: 15px;
             border-left: 3px solid #e74c3c; color: #e74c3c; font-weight: bold;
         }
+        
+        .info-box-blue {
+            background: rgba(52, 152, 219, 0.2); padding: 10px;
+            border-radius: 5px; font-size: 0.85em; margin-bottom: 10px;
+            border-left: 3px solid #3498db; color: #dfe6e9;
+        }
 
         .footer-info {
             margin-top: auto; padding-top: 20px; padding-bottom: 20px;
@@ -297,7 +303,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V36</h1>
+        <h1>🔧 Jukebox V38</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -425,6 +431,13 @@
 
         <div class="card">
             <h2>📂 Datenbank</h2>
+            
+            <div class="info-box-blue">
+                <strong>ℹ️ Wichtig für Massen-Import:</strong><br>
+                1. MP3, Cover (.jpg) und Cue müssen den <u>exakt gleichen Namen</u> haben (z.B. <code>Hörspiel_01.mp3</code> & <code>Hörspiel_01.jpg</code>).<br>
+                2. Der Browser fragt nach "Upload" -> Bestätigen! Daten bleiben <strong>lokal</strong> im Handy-Speicher.
+            </div>
+
             <button class="btn-admin" style="background-color: #e67e22; position:relative; margin-bottom:10px;">
                 📂 Massen-Import (Ordner)
                 <input type="file" id="bulk-folder-input" webkitdirectory directory multiple onchange="handleBulkImport(this)">
@@ -446,7 +459,7 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V36 (Bulk Import)</p>
+            <p>Jukebox NFC V38 (Path Fix)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
         </div>
@@ -567,15 +580,18 @@
             const kidsDiv = document.getElementById('kids-mode');
             const mode = settings.bgMode;
             kidsDiv.style.backgroundImage = ''; kidsDiv.style.backgroundColor = '';
-            if (mode === 'default') { kidsDiv.style.backgroundImage = "url('hintergrund.jpg')"; kidsDiv.style.backgroundColor = "#fff"; } 
+            if (mode === 'default') { 
+                kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; // PFAD KORRIGIERT
+                kidsDiv.style.backgroundColor = "#fff"; 
+            } 
             else if (mode === 'color') { kidsDiv.style.backgroundColor = settings.bgColor || '#ffffff'; }
             else if (mode === 'image') { 
-                if(!db) { kidsDiv.style.backgroundImage = "url('hintergrund.jpg')"; return; }
+                if(!db) { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; return; }
                 const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
                 const req = store.get(SYSTEM_BG_ID);
                 req.onsuccess = () => {
                     if(req.result && req.result.imageBlob) { const url = URL.createObjectURL(req.result.imageBlob); kidsDiv.style.backgroundImage = `url('${url}')`; } 
-                    else { kidsDiv.style.backgroundImage = "url('hintergrund.jpg')"; }
+                    else { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; }
                 };
             }
         }
@@ -701,113 +717,69 @@
             }; reader.readAsText(file);
         }
 
-        // --- BULK IMPORT (NEU) ---
+        // --- BULK IMPORT ---
         async function handleBulkImport(input) {
             const files = Array.from(input.files);
             if(files.length === 0) return;
-            
             showStatus(`Analysiere ${files.length} Dateien...`);
             
-            // 1. Gruppieren nach Dateinamen (ohne Endung)
             const groups = {};
             files.forEach(f => {
-                // Name ohne Pfad und ohne Extension
-                // webkitdirectory liefert Pfad in f.webkitRelativePath, aber f.name ist nur der Dateiname
-                // Wir nutzen f.name um Gruppen zu bilden. ACHTUNG: Wenn Ordnerstruktur komplex ist, könnte das kollidieren.
-                // Besser: Wir nutzen den webkitRelativePath und strippen die Extension.
-                
                 const path = f.webkitRelativePath || f.name;
                 const lastDot = path.lastIndexOf('.');
                 const basePath = lastDot > 0 ? path.substring(0, lastDot) : path;
                 
-                // Wir nutzen den "Base Filename" als Key für die Gruppe, aber wir müssen aufpassen bei Ordnern.
-                // Strategie: Wir nutzen den vollständigen Pfad ohne Extension als Key.
-                // Bsp: "Hörspiele/Bibi/Folge1/track.mp3" -> "Hörspiele/Bibi/Folge1/track"
-                
                 if (!groups[basePath]) groups[basePath] = { audio: [], img: null, cue: null, name: "" };
                 
                 const ext = f.name.split('.').pop().toLowerCase();
-                
-                // Name ableiten (vom Dateinamen, ohne Pfad)
                 const fileNameOnly = f.name.substring(0, f.name.lastIndexOf('.'));
                 if (!groups[basePath].name) groups[basePath].name = fileNameOnly;
 
-                if(['mp3', 'm4a', 'ogg', 'wav', 'flac'].includes(ext)) {
-                    groups[basePath].audio.push(f);
-                } else if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) {
-                    groups[basePath].img = f;
-                } else if (ext === 'cue') {
-                    groups[basePath].cue = f;
-                }
+                if(['mp3', 'm4a', 'ogg', 'wav', 'flac'].includes(ext)) { groups[basePath].audio.push(f); } 
+                else if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) { groups[basePath].img = f; } 
+                else if (ext === 'cue') { groups[basePath].cue = f; }
             });
 
-            // 2. Verarbeiten
             let count = 0;
             const tx = db.transaction(["tracks"], "readwrite");
             const store = tx.objectStore("tracks");
 
-            // Promise Helfer für CUE Reading (muss sequentiell oder parallel passieren, aber wir sind hier in einem Event Loop)
-            // Da FileReader async ist und IndexedDB Transaktionen nicht ewig leben dürfen, müssen wir tricksen.
-            // Bessere Strategie: Wir verarbeiten CUEs "on the fly" beim Abspielen oder wir lesen sie jetzt.
-            // Um Komplexität gering zu halten: Wir lesen CUEs jetzt ein. Das dauert kurz.
-            
             const processGroup = async (key) => {
                 const g = groups[key];
-                if(g.audio.length === 0) return; // Kein Audio -> Kein Eintrag
+                if(g.audio.length === 0) return; 
 
-                // CUE Parsen
                 let cueTracks = null;
                 if(g.cue) {
-                    try {
-                        const text = await readFileAsText(g.cue);
-                        cueTracks = parseCueSheet(text);
-                    } catch(e) { console.log("CUE Error", e); }
+                    try { const text = await readFileAsText(g.cue); cueTracks = parseCueSheet(text); } catch(e) { console.log("CUE Error", e); }
                 }
 
                 const fileNames = g.audio.map(f => f.name);
                 const tagId = "manual_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5);
                 
                 const record = {
-                    tagId: tagId,
-                    name: g.name.replace(/_/g, ' '), // Schönere Namen
-                    playlist: g.audio,
-                    playlistFileNames: fileNames,
-                    imageBlob: g.img,
-                    imageFileName: g.img ? g.img.name : null,
-                    cueTracks: cueTracks,
-                    lastTrackIndex: 0, 
-                    lastTime: 0
+                    tagId: tagId, name: g.name.replace(/_/g, ' '), 
+                    playlist: g.audio, playlistFileNames: fileNames,
+                    imageBlob: g.img, imageFileName: g.img ? g.img.name : null,
+                    cueTracks: cueTracks, lastTrackIndex: 0, lastTime: 0
                 };
                 
                 store.put(record);
                 count++;
             };
 
-            // Hilfsfunktion Promise Wrapper für FileReader
             const readFileAsText = (file) => {
                 return new Promise((resolve, reject) => {
                     const r = new FileReader();
-                    r.onload = e => resolve(e.target.result);
-                    r.onerror = reject;
+                    r.onload = e => resolve(e.target.result); r.onerror = reject;
                     r.readAsText(file);
                 });
             };
 
-            // Loop through all groups
-            // Achtung: Async/Await in forEach ist tricky mit DB Transactions.
-            // Wir sammeln alle Promises und warten.
             const promises = [];
-            for (const key in groups) {
-                promises.push(processGroup(key));
-            }
-
+            for (const key in groups) { promises.push(processGroup(key)); }
             await Promise.all(promises);
 
-            tx.oncomplete = () => {
-                showStatus(`${count} Hörspiele importiert! 🎉`);
-                loadTagList();
-                input.value = ""; // Reset
-            };
+            tx.oncomplete = () => { showStatus(`${count} Hörspiele importiert! 🎉`); loadTagList(); input.value = ""; };
         }
 
         // --- NFC LOGIC ---
@@ -826,13 +798,10 @@
         }
 
         function activateLinkMode() {
-            // Check if input is valid
             const n = document.getElementById('track-name').value;
             const hasAudio = document.getElementById('audio-input').files.length > 0;
-            
             if(!editingOriginalTagId && !hasAudio) { alert("Bitte Audio wählen!"); return; }
             if(n === "") { alert("Bitte Name eingeben!"); return; }
-
             isLinkModeActive = true; document.getElementById('scan-status').innerText = ">>> FIGUR JETZT AUFLEGEN <<<";
             if (!isNfcScanning) startNFC();
         }
@@ -843,7 +812,6 @@
             const hasAudio = document.getElementById('audio-input').files.length > 0;
             if(!editingOriginalTagId && !hasAudio) { alert("Bitte Audio wählen!"); return; }
             if(n === "") { alert("Bitte Name eingeben!"); return; }
-
             const targetId = editingOriginalTagId ? editingOriginalTagId : "manual_" + Date.now();
             saveTrackLink(targetId);
         }
@@ -877,11 +845,9 @@
             document.getElementById('audio-input').value = "";
             document.getElementById('cue-input').value = "";
             document.getElementById('img-input').value = "";
-            
             document.getElementById('audio-info').innerText = "";
             document.getElementById('cue-info').innerText = "";
             document.getElementById('img-info').innerText = "";
-            
             document.getElementById('form-title').innerText = "🎵 Neuen Tag anlernen";
             document.getElementById('btn-save-tag').innerText = "📡 Tag scannen & speichern";
             document.getElementById('btn-save-manual').innerText = "💾 Ohne NFC speichern (für später)";
