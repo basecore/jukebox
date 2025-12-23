@@ -1,0 +1,72 @@
+[
+  {
+    "tagId": "manual_1766470865905_h8iex",
+    "name": "Benjamin Blümchen - Benjamin als Weihnachtsmann",
+    "playlistFileNames": [
+      "Benjamin Blümchen - Benjamin als Weihnachtsmann.mp3"
+    ],
+    "imageFileName": "Benjamin Blümchen - Benjamin als Weihnachtsmann.jpg",
+    "meta": {
+      "series": "Benjamin Blümchen",
+      "episode": "Benjamin als Weihnachtsmann",
+      "description": "Ein weihnachtliches Törööööö\nBald ist Weihnachten. Doch Zoodirektor Tierlieb kann seinen Tieren leider keine Geschenke machen. Da erfährt Benjamin zufällig, dass der Kaufhaus-Weihnachtsmann krank geworden ist. Vielleicht kann der liebste Elefant der Welt ihn vertreten? Das macht bestimmt Spaß und dem Zoo kann er auf diese Weise vielleicht auch helfen.",
+      "age_recommendation": 3,
+      "genre": "Hörspiel",
+      "language": "Deutsch",
+      "runtime": 38
+    },
+    "tags": [
+      "Weihnachten",
+      "Tiere",
+      "Hörspiel",
+      "Abenteuer"
+    ],
+    "filter_age": 3
+  },
+  {
+    "tagId": "manual_auto_generated_id_02",
+    "name": "Benjamin Blümchen - Der Zoo-Kindergarten",
+    "playlistFileNames": [
+      "Benjamin Blümchen - Der Zoo-Kindergarten.mp3"
+    ],
+    "imageFileName": "Benjamin Blümchen - Der Zoo-Kindergarten.jpg",
+    "meta": {
+      "series": "Benjamin Blümchen",
+      "episode": "Der Zoo-Kindergarten",
+      "description": "Weil die Neustädter Kindergärten in den Sommerferien alle schließen, haben viele Kinder ein Problem: Wo sollen sie hingehen, wenn ihre Eltern arbeiten müssen? Ganz einfach, denkt sich Benjamin, in den Zoo natürlich! Er will einen Ferien-Kindergarten aufmachen. Aber dafür muss er eine Prüfung bestehen. Und die ist nicht so einfach!",
+      "age_recommendation": 3,
+      "genre": "Hörspiel",
+      "language": "Deutsch",
+      "runtime": 43
+    },
+    "tags": [
+      "Tiere",
+      "Lernen",
+      "Hörspiel"
+    ],
+    "filter_age": 3
+  },
+  {
+    "tagId": "manual_auto_generated_id_03",
+    "name": "Benjamin Blümchen - Benjamin als Baggerfahrer",
+    "playlistFileNames": [
+      "Benjamin Blümchen - Benjamin als Baggerfahrer.mp3"
+    ],
+    "imageFileName": "Benjamin Blümchen - Benjamin als Baggerfahrer.jpg",
+    "meta": {
+      "series": "Benjamin Blümchen",
+      "episode": "Benjamin als Baggerfahrer",
+      "description": "Da staunen Benjamin, Otto und Stella: Ein Transporter bringt neue Tiere für den Zoo. Aber viel zu früh – die Gehege sind noch nicht fertig! Und Karl ist im Urlaub. Was nun? Ganz einfach: Die drei Freunde bauen selbst drauflos. Leider hat der Bürgermeister etwas dagegen. Aber Benjamin lässt sich nicht das Baggern verbieten!",
+      "age_recommendation": 3,
+      "genre": "Hörspiel",
+      "language": "Deutsch",
+      "runtime": 41
+    },
+    "tags": [
+      "Tiere",
+      "Abenteuer",
+      "Hörspiel"
+    ],
+    "filter_age": 3
+  }
+]
