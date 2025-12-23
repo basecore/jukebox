@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V47 WakeFix</title>
+    <title>Jukebox V48 Debug</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -48,7 +48,8 @@
         #kids-mode {
             display: none; flex: 1; flex-direction: column;
             align-items: center; justify-content: flex-start;
-            background-color: #eee;
+            /* WICHTIG: Farbe damit man sieht ob er da ist */
+            background-color: #34495e; 
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -314,7 +315,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V47</h1>
+        <h1>🔧 Jukebox V48</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -450,7 +451,7 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V47 (WakeFix)</p>
+            <p>Jukebox NFC V48 (Debug Mode)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
             <p style="margin-top:10px;">
@@ -460,10 +461,59 @@
         </div>
     </div>
 
+    <div id="kids-mode">
+        <div id="sleep-indicator">🌙 <span id="sleep-countdown"></span></div>
+        <div id="track-title-display" class="kids-text-shadow">Bereit zum Spielen!</div>
+        <div id="playlist-info" class="kids-text-shadow"></div>
+        
+        <div id="album-art-container">
+            <span id="album-placeholder">🎵</span>
+            <img id="album-img" src="" alt="Cover">
+        </div>
+        
+        <div class="controls-main">
+            <button id="btn-vol-down" class="btn-control btn-secondary" onclick="changeVolume(-0.1)">
+                <svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>
+            </button>
+            <button id="btn-play-main" class="btn-control btn-play" onclick="togglePlay()">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button id="btn-vol-up" class="btn-control btn-secondary" onclick="changeVolume(0.1)">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            </button>
+        </div>
+
+        <div id="volume-display-container">
+            <div id="volume-bar"></div>
+        </div>
+
+        <div class="controls-nav-row">
+             <button id="btn-reset" class="btn-control btn-secondary" onclick="restartPlaylist()" title="Reset">
+                 <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+             </button>
+             <button id="btn-skip" class="btn-control btn-secondary" onclick="skipForward()" title="Skip">
+                 <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+             </button>
+             <button id="btn-next-track" class="btn-control btn-secondary" style="display:none;" onclick="skipToNextCueTrack()" title="Next Chapter">
+                 <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+             </button>
+        </div>
+
+        <div id="time-container" onclick="toggleTimeDisplayMode()">
+            <div id="time-progress"></div>
+            <div id="time-text">--:--</div>
+        </div>
+    </div>
+
     <div id="status-msg"></div>
     <audio id="audio-player"></audio>
 
     <script>
+        // GLOBAL ERROR HANDLER
+        window.onerror = function(message, source, lineno, colno, error) {
+            alert(`FEHLER: ${message}\nZeile: ${lineno}`);
+        };
+
         let db; let isParentMode = true; let ndef; let clickCount = 0; 
         const audioPlayer = document.getElementById('audio-player');
         
@@ -1304,4 +1354,4 @@
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
     </script>
 </body>
-    </html>
+</html>
