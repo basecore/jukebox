@@ -1,4 +1,4 @@
-# 🎵 Jukebox PWA (v48) - Die DIY "Toniebox" fürs Handy
+# 🎵 Jukebox PWA (v49) - Die DIY "Toniebox" fürs Handy
 
 Eine kinderfreundliche Musik-Player-App, die als Progressive Web App (PWA) direkt im Browser läuft. Sie ermöglicht es, Musik und Hörspiele über **NFC-Tags** (wie bei einer Toniebox) zu starten. Ideal, um alten Smartphones neues Leben als Kinder-Abspielgerät einzuhauchen.
 
@@ -38,28 +38,28 @@ Da dies eine Web-App ist, die auf Standard-Smartphone-Hardware läuft, gibt es U
 
 ---
 
-## ✨ Features (v48)
+## ✨ Features (v49)
 
 ### 🚀 Performance & Komfort
-* **📂 Massen-Import (Hybrid):**
+* **📂 Massen-Import (Hybrid / Smart):**
     * Ziehe einen ganzen Ordner mit Hörspielen in die App.
-    * **Smart:** Nutzt automatisch eine `jukebox.json` (vom Python-Script) für perfekte Metadaten.
-    * **Fallback:** Findet die App weitere MP3s, fragt sie dich, ob diese "klassisch" (via Dateiname) importiert werden sollen.
-* **🔄 JSON-Sync (Neu in v44):**
-    * **Backup Sichern:** Exportiert die Datenbank als `jukebox.json` im exakt gleichen Format wie das Python-Script.
-    * **Backup Laden:** Importiert eine JSON und aktualisiert intelligent vorhandene Einträge (Metadaten-Update), ohne dass Audio-Dateien neu hochgeladen werden müssen.
-* **⚡ Auto-Start NFC:** Der Scanner startet sofort im Kinder-Modus. Kein extra Tippen nötig.
-* **💾 Smart Resume:** Speichert die exakte Position beim Pausieren oder Minimieren der App.
+    * **Smart:** Findet die App eine `jukebox.json` (auch `jukebox (3).json` etc.), importiert sie diese mit perfekten Metadaten.
+    * **Hybrid:** Findet sie *zusätzlich* noch weitere MP3s im Ordner, fragt sie dich, ob diese ebenfalls (anhand des Dateinamens) importiert werden sollen.
+* **🔄 Datenbank Sync:**
+    * **Export:** Sichere deine gesamte Bibliothek als JSON-Datei (kompatibel mit dem Python-Script).
+    * **Import & Reparatur:** Lade eine Datenbank-Datei und verknüpfe die fehlenden Audio-Dateien automatisch neu.
+* **⚡ Auto-Start NFC:** Der Scanner startet nun sofort, wenn der Kinder-Modus geöffnet wird.
+* **💾 Smart Resume:** Die App speichert die Position sofort beim Pausieren oder Minimieren.
 
 ### 🎧 Audio & Steuerung
 * **🔊 Intelligente Lautstärkebegrenzung:** Du legst ein Limit fest (z.B. 40%). Der Lautstärkebalken im Kinder-Modus skaliert sich darauf (Logarithmisch).
-* **📜 CUE-Sheet Support:** Lade `.cue`-Dateien hoch für echte Kapitelnamen und exaktes Skipping.
+* **📜 CUE-Sheet Support:** Lade `.cue`-Dateien hoch, um echte Kapitelnamen anzuzeigen und den `⏭️` Skip-Button zu nutzen.
 * **✏️ Edit Mode:** Bearbeite Einträge nachträglich, tausche Cover oder ziehe sie auf neue NFC-Tags um.
 
 ### 🔋 Energie & Display
 * **🌗 Eco-Modus (OLED-Sparmodus):**
     * Legt man das Handy mit dem Display nach unten auf den Tisch, wird der Bildschirm schwarz. Spart extrem Akku.
-* **💡 Screen Wake Lock:** Verhindert den Sperrbildschirm (nutzt Video-Loop-Trick).
+* **💡 Screen Wake Lock:** Verhindert, dass das Handy in den Sperrbildschirm geht (nutzt Video-Loop-Trick für maximale Kompatibilität).
 
 ---
 
@@ -67,7 +67,7 @@ Da dies eine Web-App ist, die auf Standard-Smartphone-Hardware läuft, gibt es U
 
 ### 1. Benötigte Hardware
 * **Android Smartphone** mit NFC (empfohlen).
-* **NFC-Tags** (Typ: NTAG213, NTAG215 oder NTAG216) – oder Original-Tonies (siehe oben).
+* **NFC-Tags** (Typ: NTAG213, NTAG215 oder NTAG216) – oder Original-Tonies.
 * Optional: Bluetooth-Lautsprecher.
 
 ### 2. Software-Setup (Hosting)
@@ -80,34 +80,33 @@ Damit Sensoren (Eco-Modus) und NFC funktionieren, **MUSS** die App über einen S
 4.  Starte den Server und öffne die Adresse (meist `http://127.0.0.1:8080`) in **Chrome**.
 
 **Option B: Online (GitHub Pages)**
-1.  Lade die Dateien in ein GitHub Repository hoch.
-2.  Aktiviere "GitHub Pages" in den Settings.
+1.  Lade die Dateien in ein GitHub Repository hoch (inkl. aller Unterordner).
+2.  Aktiviere "GitHub Pages" in den Repository-Einstellungen.
 3.  Öffne die URL (`https://dein-name.github.io/...`) auf dem Handy.
-
-### 3. Als App installieren (PWA)
-1.  Öffne die URL in **Chrome** auf dem Android-Gerät.
-2.  Tippe auf das Menü (3 Punkte) -> **"Zum Startbildschirm hinzufügen"** oder **"App installieren"**.
-3.  Starte die App nun über das Icon auf dem Homescreen.
 
 ---
 
 ## 📖 Bedienungsanleitung
 
 ### Musik hinzufügen (Eltern-Modus)
+
 **Variante A: Einzeln**
 1.  Klicke auf **"Neuen Tag anlernen"**.
 2.  Wähle Audio, (optional) Cue und Cover.
 3.  Wähle **"📡 Tag scannen"** (NFC) oder **"💾 Ohne NFC speichern"** (Liste).
 
-**Variante B: Massen-Import (Ordner)**
+**Variante B: Massen-Import (Empfohlen)**
 1.  Klicke auf **"📂 Massen-Import (Ordner)"**.
-2.  Wähle deinen Ordner (z.B. den Output vom Python-Script).
-3.  Die App liest die `jukebox.json` und verknüpft automatisch Audio & Bilder.
+2.  Wähle deinen Ordner mit Hörspielen aus (z.B. den Output vom Python-Script).
+3.  Bestätige den Upload-Dialog des Browsers (Daten bleiben lokal!).
+4.  Die App erkennt automatisch die `jukebox.json` und importiert alles perfekt.
+5.  *Hinweis:* Bei Dateien ohne JSON müssen MP3, Cover und Cue den **exakt gleichen Dateinamen** haben.
 
-**Variante C: Datenbank Sync**
-1.  Klicke auf **"Backup Laden"** und wähle eine `jukebox.json`.
-2.  Die App erstellt Einträge für alle Hörspiele.
-3.  Klicke danach auf **"🪄 Automatisch reparieren"** und wähle den Ordner mit den MP3s, um die Audiodateien massenhaft zuzuordnen.
+**Variante C: Datenbank wiederherstellen**
+1.  Klicke auf **"📥 Datenbank laden"** und wähle deine `jukebox.json`.
+    * *Jetzt sind die Titel in der Liste, aber die Musik fehlt noch (da JSON nur Text ist).*
+2.  Klicke auf den Button **"🪄 Automatisch reparieren"** (der jetzt rot blinken sollte).
+3.  Wähle den Ordner aus, in dem deine MP3-Dateien liegen. Die App verknüpft sie automatisch wieder.
 
 ### Einstellungen (WICHTIG!)
 * ⚠️ **Hardware-Tasten:** Stelle die physischen Lautstärke-Tasten am Handy auf **100%**.
@@ -131,7 +130,7 @@ Es gibt keinen sichtbaren "Zurück"-Button.
     * `limit.mp3` - Test-Audio Datei für Lautstärke.
 * `docs/screenshots/` - Bilder für diese Anleitung.
 * `tools/`
-    * `taf_jukebox_final.py` - Script zum Konvertieren von Tonie-Dateien.
+    * `taf_jukebox_final.py` - Python-Script zum Erstellen der Datenbank aus Tonie-Dateien.
 
 ---
 
