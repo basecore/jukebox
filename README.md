@@ -1,5 +1,4 @@
-# 🎵 Jukebox PWA (v41) - Die DIY "Toniebox" fürs Handy
-
+# 🎵 Jukebox PWA (v42) - Die DIY "Toniebox" fürs Handy
 
 Eine kinderfreundliche Musik-Player-App, die als Progressive Web App (PWA) direkt im Browser läuft. Sie ermöglicht es, Musik und Hörspiele über **NFC-Tags** (wie bei einer Toniebox) zu starten. Ideal, um alten Smartphones neues Leben als Kinder-Abspielgerät einzuhauchen.
 
@@ -35,15 +34,18 @@ Da dies eine Web-App ist, die auf Standard-Smartphone-Hardware läuft, gibt es U
     * **Möglichkeit ("Klopf-Methode"):** Wenn du eine Tonie-Figur verwenden willst, klopfe sie mehrmals schnell gegen eine echte Toniebox (aktiviert). Dies öffnet kurzzeitig den Privacy-Modus, sodass das Handy die ID lesen kann.
     * **Nachteil:** Sobald die Figur wieder regulär auf einer Toniebox stand, ist der Modus wieder zu und du musst erneut "klopfen", bevor das Handy sie erkennt.
     * **Wichtig:** Die App liest **nicht** die Musik von der Figur! Du musst die Audio-Datei (MP3) selbst besitzen und auf das Handy laden.
-    * *Tipp:* Um Audio von deinen eigenen Tonies zu sichern/konvertieren, nutze das Python-Script `tools/taf2mp3_smart.py` in diesem Repository.
+    * *Tipp:* Um Audio von deinen eigenen Tonies zu sichern/konvertieren, nutze das Python-Script `taf_jukebox_final.py` in diesem Repository.
 
 ---
 
-## ✨ Features (v41)
+## ✨ Features (v42)
 
 ### 🚀 Performance & Komfort
-* **📂 Massen-Import (Ordner):** Wähle einen ganzen Ordner mit Hörspielen aus. Die App importiert automatisch alle passenden Paare (MP3 + Cover + Cue) als manuelle Einträge.
-* **⚡ Auto-Start NFC:** Der Scanner startet nun sofort, wenn der Kinder-Modus geöffnet wird. Kein extra Tippen aufs Display mehr nötig (auf unterstützten Geräten).
+* **📂 Massen-Import (Smart):**
+    * Ziehe einen ganzen Ordner mit Hörspielen in die App.
+    * Erkennt automatisch eine `jukebox.json` (vom Python-Script) für perfekte Metadaten.
+    * Fallback: Gruppiert Dateien mit gleichem Namen automatisch (MP3 + Cover + Cue).
+* **⚡ Auto-Start NFC:** Der Scanner startet nun sofort, wenn der Kinder-Modus geöffnet wird. Kein extra Tippen aufs Display mehr nötig.
 * **💾 Smart Resume:** Die App speichert die Position sofort beim Pausieren oder Minimieren. Beim nächsten Start des gleichen Tags geht es exakt dort weiter.
 * **✏️ Edit & Manual Mode:**
     * Speichere Hörspiele **ohne NFC-Tag** (für späteres Verknüpfen oder reine Listen-Nutzung).
@@ -107,7 +109,7 @@ Damit Sensoren (Eco-Modus) und NFC funktionieren, **MUSS** die App über einen S
 **Massen-Import (Ordner):**
 1.  Klicke auf **"📂 Massen-Import (Ordner)"**.
 2.  Wähle deinen Ordner mit Hörspielen aus.
-3.  *Wichtig:* MP3, JPG und CUE müssen den **gleichen Dateinamen** haben (z.B. `Conni.mp3` und `Conni.jpg`), damit sie automatisch gruppiert werden.
+3.  Wenn du das Python-Script genutzt hast, wähle den Ordner `jukebox_output` (enthält `jukebox.json` für perfekte Erkennung).
 
 ### Einstellungen (WICHTIG!)
 * ⚠️ **Hardware-Tasten:** Stelle die physischen Lautstärke-Tasten am Handy auf **100%**.
@@ -120,7 +122,7 @@ Es gibt keinen sichtbaren "Zurück"-Button.
 
 ---
 
-## 📂 Dateistruktur (Cleaned)
+## 📂 Dateistruktur
 
 * `index.html` - Der komplette Code der App.
 * `manifest.json` - PWA Konfiguration.
@@ -128,10 +130,20 @@ Es gibt keinen sichtbaren "Zurück"-Button.
 * `assets/`
     * `img/` - Hintergrundbilder.
     * `icons/` - App Icons für Android/iOS.
+    * `limit.mp3` - Test-Audio Datei für Lautstärke.
 * `docs/screenshots/` - Bilder für diese Anleitung.
 * `tools/`
-    * `taf2mp3_smart.py` - Script zum Konvertieren von Tonie-Dateien.
-    * `eco_debug.html` - Test-Tool für Sensoren.
+    * `taf_jukebox_final.py` - Script zum Konvertieren von Tonie-Dateien inkl. Metadaten.
+
+---
+
+## 🔗 Projekt & Support
+
+Du findest den Quellcode, Updates und Hilfe auf GitHub.  
+Hast du einen Fehler gefunden oder eine Idee für ein neues Feature? Erstelle gerne ein Issue!
+
+* 🏠 **Projekt:** [github.com/basecore/jukebox](https://github.com/basecore/jukebox/)
+* 🐛 **Fehler melden:** [Issues & Bugs](https://github.com/basecore/jukebox/issues)
 
 ## 👨‍💻 Credits
 Entwickelt von Sebastian Rößer.
