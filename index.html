@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V50 FinalStable</title>
+    <title>Jukebox V51 Bulletproof</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -44,20 +44,25 @@
             pointer-events: auto;
         }
 
-        /* KIDS MODE UI - ROBUST FIXED POSITION */
+        /* KIDS MODE UI - V51 FIX */
         #kids-mode {
             display: none; 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; 
+            top: 0; left: 0; right: 0; bottom: 0; /* Stretch force */
+            width: 100vw; height: 100vh;
             flex-direction: column;
             align-items: center; justify-content: flex-start;
-            background-color: #ddd; /* Fallback Grau */
+            
+            /* DUNKLES FALLBACK DAMIT MAN BUTTONS SIEHT WENN BILD FEHLT */
+            background-color: #2c3e50; 
+            
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             padding: 20px; padding-top: 40px;
             box-sizing: border-box;
             transition: background 0.3s ease;
-            z-index: 50; /* WICHTIG: Über allem anderen */
+            z-index: 50; 
             overflow-y: auto; 
         }
         
@@ -82,7 +87,9 @@
         }
         
         #playlist-info {
-            font-size: 1rem; color: #444; margin-top: -15px; margin-bottom: 10px; font-weight: bold;
+            font-size: 1rem; color: #f1f2f6; /* Heller Text für dunklen Background Fallback */
+            text-shadow: 0 1px 2px black;
+            margin-top: -15px; margin-bottom: 10px; font-weight: bold;
             max-width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
@@ -311,7 +318,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V50</h1>
+        <h1>🔧 Jukebox V51</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -447,7 +454,7 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V50 (FinalStable)</p>
+            <p>Jukebox NFC V51 (Bulletproof)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
             <p style="margin-top:10px;">
@@ -537,7 +544,7 @@
                 
                 if (mode === 'default') { 
                     kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; 
-                    kidsDiv.style.backgroundColor = "#ddd"; 
+                    kidsDiv.style.backgroundColor = "#2c3e50"; // Fallback Dark Blue
                 } 
                 else if (mode === 'color') { kidsDiv.style.backgroundColor = settings.bgColor || '#ffffff'; }
                 else if (mode === 'image') { 
@@ -611,16 +618,18 @@
             testAudio.play().catch(e => { console.log("Fehler:", e); showStatus("Fehler: limit.mp3 fehlt?"); });
         }
 
-        // --- WAKE LOCK & ECO (UPDATED V50) ---
+        // --- WAKE LOCK & ECO (V51 FIX: Async Safety) ---
         async function requestWakeLock() {
             if (!settings.enableWakeLock) return;
-            // Native API
+            
+            // 1. Native API
             if ('wakeLock' in navigator) { 
                 try { wakeLock = await navigator.wakeLock.request('screen'); } 
                 catch (err) { console.error("WakeLock failed:", err); } 
             }
-            // Video Fallback (MUSS direkt im Click-Handler sein)
-            stubbornVideo.play().catch(e => console.log("Video AutoPlay Blocked:", e));
+            
+            // 2. Video Fallback
+            stubbornVideo.play().catch(e => console.log("Video Play Error:", e));
         }
         
         async function releaseWakeLock() { 
@@ -753,7 +762,7 @@
             reader.readAsText(file);
         }
 
-        // --- BULK IMPORT (V49 SMART FIX) ---
+        // --- BULK IMPORT ---
         async function handleBulkImport(input) {
             const files = Array.from(input.files);
             if(files.length === 0) return;
@@ -764,7 +773,6 @@
             
             if (jukeboxJsonFile) {
                 const usedAudioFiles = await handleJukeboxJsonImport(jukeboxJsonFile, files);
-                
                 const audioExtensions = ['.mp3', '.m4a', '.ogg', '.wav', '.flac'];
                 const leftoverAudio = files.filter(f => {
                     const ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase();
@@ -1178,21 +1186,30 @@
         document.body.addEventListener('click', async () => { if(!ndef && "NDEFReader" in window) { try { await startNFC(); } catch(e) {} } }, { once: true });
 
         function goToKidsMode() {
-            document.getElementById('parent-mode').style.display = 'none';
-            // FIX: Manuelles Setzen von Flex
-            const k = document.getElementById('kids-mode');
-            k.style.display = 'flex';
-            
-            isParentMode = false;
-            applyKidsDesign(); 
-            applyButtonColors();
-            if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch((e) => {}); }
-            if(settings.enableEcoMode) updateEcoModeState(false);
-            
-            // WAKE LOCK + VIDEO START
-            requestWakeLock();
-            
-            startNFC().catch(err => console.log("Autostart NFC fehlgeschlagen (Klick nötig)", err));
+            try {
+                // 1. UI Switch first
+                document.getElementById('parent-mode').style.display = 'none';
+                const k = document.getElementById('kids-mode');
+                k.style.display = 'flex'; 
+
+                // 2. Visuals
+                isParentMode = false;
+                applyKidsDesign(); 
+                applyButtonColors();
+
+                // 3. System stuff
+                if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch((e) => {}); }
+                if(settings.enableEcoMode) updateEcoModeState(false);
+                
+                // 4. WakeLock & NFC delayed
+                setTimeout(() => {
+                    requestWakeLock();
+                    startNFC().catch(err => console.log("NFC Error", err));
+                }, 100);
+
+            } catch(e) {
+                alert("Fehler beim Starten: " + e);
+            }
         }
         
         // Touch Listener für iOS / Mobile Wake Lock
