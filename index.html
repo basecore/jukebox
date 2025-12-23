@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V41 Progress</title>
+    <title>Jukebox V42 SmartImport</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -303,7 +303,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V41</h1>
+        <h1>🔧 Jukebox V42</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -325,7 +325,7 @@
             </div>
             
             <div class="warn-text">
-                ⚠️ Wichtig: Bitte stelle die Handy-Lautstärke (Hardware-Tasten) auf 100%. Die App regelt dann die tatsächliche Begrenzung.
+                ⚠️ Wichtig: Bitte stelle die Handy-Lautstärke (Hardware-Tasten) auf 100%.
             </div>
             
             <label>Schlaf-Timer:</label>
@@ -340,58 +340,40 @@
 
         <div class="card" style="border-left: 3px solid #0984e3;">
             <h2>🔋 Energie & Display</h2>
-            
             <div class="checkbox-wrapper">
                 <input type="checkbox" id="check-wakelock" onchange="saveSettings()">
-                <div>
-                    <strong>Display anlassen (Aggressiv)</strong><br>
-                    <span style="font-size:0.8em; color:#ccc;">Nutzt Video-Trick gegen Sperrbildschirm</span>
-                </div>
+                <div><strong>Display anlassen</strong><br><span style="font-size:0.8em; color:#ccc;">Nutzt Video-Trick</span></div>
             </div>
-
             <div class="checkbox-wrapper">
                 <input type="checkbox" id="check-ecomode" onchange="updateEcoModeState(true)">
-                <div>
-                    <strong>Stromsparen beim Umdrehen</strong><br>
-                    <span style="font-size:0.8em; color:#ccc;">Handy aufs Display legen = Schwarz</span>
-                </div>
+                <div><strong>Stromsparen beim Umdrehen</strong><br><span style="font-size:0.8em; color:#ccc;">Display aus bei Face-down</span></div>
             </div>
-
             <button class="btn-admin" style="background-color: #74b9ff; font-size: 0.9em; margin-top:0;" onclick="requestIOSPermission()">
-                📱 iOS Sensoren aktivieren (nur iPhone)
+                📱 iOS Sensoren aktivieren
             </button>
         </div>
 
         <div class="card" style="border-left: 3px solid #e84393;">
             <h2>🎨 Design für Kinder-Modus</h2>
-            
             <div class="checkbox-wrapper">
                 <input type="checkbox" id="check-colorful" onchange="saveSettings()">
                 <span>🎨 Bunte Knöpfe für Kinder</span>
             </div>
-
             <label>Hintergrund-Modus:</label>
             <select id="bg-mode-select" onchange="updateBgUIState(); saveSettings();" style="margin-bottom: 15px;">
-                <option value="default">Standard Hintergrund-Bild</option>
-                <option value="color">Eigene Farbe</option>
-                <option value="image">Eigenes Hintergrund-Bild</option>
+                <option value="default">Standard</option>
+                <option value="color">Farbe</option>
+                <option value="image">Bild</option>
             </select>
-
             <div id="bg-color-container" class="hidden-container"> 
-                 <label>Wähle eine Farbe:</label>
                  <input type="color" id="bg-color-input" value="#ffffff" onchange="saveSettings()">
             </div>
-
             <div id="bg-image-container" class="hidden-container">
-                <label>Eigenes Bild verwalten:</label>
                 <button class="btn-admin" style="background-color: #6c5ce7; position:relative;">
-                    🖼️ Neues Bild hochladen...
+                    🖼️ Bild hochladen...
                     <input type="file" id="bg-img-hidden" accept="image/*" onchange="saveBackgroundImage(this)">
                 </button>
-                <button class="btn-admin" style="background-color: #ff7675; margin-top:5px;" onclick="deleteBackgroundImage()">
-                    ❌ Eigenes Bild löschen
-                </button>
-                <p style="font-size:0.8em; color:#aaa; margin-top:5px;">(Wenn kein eigenes Bild da ist, wird das Standard-Bild gezeigt.)</p>
+                <button class="btn-admin" style="background-color: #ff7675; margin-top:5px;" onclick="deleteBackgroundImage()">Löschen</button>
             </div>
         </div>
 
@@ -415,12 +397,9 @@
             
             <div style="display:flex; gap:10px; flex-direction:column;">
                 <button id="btn-save-tag" class="btn-admin" onclick="activateLinkMode()">📡 Tag scannen & speichern</button>
-                
-                <button id="btn-save-manual" class="btn-admin" style="background-color:#7f8c8d; margin-top:0;" onclick="saveManualTrack()">💾 Ohne NFC speichern (für später)</button>
-                
+                <button id="btn-save-manual" class="btn-admin" style="background-color:#7f8c8d; margin-top:0;" onclick="saveManualTrack()">💾 Ohne NFC speichern</button>
                 <button id="btn-cancel-edit" class="btn-admin" style="background-color:#95a5a6; display:none;" onclick="cancelEdit()">Abbrechen</button>
             </div>
-            
             <p id="scan-status" style="color: #74b9ff; margin-top: 10px; font-weight:bold; min-height: 20px;"></p>
         </div>
 
@@ -433,9 +412,9 @@
             <h2>📂 Datenbank</h2>
             
             <div class="info-box-blue">
-                <strong>ℹ️ Wichtig für Massen-Import:</strong><br>
-                1. MP3, Cover (.jpg) und Cue müssen den <u>exakt gleichen Namen</u> haben (z.B. <code>Hörspiel_01.mp3</code> & <code>Hörspiel_01.jpg</code>).<br>
-                2. Der Browser fragt nach "Upload" -> Bestätigen! Daten bleiben <strong>lokal</strong> im Handy-Speicher.
+                <strong>ℹ️ Massen-Import (Smart):</strong><br>
+                Wenn im Ordner eine <code>jukebox.json</code> (vom Python-Script) liegt, wird diese genutzt.<br>
+                Andernfalls werden Dateien mit gleichem Namen gruppiert.
             </div>
 
             <button class="btn-admin" style="background-color: #e67e22; position:relative; margin-bottom:10px;">
@@ -459,7 +438,7 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V41 (Progress Import)</p>
+            <p>Jukebox NFC V42 (Smart Import)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
         </div>
@@ -528,8 +507,6 @@
         let isNfcScanning = false; let isLinkModeActive = false;
 
         let currentCueTracks = null; 
-        
-        // EDIT STATE
         let editingOriginalTagId = null;
 
         const SYSTEM_BG_ID = "system_bg";
@@ -652,10 +629,7 @@
             const testAudio = new Audio('assets/limit.mp3');
             testAudio.volume = Math.pow(settings.maxVolume, 2);
             showStatus("🔊 Spiele Test-Datei...");
-            testAudio.play().catch(e => {
-                console.log("Fehler:", e);
-                showStatus("Fehler: limit.mp3 fehlt?");
-            });
+            testAudio.play().catch(e => { console.log("Fehler:", e); showStatus("Fehler: limit.mp3 fehlt?"); });
         }
 
         // --- WAKE LOCK & ECO ---
@@ -720,13 +694,116 @@
             }; reader.readAsText(file);
         }
 
-        // --- BULK IMPORT (SEQUENTIELL FIX + LIVE PROGRESS) ---
+        // --- BULK IMPORT (V42 SMART + SEQUENTIELL) ---
         async function handleBulkImport(input) {
             const files = Array.from(input.files);
             if(files.length === 0) return;
             
-            showStatus(`Analysiere ${files.length} Dateien...`);
+            showStatus(`Prüfe ${files.length} Dateien...`);
             
+            // Check for jukebox.json
+            const jukeboxJsonFile = files.find(f => f.name.toLowerCase() === 'jukebox.json');
+            
+            if (jukeboxJsonFile) {
+                // SMART IMPORT MODE
+                await handleJukeboxJsonImport(jukeboxJsonFile, files);
+            } else {
+                // FALLBACK MODE (Filename matching)
+                await handleClassicBulkImport(files);
+            }
+            
+            input.value = ""; // Reset
+        }
+
+        async function handleJukeboxJsonImport(jsonFile, allFiles) {
+            showStatus("Lade jukebox.json...");
+            const readFileAsText = (file) => new Promise((res, rej) => {
+                const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsText(file);
+            });
+
+            try {
+                const jsonText = await readFileAsText(jsonFile);
+                const metadataEntries = JSON.parse(jsonText);
+                let count = 0;
+                
+                // Helper to find file (case-insensitive check might be needed, but exact match is safer)
+                // We use webkitRelativePath to match exactly if possible, or just name
+                const findFile = (name) => allFiles.find(f => f.name === name);
+
+                for (let i = 0; i < metadataEntries.length; i++) {
+                    const entry = metadataEntries[i];
+                    showStatus(`Smart Import ${i+1}/${metadataEntries.length}: ${entry.name}`);
+
+                    // Find Audio
+                    const audioFiles = [];
+                    if (entry.playlistFileNames) {
+                        for (const fname of entry.playlistFileNames) {
+                            const f = findFile(fname);
+                            if (f) audioFiles.push(f);
+                        }
+                    }
+
+                    if (audioFiles.length === 0) {
+                        console.log("Skipping (no audio found):", entry.name);
+                        continue;
+                    }
+
+                    // Find Image
+                    let imageBlob = null;
+                    if (entry.imageFileName) {
+                        imageBlob = findFile(entry.imageFileName);
+                    }
+
+                    // Find CUE (if exists matching audio name base)
+                    // The JSON doesn't strictly link CUE files in the python script provided, 
+                    // but we can look for [audio_basename].cue
+                    let cueTracks = null;
+                    const audioBase = entry.playlistFileNames[0].replace(/\.[^/.]+$/, "");
+                    const cueFile = findFile(audioBase + ".cue");
+                    if (cueFile) {
+                        try {
+                            const cueText = await readFileAsText(cueFile);
+                            cueTracks = parseCueSheet(cueText);
+                        } catch(e) {}
+                    }
+
+                    // Save to DB
+                    await new Promise((resolve, reject) => {
+                        const tx = db.transaction(["tracks"], "readwrite");
+                        const store = tx.objectStore("tracks");
+                        
+                        const record = {
+                            tagId: entry.tagId,
+                            name: entry.name,
+                            playlist: audioFiles,
+                            playlistFileNames: entry.playlistFileNames,
+                            imageBlob: imageBlob,
+                            imageFileName: entry.imageFileName,
+                            cueTracks: cueTracks,
+                            meta: entry.meta, // Store extra meta
+                            tags: entry.tags, // Store tags
+                            lastTrackIndex: 0, lastTime: 0
+                        };
+                        
+                        store.put(record);
+                        tx.oncomplete = () => { count++; resolve(); };
+                        tx.onerror = (e) => { 
+                            if(e.target.error.name === "QuotaExceededError") {
+                                alert("SPEICHER VOLL!"); reject("Quota");
+                            } else resolve(); 
+                        };
+                    });
+                }
+                showStatus(`${count} Smart-Import fertig! 🎉`);
+                loadTagList();
+
+            } catch (e) {
+                console.error(e);
+                alert("Fehler beim Lesen der jukebox.json: " + e);
+            }
+        }
+
+        async function handleClassicBulkImport(files) {
             const groups = {};
             files.forEach(f => {
                 const path = f.webkitRelativePath || f.name;
@@ -744,18 +821,13 @@
                 else if (ext === 'cue') { groups[basePath].cue = f; }
             });
 
-            // Verarbeitung SEQUENTIELL mit Fortschrittsanzeige
             let count = 0;
             const groupKeys = Object.keys(groups);
             const totalGroups = groupKeys.length;
 
-            const readFileAsText = (file) => {
-                return new Promise((resolve, reject) => {
-                    const r = new FileReader();
-                    r.onload = e => resolve(e.target.result); r.onerror = reject;
-                    r.readAsText(file);
-                });
-            };
+            const readFileAsText = (file) => new Promise((res, rej) => {
+                const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsText(file);
+            });
 
             for (let i = 0; i < totalGroups; i++) {
                 const key = groupKeys[i];
@@ -763,17 +835,13 @@
                 
                 if(g.audio.length === 0) continue;
 
-                // Live Update
                 const statusEl = document.getElementById('status-msg');
                 statusEl.innerText = `Importiere ${i+1}/${totalGroups}: ${g.name}`;
                 statusEl.style.display = 'block';
 
                 let cueTracks = null;
                 if(g.cue) {
-                    try {
-                        const text = await readFileAsText(g.cue);
-                        cueTracks = parseCueSheet(text);
-                    } catch(e) { console.log("CUE Skip", e); }
+                    try { const text = await readFileAsText(g.cue); cueTracks = parseCueSheet(text); } catch(e) {}
                 }
 
                 try {
@@ -796,28 +864,16 @@
                         };
                         
                         store.put(record);
-                        
                         tx.oncomplete = () => { count++; resolve(); };
-                        
-                        // FEHLER BEHANDLUNG FÜR SPEICHERVOLL
                         tx.onerror = (e) => { 
-                            if(e.target.error.name === "QuotaExceededError") {
-                                alert("SPEICHER VOLL! Browser lässt keine weiteren Dateien zu.");
-                                reject("QuotaExceeded");
-                            } else {
-                                console.log("DB Error", e); 
-                                resolve(); // Weiter mit nächstem
-                            }
+                            if(e.target.error.name === "QuotaExceededError") { alert("SPEICHER VOLL!"); reject("QuotaExceeded"); } 
+                            else resolve(); 
                         };
                     });
-                } catch(err) {
-                    if(err === "QuotaExceeded") break; // Stop loop
-                }
+                } catch(err) { if(err === "QuotaExceeded") break; }
             }
-
             showStatus(`${count} Hörspiele importiert! 🎉`);
             loadTagList();
-            input.value = "";
         }
 
         // --- NFC LOGIC ---
