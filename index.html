@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V42 SmartImport</title>
+    <title>Jukebox V43 HybridImport</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -245,6 +245,10 @@
             text-align: center; font-size: 0.75em; color: #888;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
+        
+        /* Github Link Style */
+        .footer-info a { color: #74b9ff; text-decoration: none; }
+        .footer-info a:hover { text-decoration: underline; }
 
         .tag-list-item {
             background: rgba(0,0,0,0.3); padding: 15px; margin-top: 5px;
@@ -303,7 +307,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V42</h1>
+        <h1>🔧 Jukebox V43</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -412,9 +416,10 @@
             <h2>📂 Datenbank</h2>
             
             <div class="info-box-blue">
-                <strong>ℹ️ Massen-Import (Smart):</strong><br>
-                Wenn im Ordner eine <code>jukebox.json</code> (vom Python-Script) liegt, wird diese genutzt.<br>
-                Andernfalls werden Dateien mit gleichem Namen gruppiert.
+                <strong>ℹ️ Massen-Import (Hybrid):</strong><br>
+                1. Die App sucht zuerst nach einer <code>jukebox.json</code>.<br>
+                2. Findet sie weitere MP3s, fragt sie dich, ob diese ebenfalls (klassisch) importiert werden sollen.<br>
+                3. Browser "Upload" bestätigen (Daten bleiben lokal!).
             </div>
 
             <button class="btn-admin" style="background-color: #e67e22; position:relative; margin-bottom:10px;">
@@ -438,9 +443,13 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V42 (Smart Import)</p>
+            <p>Jukebox NFC V43 (Hybrid Import)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
+            <p style="margin-top:10px;">
+                <a href="https://github.com/basecore/jukebox/" target="_blank">💻 GitHub Projekt</a> &bull; 
+                <a href="https://github.com/basecore/jukebox/issues" target="_blank">🐛 Fehler melden</a>
+            </p>
         </div>
     </div>
 
@@ -694,69 +703,80 @@
             }; reader.readAsText(file);
         }
 
-        // --- BULK IMPORT (V42 SMART + SEQUENTIELL) ---
+        // --- BULK IMPORT (V43 HYBRID) ---
         async function handleBulkImport(input) {
             const files = Array.from(input.files);
             if(files.length === 0) return;
             
             showStatus(`Prüfe ${files.length} Dateien...`);
             
-            // Check for jukebox.json
             const jukeboxJsonFile = files.find(f => f.name.toLowerCase() === 'jukebox.json');
             
             if (jukeboxJsonFile) {
-                // SMART IMPORT MODE
-                await handleJukeboxJsonImport(jukeboxJsonFile, files);
+                // PHASE 1: Smart Import (JSON)
+                const usedAudioFiles = await handleJukeboxJsonImport(jukeboxJsonFile, files);
+                
+                // PHASE 2: Check leftovers
+                // Wir filtern alle Audio-Dateien, die NICHT im JSON verwendet wurden
+                const audioExtensions = ['.mp3', '.m4a', '.ogg', '.wav', '.flac'];
+                const leftoverAudio = files.filter(f => {
+                    const ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase();
+                    return audioExtensions.includes(ext) && !usedAudioFiles.has(f.name);
+                });
+
+                if (leftoverAudio.length > 0) {
+                    if(confirm(`Smart Import fertig. Es wurden noch ${leftoverAudio.length} weitere Audio-Dateien gefunden, die nicht in der JSON stehen.\n\nSollen diese auch importiert werden (via Dateiname)?`)) {
+                        // Wir übergeben ALLE files an den Classic Import, aber er soll nur die verarbeiten, die "übrig" sind.
+                        // Trick: Wir übergeben eine gefilterte Liste, die nur die Leftover Audios + potenzielle Bilder/Cues enthält.
+                        // Der Einfachheit halber filtern wir hier einfach alle bereits genutzten Audios raus.
+                        const filesForClassic = files.filter(f => !usedAudioFiles.has(f.name));
+                        await handleClassicBulkImport(filesForClassic);
+                    }
+                }
             } else {
-                // FALLBACK MODE (Filename matching)
+                // FALLBACK: Alles klassisch
                 await handleClassicBulkImport(files);
             }
             
-            input.value = ""; // Reset
+            input.value = ""; 
         }
 
+        // Modifiziert: Gibt ein Set der verwendeten Audio-Dateinamen zurück
         async function handleJukeboxJsonImport(jsonFile, allFiles) {
             showStatus("Lade jukebox.json...");
             const readFileAsText = (file) => new Promise((res, rej) => {
                 const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsText(file);
             });
 
+            const usedAudioSet = new Set();
+
             try {
                 const jsonText = await readFileAsText(jsonFile);
                 const metadataEntries = JSON.parse(jsonText);
                 let count = 0;
                 
-                // Helper to find file (case-insensitive check might be needed, but exact match is safer)
-                // We use webkitRelativePath to match exactly if possible, or just name
                 const findFile = (name) => allFiles.find(f => f.name === name);
 
                 for (let i = 0; i < metadataEntries.length; i++) {
                     const entry = metadataEntries[i];
                     showStatus(`Smart Import ${i+1}/${metadataEntries.length}: ${entry.name}`);
 
-                    // Find Audio
                     const audioFiles = [];
                     if (entry.playlistFileNames) {
                         for (const fname of entry.playlistFileNames) {
                             const f = findFile(fname);
-                            if (f) audioFiles.push(f);
+                            if (f) {
+                                audioFiles.push(f);
+                                usedAudioSet.add(f.name); // Merken!
+                            }
                         }
                     }
 
-                    if (audioFiles.length === 0) {
-                        console.log("Skipping (no audio found):", entry.name);
-                        continue;
-                    }
+                    if (audioFiles.length === 0) continue;
 
-                    // Find Image
                     let imageBlob = null;
-                    if (entry.imageFileName) {
-                        imageBlob = findFile(entry.imageFileName);
-                    }
+                    if (entry.imageFileName) imageBlob = findFile(entry.imageFileName);
 
-                    // Find CUE (if exists matching audio name base)
-                    // The JSON doesn't strictly link CUE files in the python script provided, 
-                    // but we can look for [audio_basename].cue
                     let cueTracks = null;
                     const audioBase = entry.playlistFileNames[0].replace(/\.[^/.]+$/, "");
                     const cueFile = findFile(audioBase + ".cue");
@@ -767,7 +787,6 @@
                         } catch(e) {}
                     }
 
-                    // Save to DB
                     await new Promise((resolve, reject) => {
                         const tx = db.transaction(["tracks"], "readwrite");
                         const store = tx.objectStore("tracks");
@@ -780,8 +799,8 @@
                             imageBlob: imageBlob,
                             imageFileName: entry.imageFileName,
                             cueTracks: cueTracks,
-                            meta: entry.meta, // Store extra meta
-                            tags: entry.tags, // Store tags
+                            meta: entry.meta, 
+                            tags: entry.tags,
                             lastTrackIndex: 0, lastTime: 0
                         };
                         
@@ -794,12 +813,14 @@
                         };
                     });
                 }
-                showStatus(`${count} Smart-Import fertig! 🎉`);
+                showStatus(`${count} Smart-Import fertig!`);
                 loadTagList();
+                return usedAudioSet;
 
             } catch (e) {
                 console.error(e);
                 alert("Fehler beim Lesen der jukebox.json: " + e);
+                return usedAudioSet;
             }
         }
 
@@ -836,7 +857,7 @@
                 if(g.audio.length === 0) continue;
 
                 const statusEl = document.getElementById('status-msg');
-                statusEl.innerText = `Importiere ${i+1}/${totalGroups}: ${g.name}`;
+                statusEl.innerText = `Classic Import ${i+1}/${totalGroups}: ${g.name}`;
                 statusEl.style.display = 'block';
 
                 let cueTracks = null;
@@ -872,7 +893,7 @@
                     });
                 } catch(err) { if(err === "QuotaExceeded") break; }
             }
-            showStatus(`${count} Hörspiele importiert! 🎉`);
+            showStatus(`${count} Importiert! 🎉`);
             loadTagList();
         }
 
