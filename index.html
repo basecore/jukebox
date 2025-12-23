@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V48 Debug</title>
+    <title>Jukebox V49 SmartSync</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -40,23 +40,25 @@
             display: none;
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: black;
-            z-index: 9999;
-            pointer-events: auto; /* Blockiert Klicks */
+            z-index: 99999;
+            pointer-events: auto;
         }
 
         /* KIDS MODE UI */
         #kids-mode {
-            display: none; flex: 1; flex-direction: column;
+            display: none; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            flex-direction: column;
             align-items: center; justify-content: flex-start;
-            /* WICHTIG: Farbe damit man sieht ob er da ist */
-            background-color: #34495e; 
+            background-color: #ddd; 
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            position: relative;
             padding: 20px; padding-top: 40px;
+            box-sizing: border-box;
             transition: background 0.3s ease;
-            z-index: 5;
+            z-index: 50; 
+            overflow-y: auto; 
         }
         
         .kids-text-shadow {
@@ -68,7 +70,6 @@
             -webkit-backdrop-filter: blur(5px);
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             display: inline-block;
-            z-index: 10;
         }
 
         #track-title-display {
@@ -91,7 +92,6 @@
             background-color: #eee; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
             border: 4px solid white; position: relative;
-            z-index: 10;
         }
 
         #album-img { width: 100%; height: 100%; object-fit: cover; display: none; }
@@ -101,21 +101,19 @@
             position: absolute; top: 10px; right: 10px; font-size: 16px;
             background: rgba(255,255,255,0.9); padding: 5px 10px;
             border-radius: 12px; display: none; color: #333;
-            font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 15;
+            font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
         }
 
         /* CONTROLS */
         .controls-main {
             display: flex; align-items: center; justify-content: center;
             gap: 25px; margin-bottom: 15px; width: 100%;
-            z-index: 10; position: relative;
         }
 
         #volume-display-container {
             width: 85%; height: 25px; background-color: rgba(255,255,255,0.7);
             border-radius: 15px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            z-index: 10; position: relative;
         }
 
         #volume-bar {
@@ -126,7 +124,6 @@
         .controls-nav-row {
             display: flex; align-items: center; justify-content: center;
             gap: 20px; width: 100%; margin-bottom: 40px; 
-            z-index: 10; position: relative;
         }
         
         .btn-control {
@@ -159,7 +156,6 @@
             border-radius: 12px; position: relative; overflow: hidden;
             border: 1px solid rgba(0,0,0,0.1); cursor: pointer; margin-top: auto; 
             margin-bottom: 20px;
-            z-index: 10;
         }
         #time-progress { height: 100%; width: 0%; background-color: var(--blue-time); transition: width 0.5s linear; }
         #time-text {
@@ -175,7 +171,7 @@
             display: flex; flex-direction: column; padding: 20px;
             height: 100vh; background-color: #2d3436; color: white;
             overflow-y: auto;
-            z-index: 20; position: relative;
+            z-index: 10;
         }
 
         .card {
@@ -219,7 +215,7 @@
         .btn-import { background-color: var(--green-safe); color: white; position: relative;}
         .btn-relink { background-color: var(--orange-warn); color: #333; position: relative; margin-top:10px; width: 100%;}
         
-        #import-file-hidden, #relink-file-hidden, #bg-img-hidden, #bulk-folder-input {
+        #import-file-hidden, #relink-file-hidden, #bg-img-hidden, #bulk-folder-input, #repair-folder-input {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             opacity: 0; cursor: pointer;
         }
@@ -315,7 +311,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V48</h1>
+        <h1>🔧 Jukebox V49</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -424,10 +420,9 @@
             <h2>📂 Datenbank</h2>
             
             <div class="info-box-blue">
-                <strong>ℹ️ Hybrid-Import:</strong><br>
-                1. Sucht nach <code>jukebox.json</code> für perfekte Daten.<br>
-                2. Fragt nach "restlichen" MP3s im Ordner (Cover/Cue müssen gleich heißen wie MP3).<br>
-                3. Browser "Upload" bestätigen (Daten bleiben lokal!).
+                <strong>ℹ️ Massen-Import (Hybrid):</strong><br>
+                1. Sucht nach <code>jukebox.json</code> für perfekte Daten (erkennt auch Kopien wie <code>jukebox (3).json</code>).<br>
+                2. Verknüpft automatisch Audio & Bilder.<br>
             </div>
 
             <button class="btn-admin" style="background-color: #e67e22; position:relative; margin-bottom:10px;">
@@ -442,16 +437,16 @@
                     <input type="file" id="import-file-hidden" accept=".json" onchange="importJukeboxJson(this)">
                 </button>
             </div>
-            <button class="btn-admin btn-relink">
-                🪄 Automatisch reparieren
-                <input type="file" id="relink-file-hidden" multiple accept="audio/*, image/*, .mp3, .ogg, .m4a, .jpg, .png" onchange="smartRelinkFiles(this)">
+            <button class="btn-admin btn-relink" id="btn-auto-repair" style="position:relative;">
+                🪄 Automatisch reparieren (Dateien verknüpfen)
+                <input type="file" id="repair-folder-input" webkitdirectory directory multiple onchange="smartRelinkFiles(this)">
             </button>
             <hr style="margin: 15px 0; border-top:1px solid #555;">
             <button class="btn-admin" style="background-color: #ff4757;" onclick="clearDatabase()">🗑️ Datenbank leeren</button>
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V48 (Debug Mode)</p>
+            <p>Jukebox NFC V49 (SmartSync)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
             <p style="margin-top:10px;">
@@ -509,26 +504,16 @@
     <audio id="audio-player"></audio>
 
     <script>
-        // GLOBAL ERROR HANDLER
-        window.onerror = function(message, source, lineno, colno, error) {
-            alert(`FEHLER: ${message}\nZeile: ${lineno}`);
-        };
-
         let db; let isParentMode = true; let ndef; let clickCount = 0; 
         const audioPlayer = document.getElementById('audio-player');
         
         let wakeLock = null;
         const blackCurtain = document.getElementById('black-curtain');
         const stubbornVideo = document.getElementById('stubborn-video');
-        
-        // --- REAL MP4 (Black, 2 seconds, silent) ---
-        // Dies ist ein gültiger MP4 Container, nicht leer!
         stubbornVideo.src = "data:video/mp4;base64,AAAAHGZ0eXBNNEVAAAAAAAEAAQAAAAAAAAAAAAAA1W1vb3YAAABsbXZoAAAAAQAAAAAA5G0AAORtAAABAAABAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAGGlvZHMAAAAAEICAgAcAT////3//AAACQXRyYWsAAABcdGtoZAAAAAEAAAAAAAAAAAAAAQAAAAEAAAAAAORtAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAADkbQAAAAABAAAAAAABM21kaWEAAAAgbWRoZAAAAAEAAAAAAORtAADkbQAAQBAAABExAAAAAAAAAAA5aGRscgAAAAAAAAAAdmlkZQAAAAAAAAAAAAAAAFZpZGVvSGFuZGxlcgAAAAABAAAADG1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAKFzdGJsAAAAp3N0ZHNkAAAAAAAAAAEAAABnYXZjMQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAEAAABIAAAASAAAAAAADqAAAAAAAP//AAAALWF2Y0MBAAAALgEASAAAAAb/gAQACAAAAAAhAAACigAAlzYBAAAAAwEBAAAAAwEBAAAAAGhzdHRzAAAAAAAAAAEAAAABAAABAAAAABxzdHNjAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAwc3RzegAAAAAAAAAAAAAAAQAAABRzdGNvAAAAAAAAAAEAAACwAAAAYXVkdGEAAAAUY29wcmQAAAAAQmFzZWNvcmU=";
         
-        // Sicherstellen dass Video loopt wenn es pausiert wird
         stubbornVideo.addEventListener('pause', () => {
             if (settings.enableWakeLock && !isParentMode && !audioPlayer.paused) {
-                // Versuch neu zu starten wenn ungewollt pausiert
                 stubbornVideo.play().catch(() => {});
             }
         });
@@ -594,7 +579,7 @@
                 
                 if (mode === 'default') { 
                     kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; 
-                    kidsDiv.style.backgroundColor = "#eee"; 
+                    kidsDiv.style.backgroundColor = "#ddd"; /* Hellgrau Fallback */
                 } 
                 else if (mode === 'color') { kidsDiv.style.backgroundColor = settings.bgColor || '#ffffff'; }
                 else if (mode === 'image') { 
@@ -668,31 +653,14 @@
             testAudio.play().catch(e => { console.log("Fehler:", e); showStatus("Fehler: limit.mp3 fehlt?"); });
         }
 
-        // --- WAKE LOCK & ECO (UPDATED) ---
+        // --- WAKE LOCK & ECO ---
         async function requestWakeLock() {
             if (!settings.enableWakeLock) return;
-            
-            // 1. Native API
-            if ('wakeLock' in navigator) { 
-                try { 
-                    wakeLock = await navigator.wakeLock.request('screen'); 
-                } catch (err) { console.error("WakeLock failed:", err); } 
-            }
-            
-            // 2. Video Fallback
-            stubbornVideo.play().catch(e => console.log("Video Play Error (Autoplay blocked?):", e));
+            if ('wakeLock' in navigator) { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) { console.error(err); } }
+            stubbornVideo.play().catch(e => console.log(e));
         }
-        
-        async function releaseWakeLock() { 
-            if (wakeLock !== null) { await wakeLock.release(); wakeLock = null; } 
-            stubbornVideo.pause(); 
-        }
-        
-        document.addEventListener('visibilitychange', async () => { 
-            if (document.visibilityState === 'visible' && settings.enableWakeLock) { 
-                requestWakeLock(); 
-            } 
-        });
+        async function releaseWakeLock() { if (wakeLock !== null) { await wakeLock.release(); wakeLock = null; } stubbornVideo.pause(); }
+        document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && settings.enableWakeLock) { requestWakeLock(); } });
 
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { forceSaveCurrentPosition(); } });
         window.addEventListener('beforeunload', () => { forceSaveCurrentPosition(); });
@@ -797,7 +765,17 @@
                             };
                         });
                     }
-                    showStatus(`Fertig: ${updated} Updates, ${newEntries} Neu (brauchen Audio).`);
+                    
+                    // NEU: HINWEIS AUF REPARATUR
+                    alert(`Datenbank geladen!\n\n• ${updated} Einträge aktualisiert\n• ${newEntries} neue Einträge erstellt.\n\nWICHTIG: Die Audio-Dateien fehlen noch.\nBitte klicke jetzt auf 'Automatisch reparieren' und wähle den Ordner mit deinen MP3s aus!`);
+                    
+                    // Button hervorheben
+                    const btn = document.getElementById('btn-auto-repair');
+                    if(btn) {
+                        btn.style.backgroundColor = "#e74c3c"; 
+                        btn.style.animation = "pulse 2s infinite";
+                    }
+
                     loadTagList();
                     input.value = "";
                 } catch(e) { alert("Fehler: " + e); }
@@ -805,17 +783,19 @@
             reader.readAsText(file);
         }
 
-        // --- BULK IMPORT (V43 HYBRID) ---
+        // --- BULK IMPORT (V49 SMART FIX) ---
         async function handleBulkImport(input) {
             const files = Array.from(input.files);
             if(files.length === 0) return;
             
             showStatus(`Prüfe ${files.length} Dateien...`);
             
-            const jukeboxJsonFile = files.find(f => f.name.toLowerCase() === 'jukebox.json');
+            // Fix: Erkennt auch jukebox (3).json etc.
+            const jukeboxJsonFile = files.find(f => f.name.toLowerCase().startsWith('jukebox') && f.name.toLowerCase().endsWith('.json'));
             
             if (jukeboxJsonFile) {
                 const usedAudioFiles = await handleJukeboxJsonImport(jukeboxJsonFile, files);
+                
                 const audioExtensions = ['.mp3', '.m4a', '.ogg', '.wav', '.flac'];
                 const leftoverAudio = files.filter(f => {
                     const ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase();
@@ -835,7 +815,7 @@
         }
 
         async function handleJukeboxJsonImport(jsonFile, allFiles) {
-            showStatus("Lade jukebox.json...");
+            showStatus("Lade " + jsonFile.name + "...");
             const readFileAsText = (file) => new Promise((res, rej) => {
                 const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsText(file);
             });
@@ -870,13 +850,16 @@
                     if (entry.imageFileName) imageBlob = findFile(entry.imageFileName);
 
                     let cueTracks = null;
-                    const audioBase = entry.playlistFileNames[0].replace(/\.[^/.]+$/, "");
-                    const cueFile = findFile(audioBase + ".cue");
-                    if (cueFile) {
-                        try {
-                            const cueText = await readFileAsText(cueFile);
-                            cueTracks = parseCueSheet(cueText);
-                        } catch(e) {}
+                    // Fix: Check first audio file name for cue matching
+                    if(entry.playlistFileNames.length > 0) {
+                        const audioBase = entry.playlistFileNames[0].replace(/\.[^/.]+$/, "");
+                        const cueFile = findFile(audioBase + ".cue");
+                        if (cueFile) {
+                            try {
+                                const cueText = await readFileAsText(cueFile);
+                                cueTracks = parseCueSheet(cueText);
+                            } catch(e) {}
+                        }
                     }
 
                     await new Promise((resolve, reject) => {
@@ -911,7 +894,7 @@
 
             } catch (e) {
                 console.error(e);
-                alert("Fehler beim Lesen der jukebox.json: " + e);
+                alert("Fehler beim Lesen der JSON: " + e);
                 return usedAudioSet;
             }
         }
@@ -1228,14 +1211,16 @@
 
         function goToKidsMode() {
             document.getElementById('parent-mode').style.display = 'none';
-            document.getElementById('kids-mode').style.display = 'flex';
+            // FIX: Manuelles Setzen von Flex
+            const k = document.getElementById('kids-mode');
+            k.style.display = 'flex';
+            
             isParentMode = false;
             applyKidsDesign(); 
             applyButtonColors();
             if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch((e) => {}); }
             if(settings.enableEcoMode) updateEcoModeState(false);
             
-            // NEU: Versuch den Scanner sofort zu starten (ohne Klick)
             startNFC().catch(err => console.log("Autostart NFC fehlgeschlagen (Klick nötig)", err));
         }
 
@@ -1354,4 +1339,4 @@
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
     </script>
 </body>
-</html>
+    </html>
