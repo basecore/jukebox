@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V49 SmartSync</title>
+    <title>Jukebox V50 FinalStable</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -44,20 +44,20 @@
             pointer-events: auto;
         }
 
-        /* KIDS MODE UI */
+        /* KIDS MODE UI - ROBUST FIXED POSITION */
         #kids-mode {
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             flex-direction: column;
             align-items: center; justify-content: flex-start;
-            background-color: #ddd; 
+            background-color: #ddd; /* Fallback Grau */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             padding: 20px; padding-top: 40px;
             box-sizing: border-box;
             transition: background 0.3s ease;
-            z-index: 50; 
+            z-index: 50; /* WICHTIG: Über allem anderen */
             overflow-y: auto; 
         }
         
@@ -311,7 +311,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V49</h1>
+        <h1>🔧 Jukebox V50</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -420,9 +420,10 @@
             <h2>📂 Datenbank</h2>
             
             <div class="info-box-blue">
-                <strong>ℹ️ Massen-Import (Hybrid):</strong><br>
-                1. Sucht nach <code>jukebox.json</code> für perfekte Daten (erkennt auch Kopien wie <code>jukebox (3).json</code>).<br>
-                2. Verknüpft automatisch Audio & Bilder.<br>
+                <strong>ℹ️ Hybrid-Import:</strong><br>
+                1. Sucht nach <code>jukebox.json</code> für perfekte Daten.<br>
+                2. Fragt nach "restlichen" MP3s im Ordner (Achtung: Cover & Cue müssen <u>exakt</u> wie MP3 heißen).<br>
+                3. Browser "Upload" bestätigen (Daten bleiben lokal!).
             </div>
 
             <button class="btn-admin" style="background-color: #e67e22; position:relative; margin-bottom:10px;">
@@ -446,57 +447,13 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V49 (SmartSync)</p>
+            <p>Jukebox NFC V50 (FinalStable)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
             <p style="margin-top:10px;">
                 <a href="https://github.com/basecore/jukebox/" target="_blank">💻 GitHub Projekt</a> &bull; 
                 <a href="https://github.com/basecore/jukebox/issues" target="_blank">🐛 Fehler melden</a>
             </p>
-        </div>
-    </div>
-
-    <div id="kids-mode">
-        <div id="sleep-indicator">🌙 <span id="sleep-countdown"></span></div>
-        <div id="track-title-display" class="kids-text-shadow">Bereit zum Spielen!</div>
-        <div id="playlist-info" class="kids-text-shadow"></div>
-        
-        <div id="album-art-container">
-            <span id="album-placeholder">🎵</span>
-            <img id="album-img" src="" alt="Cover">
-        </div>
-        
-        <div class="controls-main">
-            <button id="btn-vol-down" class="btn-control btn-secondary" onclick="changeVolume(-0.1)">
-                <svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>
-            </button>
-            <button id="btn-play-main" class="btn-control btn-play" onclick="togglePlay()">
-                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-            <button id="btn-vol-up" class="btn-control btn-secondary" onclick="changeVolume(0.1)">
-                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            </button>
-        </div>
-
-        <div id="volume-display-container">
-            <div id="volume-bar"></div>
-        </div>
-
-        <div class="controls-nav-row">
-             <button id="btn-reset" class="btn-control btn-secondary" onclick="restartPlaylist()" title="Reset">
-                 <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-             </button>
-             <button id="btn-skip" class="btn-control btn-secondary" onclick="skipForward()" title="Skip">
-                 <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
-             </button>
-             <button id="btn-next-track" class="btn-control btn-secondary" style="display:none;" onclick="skipToNextCueTrack()" title="Next Chapter">
-                 <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-             </button>
-        </div>
-
-        <div id="time-container" onclick="toggleTimeDisplayMode()">
-            <div id="time-progress"></div>
-            <div id="time-text">--:--</div>
         </div>
     </div>
 
@@ -512,6 +469,7 @@
         const stubbornVideo = document.getElementById('stubborn-video');
         stubbornVideo.src = "data:video/mp4;base64,AAAAHGZ0eXBNNEVAAAAAAAEAAQAAAAAAAAAAAAAA1W1vb3YAAABsbXZoAAAAAQAAAAAA5G0AAORtAAABAAABAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAGGlvZHMAAAAAEICAgAcAT////3//AAACQXRyYWsAAABcdGtoZAAAAAEAAAAAAAAAAAAAAQAAAAEAAAAAAORtAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAADkbQAAAAABAAAAAAABM21kaWEAAAAgbWRoZAAAAAEAAAAAAORtAADkbQAAQBAAABExAAAAAAAAAAA5aGRscgAAAAAAAAAAdmlkZQAAAAAAAAAAAAAAAFZpZGVvSGFuZGxlcgAAAAABAAAADG1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAKFzdGJsAAAAp3N0ZHNkAAAAAAAAAAEAAABnYXZjMQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAEAAABIAAAASAAAAAAADqAAAAAAAP//AAAALWF2Y0MBAAAALgEASAAAAAb/gAQACAAAAAAhAAACigAAlzYBAAAAAwEBAAAAAwEBAAAAAGhzdHRzAAAAAAAAAAEAAAABAAABAAAAABxzdHNjAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAwc3RzegAAAAAAAAAAAAAAAQAAABRzdGNvAAAAAAAAAAEAAACwAAAAYXVkdGEAAAAUY29wcmQAAAAAQmFzZWNvcmU=";
         
+        // Video Re-Loop if paused by system
         stubbornVideo.addEventListener('pause', () => {
             if (settings.enableWakeLock && !isParentMode && !audioPlayer.paused) {
                 stubbornVideo.play().catch(() => {});
@@ -579,7 +537,7 @@
                 
                 if (mode === 'default') { 
                     kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; 
-                    kidsDiv.style.backgroundColor = "#ddd"; /* Hellgrau Fallback */
+                    kidsDiv.style.backgroundColor = "#ddd"; 
                 } 
                 else if (mode === 'color') { kidsDiv.style.backgroundColor = settings.bgColor || '#ffffff'; }
                 else if (mode === 'image') { 
@@ -653,14 +611,28 @@
             testAudio.play().catch(e => { console.log("Fehler:", e); showStatus("Fehler: limit.mp3 fehlt?"); });
         }
 
-        // --- WAKE LOCK & ECO ---
+        // --- WAKE LOCK & ECO (UPDATED V50) ---
         async function requestWakeLock() {
             if (!settings.enableWakeLock) return;
-            if ('wakeLock' in navigator) { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) { console.error(err); } }
-            stubbornVideo.play().catch(e => console.log(e));
+            // Native API
+            if ('wakeLock' in navigator) { 
+                try { wakeLock = await navigator.wakeLock.request('screen'); } 
+                catch (err) { console.error("WakeLock failed:", err); } 
+            }
+            // Video Fallback (MUSS direkt im Click-Handler sein)
+            stubbornVideo.play().catch(e => console.log("Video AutoPlay Blocked:", e));
         }
-        async function releaseWakeLock() { if (wakeLock !== null) { await wakeLock.release(); wakeLock = null; } stubbornVideo.pause(); }
-        document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && settings.enableWakeLock) { requestWakeLock(); } });
+        
+        async function releaseWakeLock() { 
+            if (wakeLock !== null) { await wakeLock.release(); wakeLock = null; } 
+            stubbornVideo.pause(); 
+        }
+        
+        document.addEventListener('visibilitychange', async () => { 
+            if (document.visibilityState === 'visible' && settings.enableWakeLock && !isParentMode) { 
+                requestWakeLock(); 
+            } 
+        });
 
         document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { forceSaveCurrentPosition(); } });
         window.addEventListener('beforeunload', () => { forceSaveCurrentPosition(); });
@@ -766,10 +738,8 @@
                         });
                     }
                     
-                    // NEU: HINWEIS AUF REPARATUR
                     alert(`Datenbank geladen!\n\n• ${updated} Einträge aktualisiert\n• ${newEntries} neue Einträge erstellt.\n\nWICHTIG: Die Audio-Dateien fehlen noch.\nBitte klicke jetzt auf 'Automatisch reparieren' und wähle den Ordner mit deinen MP3s aus!`);
                     
-                    // Button hervorheben
                     const btn = document.getElementById('btn-auto-repair');
                     if(btn) {
                         btn.style.backgroundColor = "#e74c3c"; 
@@ -790,7 +760,6 @@
             
             showStatus(`Prüfe ${files.length} Dateien...`);
             
-            // Fix: Erkennt auch jukebox (3).json etc.
             const jukeboxJsonFile = files.find(f => f.name.toLowerCase().startsWith('jukebox') && f.name.toLowerCase().endsWith('.json'));
             
             if (jukeboxJsonFile) {
@@ -850,7 +819,6 @@
                     if (entry.imageFileName) imageBlob = findFile(entry.imageFileName);
 
                     let cueTracks = null;
-                    // Fix: Check first audio file name for cue matching
                     if(entry.playlistFileNames.length > 0) {
                         const audioBase = entry.playlistFileNames[0].replace(/\.[^/.]+$/, "");
                         const cueFile = findFile(audioBase + ".cue");
@@ -1221,8 +1189,16 @@
             if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch((e) => {}); }
             if(settings.enableEcoMode) updateEcoModeState(false);
             
+            // WAKE LOCK + VIDEO START
+            requestWakeLock();
+            
             startNFC().catch(err => console.log("Autostart NFC fehlgeschlagen (Klick nötig)", err));
         }
+        
+        // Touch Listener für iOS / Mobile Wake Lock
+        document.getElementById('kids-mode').addEventListener('touchstart', () => {
+            if(!isParentMode) requestWakeLock();
+        }, {passive: true});
 
         function handleSecretSwitch() {
             clickCount++; setTimeout(() => { clickCount = 0; }, 2000); 
