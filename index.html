@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V45 FinalRename</title>
+    <title>Jukebox V46 Robust</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -48,13 +48,14 @@
         #kids-mode {
             display: none; flex: 1; flex-direction: column;
             align-items: center; justify-content: flex-start;
-            background-color: #fff; /* Fallback */
+            background-color: #eee; /* Fallback Grau statt Weiß */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             position: relative;
             padding: 20px; padding-top: 40px;
             transition: background 0.3s ease;
+            z-index: 5;
         }
         
         .kids-text-shadow {
@@ -66,6 +67,7 @@
             -webkit-backdrop-filter: blur(5px);
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             display: inline-block;
+            z-index: 10;
         }
 
         #track-title-display {
@@ -88,6 +90,7 @@
             background-color: #eee; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
             border: 4px solid white; position: relative;
+            z-index: 10;
         }
 
         #album-img { width: 100%; height: 100%; object-fit: cover; display: none; }
@@ -97,19 +100,21 @@
             position: absolute; top: 10px; right: 10px; font-size: 16px;
             background: rgba(255,255,255,0.9); padding: 5px 10px;
             border-radius: 12px; display: none; color: #333;
-            font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10;
+            font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 15;
         }
 
         /* CONTROLS */
         .controls-main {
             display: flex; align-items: center; justify-content: center;
             gap: 25px; margin-bottom: 15px; width: 100%;
+            z-index: 10; position: relative;
         }
 
         #volume-display-container {
             width: 85%; height: 25px; background-color: rgba(255,255,255,0.7);
             border-radius: 15px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1);
             margin-bottom: 20px;
+            z-index: 10; position: relative;
         }
 
         #volume-bar {
@@ -120,6 +125,7 @@
         .controls-nav-row {
             display: flex; align-items: center; justify-content: center;
             gap: 20px; width: 100%; margin-bottom: 40px; 
+            z-index: 10; position: relative;
         }
         
         .btn-control {
@@ -152,6 +158,7 @@
             border-radius: 12px; position: relative; overflow: hidden;
             border: 1px solid rgba(0,0,0,0.1); cursor: pointer; margin-top: auto; 
             margin-bottom: 20px;
+            z-index: 10;
         }
         #time-progress { height: 100%; width: 0%; background-color: var(--blue-time); transition: width 0.5s linear; }
         #time-text {
@@ -167,6 +174,7 @@
             display: flex; flex-direction: column; padding: 20px;
             height: 100vh; background-color: #2d3436; color: white;
             overflow-y: auto;
+            z-index: 20; position: relative; /* Über Kids Mode */
         }
 
         .card {
@@ -306,7 +314,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V45</h1>
+        <h1>🔧 Jukebox V46</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -443,13 +451,57 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V45 (Final Rename)</p>
+            <p>Jukebox NFC V46 (Robust)</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
             <p style="margin-top:10px;">
                 <a href="https://github.com/basecore/jukebox/" target="_blank">💻 GitHub Projekt</a> &bull; 
                 <a href="https://github.com/basecore/jukebox/issues" target="_blank">🐛 Fehler melden</a>
             </p>
+        </div>
+    </div>
+
+    <div id="kids-mode">
+        <div id="sleep-indicator">🌙 <span id="sleep-countdown"></span></div>
+        <div id="track-title-display" class="kids-text-shadow">Bereit zum Spielen!</div>
+        <div id="playlist-info" class="kids-text-shadow"></div>
+        
+        <div id="album-art-container">
+            <span id="album-placeholder">🎵</span>
+            <img id="album-img" src="" alt="Cover">
+        </div>
+        
+        <div class="controls-main">
+            <button id="btn-vol-down" class="btn-control btn-secondary" onclick="changeVolume(-0.1)">
+                <svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg>
+            </button>
+            <button id="btn-play-main" class="btn-control btn-play" onclick="togglePlay()">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button id="btn-vol-up" class="btn-control btn-secondary" onclick="changeVolume(0.1)">
+                <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            </button>
+        </div>
+
+        <div id="volume-display-container">
+            <div id="volume-bar"></div>
+        </div>
+
+        <div class="controls-nav-row">
+             <button id="btn-reset" class="btn-control btn-secondary" onclick="restartPlaylist()" title="Reset">
+                 <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+             </button>
+             <button id="btn-skip" class="btn-control btn-secondary" onclick="skipForward()" title="Skip">
+                 <svg viewBox="0 0 24 24"><path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/></svg>
+             </button>
+             <button id="btn-next-track" class="btn-control btn-secondary" style="display:none;" onclick="skipToNextCueTrack()" title="Next Chapter">
+                 <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+             </button>
+        </div>
+
+        <div id="time-container" onclick="toggleTimeDisplayMode()">
+            <div id="time-progress"></div>
+            <div id="time-text">--:--</div>
         </div>
     </div>
 
@@ -519,23 +571,26 @@
         }
 
         function applyKidsDesign() {
-            const kidsDiv = document.getElementById('kids-mode');
-            const mode = settings.bgMode;
-            kidsDiv.style.backgroundImage = ''; kidsDiv.style.backgroundColor = '';
-            if (mode === 'default') { 
-                kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; 
-                kidsDiv.style.backgroundColor = "#fff"; 
-            } 
-            else if (mode === 'color') { kidsDiv.style.backgroundColor = settings.bgColor || '#ffffff'; }
-            else if (mode === 'image') { 
-                if(!db) { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; return; }
-                const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
-                const req = store.get(SYSTEM_BG_ID);
-                req.onsuccess = () => {
-                    if(req.result && req.result.imageBlob) { const url = URL.createObjectURL(req.result.imageBlob); kidsDiv.style.backgroundImage = `url('${url}')`; } 
-                    else { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; }
-                };
-            }
+            try {
+                const kidsDiv = document.getElementById('kids-mode');
+                const mode = settings.bgMode || 'default'; // Fallback
+                kidsDiv.style.backgroundImage = ''; kidsDiv.style.backgroundColor = '';
+                
+                if (mode === 'default') { 
+                    kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; 
+                    kidsDiv.style.backgroundColor = "#eee"; // Fallback Color
+                } 
+                else if (mode === 'color') { kidsDiv.style.backgroundColor = settings.bgColor || '#ffffff'; }
+                else if (mode === 'image') { 
+                    if(!db) { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; return; }
+                    const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
+                    const req = store.get(SYSTEM_BG_ID);
+                    req.onsuccess = () => {
+                        if(req.result && req.result.imageBlob) { const url = URL.createObjectURL(req.result.imageBlob); kidsDiv.style.backgroundImage = `url('${url}')`; } 
+                        else { kidsDiv.style.backgroundImage = "url('assets/img/hintergrund.jpg')"; }
+                    };
+                }
+            } catch(e) { console.log("Design Error", e); }
         }
 
         function syncSettingsFromDB() {
@@ -628,9 +683,9 @@
             } else { alert("Auf diesem Gerät nicht nötig/möglich."); }
         }
 
-        // --- NEU: EXPORT NACH PYTHON SCHEMA ---
+        // --- DB EXPORT/IMPORT ---
         async function exportJukeboxJson() {
-            showStatus("Exportiere jukebox.json...");
+            showStatus("Exportiere...");
             const tx = db.transaction(["tracks"], "readonly");
             const store = tx.objectStore("tracks");
             const exportData = [];
@@ -639,7 +694,6 @@
                 const cursor = event.target.result;
                 if (cursor) {
                     const t = cursor.value;
-                    // Nur echte Tracks, keine Settings
                     if(t.tagId !== SYSTEM_BG_ID && t.tagId !== SYSTEM_SETTINGS_ID) {
                         exportData.push({
                             tagId: t.tagId,
@@ -665,10 +719,9 @@
             };
         }
 
-        // --- NEU: IMPORT VON PYTHON SCHEMA ---
         async function importJukeboxJson(input) {
             const file = input.files[0]; if(!file) return;
-            showStatus("Lade Backup...");
+            showStatus("Lade Datenbank...");
             
             const reader = new FileReader();
             reader.onload = async (e) => {
@@ -676,19 +729,16 @@
                     const data = JSON.parse(e.target.result);
                     if(!Array.isArray(data)) throw new Error("Format falsch");
 
-                    // Loop
                     const tx = db.transaction(["tracks"], "readwrite");
                     const store = tx.objectStore("tracks");
                     let updated = 0; let newEntries = 0;
 
                     for(const entry of data) {
-                        // Check if exists using Promise
                         await new Promise((resolve) => {
                             const req = store.get(entry.tagId);
                             req.onsuccess = () => {
                                 const existing = req.result;
                                 if(existing) {
-                                    // Update Metadata only
                                     existing.name = entry.name;
                                     existing.meta = entry.meta;
                                     existing.tags = entry.tags;
@@ -696,13 +746,12 @@
                                     store.put(existing);
                                     updated++;
                                 } else {
-                                    // Create New (Empty audio)
                                     store.put({
                                         tagId: entry.tagId,
                                         name: entry.name,
-                                        playlist: [], // Missing!
+                                        playlist: [], 
                                         playlistFileNames: entry.playlistFileNames,
-                                        imageBlob: null, // Missing!
+                                        imageBlob: null,
                                         imageFileName: entry.imageFileName,
                                         cueTracks: null,
                                         meta: entry.meta,
@@ -715,11 +764,9 @@
                             };
                         });
                     }
-                    
                     showStatus(`Fertig: ${updated} Updates, ${newEntries} Neu (brauchen Audio).`);
                     loadTagList();
                     input.value = "";
-
                 } catch(e) { alert("Fehler: " + e); }
             };
             reader.readAsText(file);
@@ -735,10 +782,7 @@
             const jukeboxJsonFile = files.find(f => f.name.toLowerCase() === 'jukebox.json');
             
             if (jukeboxJsonFile) {
-                // PHASE 1: Smart Import (JSON)
                 const usedAudioFiles = await handleJukeboxJsonImport(jukeboxJsonFile, files);
-                
-                // PHASE 2: Check leftovers
                 const audioExtensions = ['.mp3', '.m4a', '.ogg', '.wav', '.flac'];
                 const leftoverAudio = files.filter(f => {
                     const ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase();
@@ -1120,12 +1164,14 @@
         function showStatus(msg) { const el = document.getElementById('status-msg'); el.innerText = msg; el.style.display = 'block'; setTimeout(() => { el.style.display = 'none'; }, 3000); }
         function formatTime(s) { const minutes = Math.floor(s / 60); const seconds = Math.floor(s % 60); return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`; }
         function applyButtonColors() {
-            const volDown = document.getElementById('btn-vol-down'); const volUp = document.getElementById('btn-vol-up'); const back = document.getElementById('btn-reset'); const skip = document.getElementById('btn-skip'); const next = document.getElementById('btn-next-track');
-            if (settings.colorfulControls) { 
-                volDown.classList.add('btn-colorful-vol-down'); volUp.classList.add('btn-colorful-vol-up'); back.classList.add('btn-colorful-back'); skip.classList.add('btn-colorful-skip'); next.classList.add('btn-colorful-next');
-            } else { 
-                volDown.classList.remove('btn-colorful-vol-down'); volUp.classList.remove('btn-colorful-vol-up'); back.classList.remove('btn-colorful-back'); skip.classList.remove('btn-colorful-skip'); next.classList.remove('btn-colorful-next');
-            }
+            try {
+                const volDown = document.getElementById('btn-vol-down'); const volUp = document.getElementById('btn-vol-up'); const back = document.getElementById('btn-reset'); const skip = document.getElementById('btn-skip'); const next = document.getElementById('btn-next-track');
+                if (settings && settings.colorfulControls) { 
+                    volDown.classList.add('btn-colorful-vol-down'); volUp.classList.add('btn-colorful-vol-up'); back.classList.add('btn-colorful-back'); skip.classList.add('btn-colorful-skip'); next.classList.add('btn-colorful-next');
+                } else { 
+                    volDown.classList.remove('btn-colorful-vol-down'); volUp.classList.remove('btn-colorful-vol-up'); back.classList.remove('btn-colorful-back'); skip.classList.remove('btn-colorful-skip'); next.classList.remove('btn-colorful-next');
+                }
+            } catch(e) {}
         }
 
         audioPlayer.addEventListener('timeupdate', () => {
@@ -1151,7 +1197,8 @@
             document.getElementById('parent-mode').style.display = 'none';
             document.getElementById('kids-mode').style.display = 'flex';
             isParentMode = false;
-            applyKidsDesign(); applyButtonColors();
+            applyKidsDesign(); 
+            applyButtonColors();
             if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch((e) => {}); }
             if(settings.enableEcoMode) updateEcoModeState(false);
             
@@ -1274,4 +1321,4 @@
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
     </script>
 </body>
-</html>
+    </html>
