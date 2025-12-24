@@ -1,8 +1,8 @@
-# 🎵 Jukebox PWA (v57 Admin Power) - Die DIY "Toniebox" fürs Handy
+# 🎵 Jukebox PWA (v58 Polished) - Die DIY "Toniebox" fürs Handy
 
 Eine kinderfreundliche Musik-Player-App, die als Progressive Web App (PWA) direkt im Browser läuft. Sie verwandelt alte Smartphones in sichere Abspielgeräte für Kinder.
 
-**Das Highlight in v57:** Der **Eltern-Bereich** wurde komplett überarbeitet! Du kannst deine gespeicherten Tags nun in einer übersichtlichen **Cover-Ansicht** verwalten und Metadaten (Alter, Text, Genre) **direkt in der App bearbeiten**, ohne Dateien am PC ändern zu müssen.
+**Aktuell in v58:** Die App wurde perfektioniert! Die neue **Bibliotheks-Ansicht** funktioniert jetzt reibungslos, lange Titel werden in der Listenansicht korrekt dargestellt und beim Editieren siehst du nun die echten Dateinamen.
 
 Entwickelt als lokale Lösung: **Kein Cloud-Zwang, kein Tracking, komplett kostenlos.**
 
@@ -25,20 +25,18 @@ Hier spielen die Kinder. Große Bilder, keine Text-Menüs, einfache Bedienung.
 | <img src="docs/screenshots/library_info.png" width="180"> | <img src="docs/screenshots/kid-mode2.png" width="180"> |
 | *Beschreibung & Alter* | *Einfacher Player* |
 
-### 🔧 Eltern-Modus (Admin - NEU in V57!)
-Verwalte deine Sammlung so komfortabel wie nie zuvor.
+### 🔧 Eltern-Modus (Admin)
+Hier verwaltest du die Datenbank, importierst Musik und stellst Limits ein.
 
 | **Admin Grid-Ansicht** | **Metadaten-Editor** |
 |:---:|:---:|
-| <img src="docs/screenshots/parent-grid.png" width="180"> | <img src="docs/screenshots/parent-edit.png" width="180"> |
+| <img src="docs/screenshots/parent-mode3.png" width="180"> | <img src="docs/screenshots/Screenshot_20251224-122537_Chrome.png" width="180"> |
 | *Tags visuell verwalten* | *Infos direkt ändern* |
 
-| **Einstellungen & Limits** | **Datenbank & Import** |
+| **Einstellungen** | **Massen-Import** |
 |:---:|:---:|
 | <img src="docs/screenshots/parent-mode1.png" width="180"> | <img src="docs/screenshots/parent-mode4.png" width="180"> |
-| *Lautstärkelimit & Timer* | *Massen-Import & Reparatur* |
-
-*(Hinweis: Für die neuen Features bitte Screenshots unter `docs/screenshots/parent-grid.png` und `docs/screenshots/parent-edit.png` speichern)*
+| *Lautstärkelimit & Timer* | *Ordner einfach hochladen* |
 
 ---
 
@@ -63,18 +61,18 @@ Die App muss nicht über den Play Store geladen werden, sondern wird direkt übe
 
 ---
 
-## ✨ Neue Features (v57)
+## ✨ Neue Features (v58)
 
 ### 🛠️ Admin Power-Up
-* **Admin Grid-Ansicht:** Deine gespeicherten Tags werden jetzt als Kacheln mit Covern angezeigt (umschaltbar auf Liste). So findest du Hörspiele zum Bearbeiten viel schneller.
-* **In-App Editor:** Du kannst nun **Beschreibung, Altersempfehlung, Genre und Laufzeit** direkt beim Anlernen oder Bearbeiten eines Tags eingeben. Diese Infos erscheinen sofort in der Kinder-Bibliothek. Es ist kein manuelles Bearbeiten von JSON-Dateien mehr nötig!
+* **Admin Grid-Ansicht:** Deine gespeicherten Tags werden jetzt als Kacheln mit Covern angezeigt. Oben rechts kannst du zwischen **Grid (▦)** und **Liste (☰)** umschalten.
+* **In-App Editor:** Du kannst nun **Beschreibung, Altersempfehlung, Genre und Laufzeit** direkt beim Anlernen oder Bearbeiten eines Tags eingeben.
+* **Verbesserte Übersicht:** In der Listenansicht brechen lange Titel nun korrekt um, und im Editor siehst du den echten Dateinamen der verknüpften MP3s.
 
 ### 📚 Die Bibliothek (Tigerbox-Style)
 Zusätzlich zur NFC-Steuerung können Kinder nun visuell durch ihre Sammlung stöbern.
 * **Layout Fix:** Robustes Design, das auf allen Displaygrößen funktioniert.
 * **Visuelle Übersicht:** Große Cover-Kacheln in einem übersichtlichen Raster.
 * **🕒 Zuletzt gehört:** Die letzten 3 gestarteten Hörspiele werden oben sofort angezeigt.
-* **🔍 Smart Filter:** Automatische Filter-Buttons (z.B. *"Ab 3 Jahren"*, *"Hörspiel"*).
 * **ℹ️ Info-Overlay:** Zeigt Beschreibungstext, Laufzeit und Altersempfehlung bei Klick auf den "i"-Button.
 
 ### 🛡️ Erweiterte Eltern-Kontrolle
@@ -122,7 +120,7 @@ Die App unterstützt zwei Wege:
 
 * **A) Massen-Import (Empfohlen):**
     Erstelle Ordner mit MP3s und Covern am PC und lade sie über "Massen-Import" hoch. Wenn du eine `jukebox.json` hast (vom Python-Tool), werden alle Infos automatisch gesetzt.
-* **B) Manuell anlernen (Neu in V57):**
+* **B) Manuell anlernen:**
     Gehe auf "Neuen Tag anlernen", wähle Audio & Bild und fülle im neuen Menü **"📝 Erweiterte Infos"** die Beschreibung und das Alter aus.
 
 ### 2. Einstellungen
@@ -137,8 +135,8 @@ Es gibt keinen sichtbaren "Zurück"-Button, damit Kinder nicht aus Versehen raus
 
 ## 📂 Dateistruktur
 
-* `index.html` - Der komplette Code (V57).
-* `sw.js` - Offline-Logik (Cache V57).
+* `index.html` - Der komplette Code (V58).
+* `sw.js` - Offline-Logik (Cache V58).
 * `manifest.json` - App-Icon Konfiguration.
 * `assets/` - Bilder und Icons.
 * `jukebox.json` - Deine Datenbank (Optional).
@@ -153,4 +151,4 @@ Es gibt keinen sichtbaren "Zurück"-Button, damit Kinder nicht aus Versehen raus
 
 ## 👨‍💻 Credits
 Entwickelt von Sebastian Rößer.
-Version 57 "Admin Power".
+Version 58 "Polished".
