@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jukebox-v59-rewind'; // <--- Version hochzählen!
+const CACHE_NAME = 'jukebox-v60-scrollfix'; // <--- Version 60
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
