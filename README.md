@@ -17,21 +17,42 @@ Hier spielen die Kinder. Große Bilder, keine Text-Menüs, einfache Bedienung.
 
 | **Der Player** | **Die Bibliothek** |
 |:---:|:---:|
-| <img src="docs/screenshots/kid-mode1.png" width="100%"> | <img src="docs/screenshots/library_grid.png" width="100%"> |
+| <img src="docs/screenshots/kid-mode1.png" width="180"> | <img src="docs/screenshots/library_grid.png" width="180"> |
 | *Große Steuerung & Cover* | *Visuelles Stöbern & Filtern* |
 
-| **Info-Overlay (Neu!)** | **Design-Anpassung** |
+| **Info-Overlay** | **Details & Dauer** |
 |:---:|:---:|
-| <img src="docs/screenshots/library_info.png" width="100%"> | <img src="docs/screenshots/parent-mode2.png" width="100%"> |
-| *Details zu Dauer & Alter* | *Bibliothek an/ausschalten* |
+| <img src="docs/screenshots/library_info.png" width="180"> | <img src="docs/screenshots/kid-mode2.png" width="180"> |
+| *Beschreibung & Alter* | *Einfacher Player* |
 
 ### 🔧 Eltern-Modus (Admin)
 Hier verwaltest du die Datenbank, importierst Musik und stellst Limits ein.
 
 | **Einstellungen & Limits** | **Datenbank & Import** |
 |:---:|:---:|
-| <img src="docs/screenshots/parent-mode1.png" width="100%"> | <img src="docs/screenshots/parent-mode4.png" width="100%"> |
+| <img src="docs/screenshots/parent-mode1.png" width="180"> | <img src="docs/screenshots/parent-mode4.png" width="180"> |
 | *Lautstärkelimit & Timer* | *Massen-Import & Reparatur* |
+
+| **Verwaltung** | **Design & Bibliothek** |
+|:---:|:---:|
+| <img src="docs/screenshots/parent-mode3.png" width="180"> | <img src="docs/screenshots/parent-mode2.png" width="180"> |
+| *Tags bearbeiten* | *Bibliothek an/ausschalten* |
+
+---
+
+## 📲 Installation (Android)
+
+Die App muss nicht über den Play Store geladen werden, sondern wird direkt über den Browser installiert.
+
+1.  Öffne **Chrome** auf deinem Android-Smartphone.
+2.  Rufe die Webseite auf: **[https://basecore.github.io/jukebox/](https://basecore.github.io/jukebox/)**
+3.  **Warte kurz (bis zu 30 Sekunden):** Oft erscheint am unteren Bildschirmrand automatisch ein Hinweis *"Jukebox zum Startbildschirm hinzufügen"*.
+4.  Falls nicht, folge diesen Schritten:
+
+| 1. Menü öffnen | 2. Installieren | 3. Bestätigen | 4. Widget platzieren |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/install-app1.png" width="160"> | <img src="docs/screenshots/install-app2.png" width="160"> | <img src="docs/screenshots/install-app3.png" width="160"> | <img src="docs/screenshots/install-app4.png" width="160"> |
+| *Tippe oben rechts auf die 3 Punkte* | *Wähle "App installieren"* | *Klicke auf "Installieren"* | *Automatisch oder ziehen* |
 
 ---
 
@@ -46,7 +67,7 @@ Zusätzlich zur NFC-Steuerung können Kinder nun visuell durch ihre Sammlung st�
 * **ℹ️ Info-Overlay:** Ein Klick auf den kleinen **"i"-Button** auf dem Cover öffnet ein Fenster mit Beschreibungstext, Laufzeit und Altersempfehlung.
 
 ### 🛡️ Erweiterte Eltern-Kontrolle
-* **Bibliothek sperren:** Du kannst in den Einstellungen den Haken bei *"📚 Bibliothek im Kinder-Modus erlauben"* entfernen, wenn das Kind nur mit physischen Figuren spielen soll (siehe Screenshot oben).
+* **Bibliothek sperren:** Du kannst in den Einstellungen den Haken bei *"📚 Bibliothek im Kinder-Modus erlauben"* entfernen, wenn das Kind nur mit physischen Figuren spielen soll.
 * **Start-Modus:** Lege fest, ob die App beim Öffnen direkt im gesicherten Kinder-Modus starten soll.
 
 ---
@@ -75,11 +96,7 @@ Zusätzlich zur NFC-Steuerung können Kinder nun visuell durch ihre Sammlung st�
 
 ## 📖 Bedienungsanleitung
 
-### 1. Installation
-* **Online:** Lade die Dateien auf GitHub Pages hoch und öffne die URL.
-* **Lokal (Android):** Nutze eine App wie "Web Server for Chrome", um den Ordner auf dem Handy bereitzustellen (`http://127.0.0.1:8080`).
-
-### 2. Musik hinzufügen & Bibliothek pflegen
+### 1. Musik hinzufügen & Bibliothek pflegen
 Die Bibliothek entfaltet ihre volle Stärke mit einer gepflegten `jukebox.json`.
 
 **Empfohlener Weg: Massen-Import**
