@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V57 Stable</title>
+    <title>Jukebox V58 Polished</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -172,12 +172,11 @@
         
         /* --- LIBRARY MODE (TIGERBOX STYLE) --- */
         #library-mode {
-            display: none !important; /* FORCE HIDDEN ON LOAD */
+            display: none; /* FIX: Kein !important mehr hier */
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #2c3e50;
             z-index: 60; /* Über Kids Mode */
             overflow-y: auto;
-            /* WICHTIG: Kein Flexbox hier, damit Scrollen sauber funktioniert */
             /* display: block;  wird via JS gesetzt */
             padding: 20px; box-sizing: border-box;
             padding-top: 50px; 
@@ -198,10 +197,10 @@
             display: flex; gap: 10px; overflow-x: auto; 
             padding-bottom: 15px; 
             padding-top: 5px;
-            margin-bottom: 20px; /* Mehr Abstand nach unten zum Inhalt */
+            margin-bottom: 20px;
             scrollbar-width: none;
-            min-height: 55px; /* Verhindert das Zusammenquetschen */
-            flex-shrink: 0;   /* Darf nicht verkleinert werden */
+            min-height: 55px;
+            flex-shrink: 0;
         }
         .filter-scroll-container::-webkit-scrollbar { display: none; }
 
@@ -210,7 +209,7 @@
             padding: 8px 16px; border-radius: 20px; white-space: nowrap;
             font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1);
             transition: all 0.2s; cursor: pointer;
-            height: 36px; display: flex; align-items: center; /* Vertikal zentrieren */
+            height: 36px; display: flex; align-items: center;
         }
         .filter-chip.active {
             background: var(--green-safe); border-color: var(--green-safe); font-weight: bold;
@@ -222,7 +221,7 @@
             color: #dfe6e9; font-size: 1.1rem; 
             margin-bottom: 15px; margin-top: 10px; 
             font-weight: bold; 
-            clear: both; /* Sicherstellen dass es in neuer Zeile steht */
+            clear: both;
         }
         
         .recent-grid {
@@ -356,7 +355,9 @@
 
         label { display: block; margin-bottom: 5px; font-size: 0.9em; color: #aaa; }
         
-        .file-info { font-size: 0.8em; color: #00cec9; margin-top:-5px; margin-bottom: 10px; display: block; font-style: italic; }
+        .file-info { font-size: 0.8em; color: #00cec9; margin-top:-5px; margin-bottom: 10px; display: block; font-style: italic; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* Text Abschneiden Fix */
+        }
 
         button.btn-admin {
             background-color: #74b9ff; border: none; padding: 12px;
@@ -458,15 +459,22 @@
         .btn-mini.play { background-color: #2ecc71; }
         .btn-mini.del { background-color: #e74c3c; flex: 0 0 30px; }
 
-        /* List Style Overrides */
+        /* List Style Overrides (FIXED V58) */
         .admin-list .admin-card {
             flex-direction: row; height: 100px;
         }
         .admin-list .admin-cover-wrap {
-            width: 100px; height: 100%; aspect-ratio: auto;
+            width: 100px; height: 100%; aspect-ratio: auto; flex-shrink: 0;
         }
         .admin-list .admin-card-body {
-            width: 100%;
+            width: 100%; min-width: 0; /* Important for flex truncate */
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .admin-list .admin-card-title {
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .admin-list .admin-actions {
+            margin-top: 5px; /* Platz sicherstellen */
         }
 
         /* Erweiterte Metadaten Felder */
@@ -531,7 +539,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V57</h1>
+        <h1>🔧 Jukebox V58</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -712,7 +720,7 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V57</p>
+            <p>Jukebox NFC V58</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
             <p style="margin-top:10px;">
@@ -800,9 +808,8 @@
     <audio id="audio-player"></audio>
 
     <script>
-        // --- SAFE INITIALIZATION (V57) ---
-        // Stellt sicher, dass das Admin-Grid nicht mit der Bibliothek verwechselt wird
-        // und dass die Bibliothek sicher zu ist beim Start.
+        // --- SAFE INITIALIZATION (V58) ---
+        // Sicherstellen, dass Library unsichtbar ist (ohne !important Override Problematik)
         try {
             document.getElementById('library-mode').style.display = 'none';
         } catch(e){}
@@ -1414,7 +1421,7 @@
             };
         }
 
-        // --- EDITING LOGIC (UPDATED V56) ---
+        // --- EDITING LOGIC (UPDATED V58) ---
 
         function loadTagForEdit(id) {
             const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
@@ -1445,8 +1452,17 @@
                     document.getElementById('btn-save-manual').innerText = "💾 Speichern (Update)";
                     document.getElementById('btn-cancel-edit').style.display = "inline-block";
                     
-                    document.getElementById('audio-info').innerText = "Vorhanden: " + (r.playlistFileNames ? r.playlistFileNames.length : 0) + " Dateien";
-                    document.getElementById('cue-info').innerText = r.cueTracks ? "Vorhanden" : "Keine";
+                    // DATEINAMEN ANZEIGEN (V58 FIX)
+                    if (r.playlistFileNames && r.playlistFileNames.length > 0) {
+                        const fileListStr = r.playlistFileNames.join(', ');
+                        // Falls zu lang, kürzen wir nicht im JS, sondern CSS (text-overflow) regelt das.
+                        document.getElementById('audio-info').innerText = fileListStr;
+                        document.getElementById('audio-info').title = fileListStr; // Tooltip für vollen Namen
+                    } else {
+                        document.getElementById('audio-info').innerText = "Keine Audio-Datei";
+                    }
+
+                    document.getElementById('cue-info').innerText = r.cueTracks ? "Kapiteldaten vorhanden" : "Keine";
                     document.getElementById('img-info').innerText = r.imageFileName ? r.imageFileName : "Standard";
                     
                     document.getElementById('scan-card').classList.add("editing-highlight");
@@ -1854,6 +1870,7 @@
 
         function openLibrary() {
             // WICHTIG: Display Block setzen, kein Flex mehr!
+            // Da wir das !important im CSS entfernt haben, klappt das jetzt.
             document.getElementById('library-mode').style.display = 'block';
             renderLibrary();
         }
