@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jukebox-v33-offline';
+const CACHE_NAME = 'jukebox-v57-offline'; // <--- HIER ÄNDERN!
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -10,7 +10,8 @@ const ASSETS_TO_CACHE = [
   './assets/icons/icon512_rounded.png'
 ];
 
-// 1. Install: Dateien in den Cache laden
+// ... (Rest der Datei bleibt gleich) ...
+// 1. Install ...
 self.addEventListener('install', (e) => {
   console.log('[Service Worker] Installiere & Cache Dateien...');
   e.waitUntil(
@@ -20,21 +21,16 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// 2. Fetch: Erst Cache prüfen, dann Netzwerk
+// 2. Fetch ...
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
-      // Wenn im Cache: Sofort zurückgeben
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      // Wenn nicht: Aus dem Netz holen
-      return fetch(e.request);
+      return cachedResponse || fetch(e.request);
     })
   );
 });
 
-// 3. Activate: Alte Caches löschen (Wichtig bei Updates)
+// 3. Activate ...
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keyList) => {
@@ -46,6 +42,5 @@ self.addEventListener('activate', (e) => {
       }));
     })
   );
-  // Sofort die Kontrolle übernehmen
   return self.clients.claim();
 });
