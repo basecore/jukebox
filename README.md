@@ -77,25 +77,35 @@ Zusätzlich zur NFC-Steuerung können Kinder nun visuell durch ihre Sammlung st�
 
 ---
 
-## 🚀 Basis-Funktionen
+## 🪄 Das Python-Tool: TAF zu Jukebox
 
-* **Offline-First:** Dank Service Worker (`sw.js`) funktioniert die App auch ohne Internet (nach dem ersten Laden).
-* **NFC-Support:** Musik starten durch Auflegen von Tags (NTAG213/215) oder alten Tonie-Figuren (Android only).
-* **📂 Massen-Import:** Ziehe ganze Ordner in die App. Die `jukebox.json` sorgt für perfekte Metadaten.
-* **🔉 Lautstärkebegrenzung:** Setze ein festes Limit zum Schutz der Kinderohren.
-* **💾 Smart Resume:** Merkt sich die exakte Stelle jedes Hörspiels.
-* **🌗 Eco-Modus:** Display wird schwarz (und spart Akku), wenn das Handy auf das Gesicht gelegt wird.
-* **🛌 Schlaf-Timer:** Musik blendet nach X Minuten sanft aus.
+Wenn du **eigene Tonie-Dateien (.taf)** besitzt, kannst du diese mit dem Skript `taf_jukebox_final.py` (im Ordner `tools/`) vollautomatisch für die App aufbereiten.
 
----
+**Das Script erledigt alles:**
+1.  Wandelt `.taf` in `.mp3` um (inkl. Kapitelmarken in einer `.cue` Datei).
+2.  Lädt das **Original-Cover** herunter.
+3.  Holt **Metadaten** (Beschreibungstext, Altersempfehlung, Genre) von der Tonie-Website.
+4.  Erstellt die perfekte `jukebox.json` für den Import.
 
-## ⚠️ Wichtige Hinweise
+### Anleitung für PC/Mac:
 
-1.  **iOS / iPhone:**
-    * Auf iPhones funktioniert die **NFC-Funktion nicht** (Apple-Beschränkung).
-    * **Aber:** Dank der neuen **Bibliothek** ist die App nun auch auf iPhones als vollwertiger, kindersicherer Player perfekt nutzbar!
-2.  **Keine "Wegnahme"-Erkennung:** Die Musik stoppt nicht, wenn die Figur weggenommen wird (Pause-Knopf drücken).
-3.  **Hosting:** Damit NFC und Sensoren funktionieren, muss die App über `https://` (GitHub Pages) oder `localhost` laufen.
+1.  **Vorbereitung:**
+    * Installiere [Python](https://www.python.org/).
+    * Installiere [FFmpeg](https://ffmpeg.org/) (muss im System-Pfad sein).
+2.  **Dateien ablegen:**
+    * Kopiere das Script `taf_jukebox_final.py` und deine `.taf`-Dateien in einen gemeinsamen Ordner.
+3.  **Abhängigkeiten installieren:**
+    Öffne ein Terminal in dem Ordner und führe aus:
+    ```bash
+    pip install requests beautifulsoup4 playwright
+    playwright install
+    ```
+4.  **Script starten:**
+    ```bash
+    python taf_jukebox_final.py
+    ```
+5.  **Ergebnis:**
+    Es entsteht ein Ordner `jukebox_output`. Diesen Ordner kannst du nun direkt über **"📂 Massen-Import"** in die App laden!
 
 ---
 
@@ -105,11 +115,11 @@ Zusätzlich zur NFC-Steuerung können Kinder nun visuell durch ihre Sammlung st�
 Die Bibliothek entfaltet ihre volle Stärke mit einer gepflegten `jukebox.json`.
 
 **Empfohlener Weg: Massen-Import**
-1.  Erstelle am PC eine Ordnerstruktur mit deinen MP3s und Covern.
-2.  Erstelle eine `jukebox.json` im Hauptordner.
+1.  Erstelle am PC eine Ordnerstruktur mit deinen MP3s und Covern (oder nutze den Output des Python-Tools).
+2.  Stelle sicher, dass eine `jukebox.json` im Hauptordner liegt.
 3.  Gehe im Eltern-Modus auf **"📂 Massen-Import"** und wähle den Ordner.
 
-**Format der `jukebox.json` für die Bibliothek:**
+**Format der `jukebox.json` (falls manuell erstellt):**
 Damit Filter ("Ab 4 Jahren") und Info-Texte erscheinen, nutze dieses Format:
 
 ```json
