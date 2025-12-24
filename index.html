@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jukebox V55 Fixed Layout</title>
+    <title>Jukebox V56 Admin Power</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
@@ -56,7 +56,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            padding: 20px; padding-top: 60px; /* Mehr Platz oben für Titel */
+            padding: 20px; padding-top: 60px; /* Platz für Titel und Buttons */
             box-sizing: border-box;
             transition: background 0.3s ease;
             z-index: 50; 
@@ -81,7 +81,7 @@
             display: -webkit-box; -webkit-line-clamp: 3; 
             -webkit-box-orient: vertical; overflow: hidden; 
             white-space: normal; min-height: 6.5rem; 
-            margin-top: 10px; /* Abstand zum Library Button */
+            margin-top: 15px; /* Abstand zum Library Button */
         }
         
         #playlist-info {
@@ -170,28 +170,23 @@
             font-variant-numeric: tabular-nums;
         }
         
-        /* --- LIBRARY MODE (FIXED HEADER LAYOUT) --- */
+        /* --- LIBRARY MODE (TIGERBOX STYLE) --- */
         #library-mode {
-            display: none; /* Toggled by JS to flex */
+            display: none;
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #2c3e50;
             z-index: 60; /* Über Kids Mode */
-            flex-direction: column;
-            overflow: hidden; /* WICHTIG: Kein Scrollen auf Body */
-        }
-
-        /* Der feste Header-Bereich */
-        .lib-fixed-top {
-            flex-shrink: 0; /* Darf nicht schrumpfen */
-            padding: 30px 20px 10px 20px; /* Extra Platz oben für Notch */
-            background-color: #2c3e50;
-            z-index: 65; /* Über dem Content */
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2); /* Schatten für Tiefe */
+            overflow-y: auto;
+            /* WICHTIG: Kein Flexbox hier, damit Scrollen sauber funktioniert */
+            display: block; 
+            padding: 20px; box-sizing: border-box;
+            padding-top: 50px; 
+            padding-bottom: 90px;
         }
 
         .lib-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px; margin-top: 10px;
         }
 
         .lib-title {
@@ -201,8 +196,12 @@
         /* Filter Leiste */
         .filter-scroll-container {
             display: flex; gap: 10px; overflow-x: auto; 
-            padding-bottom: 5px; margin-bottom: 0;
+            padding-bottom: 15px; 
+            padding-top: 5px;
+            margin-bottom: 20px; /* Mehr Abstand nach unten zum Inhalt */
             scrollbar-width: none;
+            min-height: 55px; /* Verhindert das Zusammenquetschen */
+            flex-shrink: 0;   /* Darf nicht verkleinert werden */
         }
         .filter-scroll-container::-webkit-scrollbar { display: none; }
 
@@ -211,30 +210,23 @@
             padding: 8px 16px; border-radius: 20px; white-space: nowrap;
             font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1);
             transition: all 0.2s; cursor: pointer;
+            height: 36px; display: flex; align-items: center; /* Vertikal zentrieren */
         }
         .filter-chip.active {
             background: var(--green-safe); border-color: var(--green-safe); font-weight: bold;
             box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);
         }
 
-        /* Scrollbarer Inhaltsbereich */
-        #lib-content-area {
-            flex-grow: 1; /* Nimmt restlichen Platz ein */
-            overflow-y: auto; /* Scrollt hier drin */
-            padding: 20px;
-            padding-bottom: 100px; /* Platz für Close Button */
-            -webkit-overflow-scrolling: touch; /* Smooth scroll iOS */
-        }
-
         /* Recent Section */
         .section-title { 
             color: #dfe6e9; font-size: 1.1rem; 
-            margin-bottom: 10px; margin-top: 0; /* Reset margin top */
-            font-weight: bold;
+            margin-bottom: 15px; margin-top: 10px; 
+            font-weight: bold; 
+            clear: both; /* Sicherstellen dass es in neuer Zeile steht */
         }
         
         .recent-grid {
-            display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 10px;
+            display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 25px;
         }
         .recent-card {
             min-width: 120px; width: 120px; display: flex; flex-direction: column; gap: 5px; position: relative;
@@ -243,6 +235,7 @@
         /* Main Grid */
         .library-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            padding-bottom: 20px;
         }
 
         .lib-card {
@@ -270,7 +263,7 @@
             font-size: 0.7rem; color: #636e72; margin-top: 5px; display: block;
         }
 
-        /* INFO BUTTON */
+        /* INFO BUTTON AUF KARTE */
         .lib-card-info-btn {
             position: absolute; top: 8px; right: 8px;
             width: 30px; height: 30px; border-radius: 50%;
@@ -415,13 +408,79 @@
         .footer-info a { color: #74b9ff; text-decoration: none; }
         .footer-info a:hover { text-decoration: underline; }
 
-        .tag-list-item {
-            background: rgba(0,0,0,0.3); padding: 15px; margin-top: 5px;
-            border-radius: 5px; font-size: 0.9em; display: flex;
-            flex-direction: column; gap: 5px;
+        /* --- ADMIN GRID / LIST VIEW (V56) --- */
+        .admin-view-controls {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px;
         }
-        .tag-info-row { display: flex; align-items: center; justify-content: space-between; }
-        .tag-action-row { display: flex; gap: 5px; margin-top: 5px;}
+        .view-toggle-btn {
+            background: none; border: 1px solid #7f8c8d; color: #dfe6e9;
+            padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 5px;
+        }
+        .view-toggle-btn.active {
+            background: #3498db; border-color: #3498db; color: white;
+        }
+
+        /* Grid Container (Admin) */
+        .admin-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+        
+        .admin-list {
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        /* Admin Card (Grid Style) */
+        .admin-card {
+            background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;
+            position: relative; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column;
+        }
+        
+        .admin-cover-wrap {
+            width: 100%; aspect-ratio: 1/1; position: relative;
+            background: #333; display: flex; align-items: center; justify-content: center;
+        }
+        .admin-cover-img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .admin-card-body { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;}
+        .admin-card-title { font-size: 0.9em; font-weight: bold; margin-bottom: 5px; line-height: 1.2; }
+        .admin-card-id { font-size: 0.7em; color: #aaa; margin-bottom: 8px; font-family: monospace; word-break: break-all;}
+        
+        .admin-actions {
+            display: flex; gap: 5px; margin-top: auto;
+        }
+        .btn-mini {
+            flex: 1; border: none; padding: 5px; border-radius: 4px; 
+            font-size: 0.75em; cursor: pointer; color: white; font-weight: bold;
+        }
+        .btn-mini.edit { background-color: #3498db; }
+        .btn-mini.play { background-color: #2ecc71; }
+        .btn-mini.del { background-color: #e74c3c; flex: 0 0 30px; }
+
+        /* List Style Overrides */
+        .admin-list .admin-card {
+            flex-direction: row; height: 100px;
+        }
+        .admin-list .admin-cover-wrap {
+            width: 100px; height: 100%; aspect-ratio: auto;
+        }
+        .admin-list .admin-card-body {
+            width: 100%;
+        }
+
+        /* Erweiterte Metadaten Felder */
+        .meta-details-container {
+            background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin-top: 10px;
+            border-left: 3px solid #f1c40f;
+        }
+        .meta-row { display: flex; gap: 10px; }
+        .meta-row input { flex: 1; }
+        textarea.input-desc {
+            width: 100%; height: 80px; padding: 10px; background: rgba(0,0,0,0.3);
+            border: 1px solid #555; border-radius: 5px; color: white; font-family: sans-serif;
+            resize: vertical;
+        }
 
         .btn-fix-audio {
             background-color: #f1c40f; color: #333; border: none;
@@ -472,7 +531,7 @@
         <button class="btn-switch-kids" onclick="goToKidsMode()">▶ ZUM KINDER-MODUS</button>
         <div class="hint-text">💡 Tipp: 5x oben rechts tippen für Admin-Menü.</div>
         
-        <h1>🔧 Jukebox V55</h1>
+        <h1>🔧 Jukebox V56</h1>
         <div id="nfc-warning" class="browser-warning">⚠️ NFC API nicht verfügbar. Bitte Chrome nutzen.</div>
 
         <div class="card">
@@ -551,23 +610,57 @@
         </div>
 
         <div class="card" id="scan-card">
-            <h2 id="form-title">🎵 Neuen Tag anlernen</h2>
+            <h2 id="form-title">🎵 Tag bearbeiten / anlernen</h2>
             
-            <label>1. Audio Datei(en)</label>
-            <span id="audio-info" class="file-info"></span>
+            <label>1. Audio & Quellen</label>
             <input type="file" id="audio-input" multiple accept="audio/*, .m4a, .mp3, .ogg, .wav, .flac" onchange="autoFillName()">
+            <span id="audio-info" class="file-info"></span>
             
-            <label>2. Cue-Datei (Optional)</label>
-            <span id="cue-info" class="file-info"></span>
-            <input type="file" id="cue-input" accept=".cue">
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1;">
+                    <label style="font-size:0.8em;">Cue (Optional)</label>
+                    <input type="file" id="cue-input" accept=".cue">
+                    <span id="cue-info" class="file-info"></span>
+                </div>
+                <div style="flex:1;">
+                    <label style="font-size:0.8em;">Cover Bild</label>
+                    <input type="file" id="img-input" accept="image/*">
+                    <span id="img-info" class="file-info"></span>
+                </div>
+            </div>
 
-            <label>3. Cover Bild</label>
-            <span id="img-info" class="file-info"></span>
-            <input type="file" id="img-input" accept="image/*">
+            <label>2. Titel</label>
+            <input type="text" id="track-name" placeholder="Name des Hörspiels...">
             
-            <label>4. Name</label>
-            <input type="text" id="track-name" placeholder="Name...">
-            
+            <details>
+                <summary style="cursor:pointer; color:#f1c40f; margin-bottom:10px; font-weight:bold;">📝 Erweiterte Infos (für Bibliothek)</summary>
+                <div class="meta-details-container">
+                    <label>Beschreibung (Inhalt):</label>
+                    <textarea id="meta-desc" class="input-desc" placeholder="Worum geht es in der Geschichte?"></textarea>
+                    
+                    <div class="meta-row" style="margin-top:10px;">
+                        <div>
+                            <label>Alter (Jahre):</label>
+                            <input type="number" id="meta-age" placeholder="z.B. 4" style="width:80px;">
+                        </div>
+                        <div style="flex:1;">
+                            <label>Genre:</label>
+                            <select id="meta-genre">
+                                <option value="Hörspiel">Hörspiel</option>
+                                <option value="Musik">Musik</option>
+                                <option value="Hörbuch">Hörbuch</option>
+                                <option value="Wissen">Wissen</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Laufzeit (Min):</label>
+                            <input type="number" id="meta-runtime" placeholder="auto" style="width:80px;">
+                        </div>
+                    </div>
+                </div>
+            </details>
+            <br>
+
             <div style="display:flex; gap:10px; flex-direction:column;">
                 <button id="btn-save-tag" class="btn-admin" onclick="activateLinkMode()">📡 Tag scannen & speichern</button>
                 <button id="btn-save-manual" class="btn-admin" style="background-color:#7f8c8d; margin-top:0;" onclick="saveManualTrack()">💾 Ohne NFC speichern</button>
@@ -577,8 +670,15 @@
         </div>
 
         <div class="card">
-            <h2>💾 Gespeicherte Tags</h2>
-            <div id="tag-list"></div>
+            <div class="admin-view-controls">
+                <h2>💾 Gespeicherte Tags</h2>
+                <div>
+                    <button class="view-toggle-btn active" id="btn-view-grid" onclick="setAdminView('grid')">▦</button>
+                    <button class="view-toggle-btn" id="btn-view-list" onclick="setAdminView('list')">☰</button>
+                </div>
+            </div>
+            <div id="tag-list-container" class="admin-grid">
+                </div>
         </div>
 
         <div class="card">
@@ -612,7 +712,7 @@
         </div>
 
         <div class="footer-info">
-            <p>Jukebox NFC V55</p>
+            <p>Jukebox NFC V56</p>
             <p>Entwickelt von <b>Sebastian Rößer</b></p>
             <p>📧 <a href="mailto:basecore@gmx.de">basecore@gmx.de</a></p>
             <p style="margin-top:10px;">
@@ -671,16 +771,14 @@
     </div>
 
     <div id="library-mode">
-        <div class="lib-fixed-top">
-            <div class="lib-header">
-                <div class="lib-title">Meine Sammlung 📚</div>
-            </div>
-
-            <div class="filter-scroll-container" id="lib-filters">
-                <div class="filter-chip active" onclick="applyLibFilter('all', this)">Alle</div>
-                <div class="filter-chip" onclick="applyLibFilter('recent', this)">Zuletzt gehört</div>
-                </div>
+        <div class="lib-header">
+            <div class="lib-title">Meine Sammlung 📚</div>
         </div>
+
+        <div class="filter-scroll-container" id="lib-filters">
+            <div class="filter-chip active" onclick="applyLibFilter('all', this)">Alle</div>
+            <div class="filter-chip" onclick="applyLibFilter('recent', this)">Zuletzt gehört</div>
+            </div>
 
         <div id="lib-content-area">
             </div>
@@ -1235,7 +1333,82 @@
             saveTrackLink(targetId);
         }
 
-        // --- EDITING LOGIC ---
+        // --- ADMIN VIEW LOGIC (NEW V56) ---
+        let adminViewMode = 'grid'; // 'grid' oder 'list'
+
+        function setAdminView(mode) {
+            adminViewMode = mode;
+            const container = document.getElementById('tag-list-container');
+            const btnGrid = document.getElementById('btn-view-grid');
+            const btnList = document.getElementById('btn-view-list');
+
+            if(mode === 'grid') {
+                container.className = 'admin-grid';
+                btnGrid.classList.add('active');
+                btnList.classList.remove('active');
+            } else {
+                container.className = 'admin-list';
+                btnGrid.classList.remove('active');
+                btnList.classList.add('active');
+            }
+        }
+
+        function loadTagList() {
+            const container = document.getElementById('tag-list-container'); 
+            if(!container) return; 
+            container.innerHTML = "";
+            
+            const tx = db.transaction(["tracks"], "readonly"); 
+            const store = tx.objectStore("tracks");
+            
+            store.openCursor().onsuccess = (event) => {
+                const cursor = event.target.result; 
+                if (cursor) {
+                    const track = cursor.value;
+                    if(track.tagId !== SYSTEM_BG_ID && track.tagId !== SYSTEM_SETTINGS_ID) {
+                        
+                        // Card erstellen
+                        const card = document.createElement('div');
+                        card.className = 'admin-card';
+                        
+                        // Bild
+                        let imgHtml = `<div style="font-size:30px;">🎵</div>`;
+                        if (track.imageBlob) {
+                            const url = URL.createObjectURL(track.imageBlob);
+                            imgHtml = `<img src="${url}" class="admin-cover-img" loading="lazy">`;
+                        }
+
+                        // Meta Info String
+                        let metaInfo = "";
+                        if(track.meta) {
+                            if(track.meta.age_recommendation) metaInfo += `Ab ${track.meta.age_recommendation}J `;
+                            if(track.meta.genre) metaInfo += `• ${track.meta.genre}`;
+                        }
+
+                        card.innerHTML = `
+                            <div class="admin-cover-wrap">${imgHtml}</div>
+                            <div class="admin-card-body">
+                                <div>
+                                    <div class="admin-card-title">${track.name}</div>
+                                    <div class="admin-card-id">ID: ${track.tagId}</div>
+                                    <div style="font-size:0.75em; color:#ccc;">${metaInfo}</div>
+                                </div>
+                                <div class="admin-actions">
+                                    <button class="btn-mini edit" onclick="loadTagForEdit('${track.tagId}')">✏️ Edit</button>
+                                    <button class="btn-mini play" onclick="playTrackByTag('${track.tagId}')">▶</button>
+                                    <button class="btn-mini del" onclick="deleteTrack('${track.tagId}')">🗑</button>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    } 
+                    cursor.continue();
+                }
+            };
+        }
+
+        // --- EDITING LOGIC (UPDATED V56) ---
+
         function loadTagForEdit(id) {
             const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
             store.get(id).onsuccess = (e) => {
@@ -1243,17 +1416,35 @@
                 if(r) {
                     editingOriginalTagId = id;
                     document.getElementById('track-name').value = r.name;
-                    document.getElementById('form-title').innerText = "✏️ Tag bearbeiten (ID: " + id + ")";
-                    document.getElementById('btn-save-tag').innerText = "Speichern & Scannen (Tag wechseln)";
-                    document.getElementById('btn-save-manual').innerText = "💾 Nur Speichern (Update)";
+                    
+                    // Populate Meta Fields
+                    if(r.meta) {
+                        document.getElementById('meta-desc').value = r.meta.description || "";
+                        document.getElementById('meta-age').value = r.meta.age_recommendation || "";
+                        document.getElementById('meta-genre').value = r.meta.genre || "Hörspiel";
+                        document.getElementById('meta-runtime').value = r.meta.runtime || "";
+                    } else {
+                        // Reset Meta Fields if empty
+                        document.getElementById('meta-desc').value = "";
+                        document.getElementById('meta-age').value = "";
+                        document.getElementById('meta-genre').value = "Hörspiel";
+                        document.getElementById('meta-runtime').value = "";
+                    }
+
+                    document.getElementById('form-title').innerText = "✏️ Bearbeiten: " + r.name;
+                    document.getElementById('form-title').style.color = "#3498db";
+                    
+                    document.getElementById('btn-save-tag').innerText = "Speichern & Neuer Tag (Move)";
+                    document.getElementById('btn-save-manual').innerText = "💾 Speichern (Update)";
                     document.getElementById('btn-cancel-edit').style.display = "inline-block";
                     
-                    document.getElementById('audio-info').innerText = "Aktuell: " + (r.playlistFileNames ? r.playlistFileNames.length + " Dateien" : "Vorhanden");
-                    document.getElementById('cue-info').innerText = r.cueTracks ? "Aktuell: Cue vorhanden" : "Aktuell: Keine";
-                    document.getElementById('img-info').innerText = r.imageFileName ? "Aktuell: " + r.imageFileName : "Aktuell: Standard";
+                    document.getElementById('audio-info').innerText = "Vorhanden: " + (r.playlistFileNames ? r.playlistFileNames.length : 0) + " Dateien";
+                    document.getElementById('cue-info').innerText = r.cueTracks ? "Vorhanden" : "Keine";
+                    document.getElementById('img-info').innerText = r.imageFileName ? r.imageFileName : "Standard";
                     
                     document.getElementById('scan-card').classList.add("editing-highlight");
-                    document.getElementById('parent-mode').scrollTop = 0;
+                    // Scroll to top
+                    document.getElementById('parent-mode').scrollTo({top:0, behavior:'smooth'});
                 }
             };
         }
@@ -1264,12 +1455,20 @@
             document.getElementById('audio-input').value = "";
             document.getElementById('cue-input').value = "";
             document.getElementById('img-input').value = "";
+            
+            // Meta Reset
+            document.getElementById('meta-desc').value = "";
+            document.getElementById('meta-age').value = "";
+            document.getElementById('meta-runtime').value = "";
+            
             document.getElementById('audio-info').innerText = "";
             document.getElementById('cue-info').innerText = "";
             document.getElementById('img-info').innerText = "";
-            document.getElementById('form-title').innerText = "🎵 Neuen Tag anlernen";
+            document.getElementById('form-title').innerText = "🎵 Tag bearbeiten / anlernen";
+            document.getElementById('form-title').style.color = "#74b9ff";
+            
             document.getElementById('btn-save-tag').innerText = "📡 Tag scannen & speichern";
-            document.getElementById('btn-save-manual').innerText = "💾 Ohne NFC speichern (für später)";
+            document.getElementById('btn-save-manual').innerText = "💾 Ohne NFC speichern";
             document.getElementById('btn-cancel-edit').style.display = "none";
             document.getElementById('scan-card').classList.remove("editing-highlight");
             document.getElementById('scan-status').innerText = "";
@@ -1290,7 +1489,7 @@
             }); return tracks;
         }
 
-        // --- PLAYBACK (UPDATED: RECORD PLAY TIMESTAMP) ---
+        // --- PLAYBACK ---
         function playTrackByTag(tagId) {
             if(currentPlayingTagId && currentPlayingTagId !== tagId) forceSaveCurrentPosition();
             
@@ -1501,12 +1700,18 @@
             }
         }
 
-        // --- SPEICHERN (UPDATED MIT EDIT-LOGIC) ---
+        // --- SPEICHERN (UPDATED MIT EDIT-LOGIC V56) ---
         function saveTrackLink(tagId) {
             const audioInput = document.getElementById('audio-input');
             const imgInput = document.getElementById('img-input');
             const cueInput = document.getElementById('cue-input');
             const name = document.getElementById('track-name').value;
+
+            // Meta Inputs
+            const metaDesc = document.getElementById('meta-desc').value;
+            const metaAge = document.getElementById('meta-age').value;
+            const metaGenre = document.getElementById('meta-genre').value;
+            const metaRuntime = document.getElementById('meta-runtime').value;
 
             // Logik: Wir holen uns ggf. die alten Daten, wenn wir im Edit Mode sind
             const finalize = (oldRecord = null, newCueTracks = null) => {
@@ -1521,6 +1726,14 @@
 
                 if(finalAudio.length === 0) { alert("Kein Audio vorhanden!"); return; }
 
+                // Meta Object bauen
+                const metaObj = {
+                    description: metaDesc,
+                    age_recommendation: metaAge ? parseInt(metaAge) : 0,
+                    genre: metaGenre,
+                    runtime: metaRuntime ? parseInt(metaRuntime) : 0
+                };
+
                 const record = { 
                     tagId: tagId, 
                     name: name, 
@@ -1529,6 +1742,7 @@
                     imageBlob: finalImg, 
                     imageFileName: finalImgName, 
                     cueTracks: finalCue, 
+                    meta: metaObj, // Updated Meta
                     lastTrackIndex: oldRecord ? oldRecord.lastTrackIndex : 0, 
                     lastTime: oldRecord ? oldRecord.lastTime : 0 
                 };
@@ -1542,7 +1756,7 @@
                 // Wenn wir editiert haben und die Tag ID sich geändert hat (neuer Tag gescannt), alten löschen
                 if (editingOriginalTagId && editingOriginalTagId !== tagId) {
                     store.delete(editingOriginalTagId);
-                    showStatus("Tag gewechselt & gespeichert!");
+                    showStatus("Tag gewechselt & Update!");
                 } else {
                     showStatus("Gespeichert!");
                 }
@@ -1573,26 +1787,55 @@
         }
 
         function loadTagList() {
-            const list = document.getElementById('tag-list'); if(!list) return; list.innerHTML = "";
-            const tx = db.transaction(["tracks"], "readonly"); const store = tx.objectStore("tracks");
+            const container = document.getElementById('tag-list-container'); 
+            if(!container) return; 
+            container.innerHTML = "";
+            
+            const tx = db.transaction(["tracks"], "readonly"); 
+            const store = tx.objectStore("tracks");
+            
             store.openCursor().onsuccess = (event) => {
-                const cursor = event.target.result; if (cursor) {
+                const cursor = event.target.result; 
+                if (cursor) {
                     const track = cursor.value;
                     if(track.tagId !== SYSTEM_BG_ID && track.tagId !== SYSTEM_SETTINGS_ID) {
-                        const div = document.createElement('div'); div.className = "tag-list-item";
-                        div.innerHTML = `
-                            <div class="tag-info-row">
-                                <strong>${track.name}</strong>
-                                <span style="font-size:0.8em; color:#aaa;">ID: ${track.tagId}</span>
-                            </div>
-                            <div class="tag-action-row">
-                                <button class="btn-fix-audio btn-edit" onclick="loadTagForEdit('${track.tagId}')">✏️ Bearbeiten</button>
-                                <button class="btn-fix-audio" onclick="playTrackByTag('${track.tagId}')">▶ Testen</button>
-                                <button class="btn-fix-audio" style="background:#ff7675; color:white;" onclick="deleteTrack('${track.tagId}')">Löschen</button>
+                        
+                        // Card erstellen
+                        const card = document.createElement('div');
+                        card.className = 'admin-card';
+                        
+                        // Bild
+                        let imgHtml = `<div style="font-size:30px;">🎵</div>`;
+                        if (track.imageBlob) {
+                            const url = URL.createObjectURL(track.imageBlob);
+                            imgHtml = `<img src="${url}" class="admin-cover-img" loading="lazy">`;
+                        }
+
+                        // Meta Info String
+                        let metaInfo = "";
+                        if(track.meta) {
+                            if(track.meta.age_recommendation) metaInfo += `Ab ${track.meta.age_recommendation}J `;
+                            if(track.meta.genre) metaInfo += `• ${track.meta.genre}`;
+                        }
+
+                        card.innerHTML = `
+                            <div class="admin-cover-wrap">${imgHtml}</div>
+                            <div class="admin-card-body">
+                                <div>
+                                    <div class="admin-card-title">${track.name}</div>
+                                    <div class="admin-card-id">ID: ${track.tagId}</div>
+                                    <div style="font-size:0.75em; color:#ccc;">${metaInfo}</div>
+                                </div>
+                                <div class="admin-actions">
+                                    <button class="btn-mini edit" onclick="loadTagForEdit('${track.tagId}')">✏️ Edit</button>
+                                    <button class="btn-mini play" onclick="playTrackByTag('${track.tagId}')">▶</button>
+                                    <button class="btn-mini del" onclick="deleteTrack('${track.tagId}')">🗑</button>
+                                </div>
                             </div>
                         `;
-                        list.appendChild(div);
-                    } cursor.continue();
+                        container.appendChild(card);
+                    } 
+                    cursor.continue();
                 }
             };
         }
@@ -1603,8 +1846,8 @@
         let currentLibFilter = 'all';
 
         function openLibrary() {
-            // FIXED HEADER LAYOUT SWITCH
-            document.getElementById('library-mode').style.display = 'flex';
+            // WICHTIG: Display Block setzen, kein Flex mehr!
+            document.getElementById('library-mode').style.display = 'block';
             renderLibrary();
         }
 
@@ -1657,6 +1900,7 @@
                     
                     if (recentTracks.length > 0) {
                         const recentDiv = document.createElement('div');
+                        // clearfix für sicheren Stand
                         recentDiv.innerHTML = `<div class="section-title">Zuletzt gehört 🕒</div><div class="recent-grid" id="recent-grid-target"></div>`;
                         contentArea.appendChild(recentDiv);
                         const target = recentDiv.querySelector('#recent-grid-target');
@@ -1672,7 +1916,7 @@
                 // --- HAUPT GRID ---
                 const gridDiv = document.createElement('div');
                 gridDiv.className = 'library-grid';
-                if(currentLibFilter === 'all') gridDiv.style.marginTop = "20px";
+                if(currentLibFilter === 'all') gridDiv.style.marginTop = "10px";
                 
                 // Filtern
                 let filteredTracks = tracks;
@@ -1806,4 +2050,4 @@
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
     </script>
 </body>
-        </html>
+</html>
