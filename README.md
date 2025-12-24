@@ -1,8 +1,8 @@
-# 🎵 Jukebox PWA (v55 Library Ultimate) - Die DIY "Toniebox" fürs Handy
+# 🎵 Jukebox PWA (v57 Admin Power) - Die DIY "Toniebox" fürs Handy
 
 Eine kinderfreundliche Musik-Player-App, die als Progressive Web App (PWA) direkt im Browser läuft. Sie verwandelt alte Smartphones in sichere Abspielgeräte für Kinder.
 
-**Das Highlight in v55:** Die neue **Bibliotheks-Ansicht** wurde perfektioniert (Layout-Fix für Buttons) und bietet nun eine visuelle Übersicht im Stil einer "Tigerbox" – inklusive Filter, "Zuletzt gehört" und Info-Details.
+**Das Highlight in v57:** Der **Eltern-Bereich** wurde komplett überarbeitet! Du kannst deine gespeicherten Tags nun in einer übersichtlichen **Cover-Ansicht** verwalten und Metadaten (Alter, Text, Genre) **direkt in der App bearbeiten**, ohne Dateien am PC ändern zu müssen.
 
 Entwickelt als lokale Lösung: **Kein Cloud-Zwang, kein Tracking, komplett kostenlos.**
 
@@ -25,18 +25,20 @@ Hier spielen die Kinder. Große Bilder, keine Text-Menüs, einfache Bedienung.
 | <img src="docs/screenshots/library_info.png" width="180"> | <img src="docs/screenshots/kid-mode2.png" width="180"> |
 | *Beschreibung & Alter* | *Einfacher Player* |
 
-### 🔧 Eltern-Modus (Admin)
-Hier verwaltest du die Datenbank, importierst Musik und stellst Limits ein.
+### 🔧 Eltern-Modus (Admin - NEU in V57!)
+Verwalte deine Sammlung so komfortabel wie nie zuvor.
+
+| **Admin Grid-Ansicht** | **Metadaten-Editor** |
+|:---:|:---:|
+| <img src="docs/screenshots/parent-grid.png" width="180"> | <img src="docs/screenshots/parent-edit.png" width="180"> |
+| *Tags visuell verwalten* | *Infos direkt ändern* |
 
 | **Einstellungen & Limits** | **Datenbank & Import** |
 |:---:|:---:|
 | <img src="docs/screenshots/parent-mode1.png" width="180"> | <img src="docs/screenshots/parent-mode4.png" width="180"> |
 | *Lautstärkelimit & Timer* | *Massen-Import & Reparatur* |
 
-| **Verwaltung** | **Design & Bibliothek** |
-|:---:|:---:|
-| <img src="docs/screenshots/parent-mode3.png" width="180"> | <img src="docs/screenshots/parent-mode2.png" width="180"> |
-| *Tags bearbeiten* | *Bibliothek an/ausschalten* |
+*(Hinweis: Für die neuen Features bitte Screenshots unter `docs/screenshots/parent-grid.png` und `docs/screenshots/parent-edit.png` speichern)*
 
 ---
 
@@ -61,19 +63,23 @@ Die App muss nicht über den Play Store geladen werden, sondern wird direkt übe
 
 ---
 
-## ✨ Neue Features (v55 & Library)
+## ✨ Neue Features (v57)
+
+### 🛠️ Admin Power-Up
+* **Admin Grid-Ansicht:** Deine gespeicherten Tags werden jetzt als Kacheln mit Covern angezeigt (umschaltbar auf Liste). So findest du Hörspiele zum Bearbeiten viel schneller.
+* **In-App Editor:** Du kannst nun **Beschreibung, Altersempfehlung, Genre und Laufzeit** direkt beim Anlernen oder Bearbeiten eines Tags eingeben. Diese Infos erscheinen sofort in der Kinder-Bibliothek. Es ist kein manuelles Bearbeiten von JSON-Dateien mehr nötig!
 
 ### 📚 Die Bibliothek (Tigerbox-Style)
 Zusätzlich zur NFC-Steuerung können Kinder nun visuell durch ihre Sammlung stöbern.
-* **Layout Fix (v55):** Die Ansicht nutzt nun ein robustes Block-Layout, sodass Filter-Buttons auf kleinen Bildschirmen nicht mehr gequetscht werden, sondern sauber scrollbar sind.
+* **Layout Fix:** Robustes Design, das auf allen Displaygrößen funktioniert.
 * **Visuelle Übersicht:** Große Cover-Kacheln in einem übersichtlichen Raster.
-* **🕒 Zuletzt gehört:** Die letzten 3 gestarteten Hörspiele werden oben sofort angezeigt (History-Funktion).
-* **🔍 Smart Filter:** Automatische Filter-Buttons basierend auf deiner `jukebox.json` (z.B. *"Ab 3 Jahren"*, *"Hörspiel"*, *"Musik"*).
-* **ℹ️ Info-Overlay:** Ein Klick auf den kleinen **"i"-Button** auf dem Cover öffnet ein Fenster mit Beschreibungstext, Laufzeit und Altersempfehlung.
+* **🕒 Zuletzt gehört:** Die letzten 3 gestarteten Hörspiele werden oben sofort angezeigt.
+* **🔍 Smart Filter:** Automatische Filter-Buttons (z.B. *"Ab 3 Jahren"*, *"Hörspiel"*).
+* **ℹ️ Info-Overlay:** Zeigt Beschreibungstext, Laufzeit und Altersempfehlung bei Klick auf den "i"-Button.
 
 ### 🛡️ Erweiterte Eltern-Kontrolle
-* **Bibliothek sperren:** Du kannst in den Einstellungen den Haken bei *"📚 Bibliothek im Kinder-Modus erlauben"* entfernen, wenn das Kind nur mit physischen Figuren spielen soll.
-* **Start-Modus:** Lege fest, ob die App beim Öffnen direkt im gesicherten Kinder-Modus starten soll.
+* **Bibliothek sperren:** Du kannst den Bibliotheks-Button im Kinder-Modus ausblenden.
+* **Start-Modus:** Lege fest, ob die App direkt im gesicherten Kinder-Modus starten soll.
 
 ---
 
@@ -111,27 +117,40 @@ Wenn du **eigene Tonie-Dateien (.taf)** besitzt, kannst du diese mit dem Skript 
 
 ## 📖 Bedienungsanleitung
 
-### 1. Musik hinzufügen & Bibliothek pflegen
-Die Bibliothek entfaltet ihre volle Stärke mit einer gepflegten `jukebox.json`.
+### 1. Musik hinzufügen
+Die App unterstützt zwei Wege:
 
-**Empfohlener Weg: Massen-Import**
-1.  Erstelle am PC eine Ordnerstruktur mit deinen MP3s und Covern (oder nutze den Output des Python-Tools).
-2.  Stelle sicher, dass eine `jukebox.json` im Hauptordner liegt.
-3.  Gehe im Eltern-Modus auf **"📂 Massen-Import"** und wähle den Ordner.
+* **A) Massen-Import (Empfohlen):**
+    Erstelle Ordner mit MP3s und Covern am PC und lade sie über "Massen-Import" hoch. Wenn du eine `jukebox.json` hast (vom Python-Tool), werden alle Infos automatisch gesetzt.
+* **B) Manuell anlernen (Neu in V57):**
+    Gehe auf "Neuen Tag anlernen", wähle Audio & Bild und fülle im neuen Menü **"📝 Erweiterte Infos"** die Beschreibung und das Alter aus.
 
-**Format der `jukebox.json` (falls manuell erstellt):**
-Damit Filter ("Ab 4 Jahren") und Info-Texte erscheinen, nutze dieses Format:
+### 2. Einstellungen
+* **Lautstärke:** Stelle sicher, dass die physische Handy-Lautstärke auf 100% steht und regle das Limit in der App.
+* **Kindersicherung:** Deaktiviere den Bibliotheks-Button, falls das Kind zu viel "herumdrückt".
 
-```json
-{
-  "tagId": "meine_id_123",
-  "name": "Benjamin Blümchen - Als Koch",
-  "playlistFileNames": ["Benjamin_Koch.mp3"],
-  "imageFileName": "Benjamin_Koch.jpg",
-  "meta": {
-    "description": "Benjamin hilft im Zoo-Restaurant aus...",
-    "age_recommendation": 3,
-    "genre": "Hörspiel",
-    "runtime": 45
-  }
-}
+### 3. Kinder-Modus verlassen
+Es gibt keinen sichtbaren "Zurück"-Button, damit Kinder nicht aus Versehen rausgehen.
+➡️ **Tippe 5x schnell hintereinander in die obere rechte Ecke des Bildschirms.**
+
+---
+
+## 📂 Dateistruktur
+
+* `index.html` - Der komplette Code (V57).
+* `sw.js` - Offline-Logik (Cache V57).
+* `manifest.json` - App-Icon Konfiguration.
+* `assets/` - Bilder und Icons.
+* `jukebox.json` - Deine Datenbank (Optional).
+* `tools/` - Python-Script für den Import.
+
+---
+
+## 🔗 Projekt & Support
+
+* 🏠 **Projekt:** [github.com/basecore/jukebox](https://github.com/basecore/jukebox/)
+* 🐛 **Fehler melden:** [Issues & Bugs](https://github.com/basecore/jukebox/issues)
+
+## 👨‍💻 Credits
+Entwickelt von Sebastian Rößer.
+Version 57 "Admin Power".
