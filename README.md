@@ -1,8 +1,8 @@
-# 🎵 Jukebox PWA (v58 Polished) - Die DIY "Toniebox" fürs Handy
+# 🎵 Jukebox PWA (v61 Stable) - Die DIY "Toniebox" fürs Handy
 
 Eine kinderfreundliche Musik-Player-App, die als Progressive Web App (PWA) direkt im Browser läuft. Sie verwandelt alte Smartphones in sichere Abspielgeräte für Kinder.
 
-**Aktuell in v58:** Die App wurde perfektioniert! Die neue **Bibliotheks-Ansicht** funktioniert jetzt reibungslos, lange Titel werden in der Listenansicht korrekt dargestellt und beim Editieren siehst du nun die echten Dateinamen.
+**Aktuell in v61:** Diese Version beinhaltet wichtige Optimierungen für die **Bibliotheks-Ansicht**, damit diese auf allen Geräten zuverlässig öffnet. Zudem sind der neue **Rewind-Button** (30s zurück) und die **Smart-Start-Logik** (Resume bei erneutem Scan) enthalten.
 
 Entwickelt als lokale Lösung: **Kein Cloud-Zwang, kein Tracking, komplett kostenlos.**
 
@@ -15,7 +15,7 @@ Die App ist in zwei Bereiche unterteilt: Den geschützten **Eltern-Modus** (Verw
 ### 👶 Kinder-Modus & Bibliothek
 Hier spielen die Kinder. Große Bilder, keine Text-Menüs, einfache Bedienung.
 
-| **Der Player** | **Die Bibliothek** |
+| **Der Player (Neu: Rewind)** | **Die Bibliothek** |
 |:---:|:---:|
 | <img src="docs/screenshots/kid-mode1.png" width="180"> | <img src="docs/screenshots/library_grid.png" width="180"> |
 | *Große Steuerung & Cover* | *Visuelles Stöbern & Filtern* |
@@ -30,7 +30,7 @@ Hier verwaltest du die Datenbank, importierst Musik und stellst Limits ein.
 
 | **Admin Grid-Ansicht** | **Metadaten-Editor** |
 |:---:|:---:|
-| <img src="docs/screenshots/parent-mode3.png" width="180"> | <img src="docs/screenshots/Screenshot_20251224-122537_Chrome.png" width="180"> |
+| <img src="docs/screenshots/parent-mode3.png" width="180"> | <img src="docs/screenshots/parent-edit.png" width="180"> |
 | *Tags visuell verwalten* | *Infos direkt ändern* |
 
 | **Einstellungen** | **Massen-Import** |
@@ -61,23 +61,21 @@ Die App muss nicht über den Play Store geladen werden, sondern wird direkt übe
 
 ---
 
-## ✨ Neue Features (v58)
+## ✨ Neue Features (v61)
+
+### 👶 Player-Upgrades
+* **⏪ Rewind-Button:** Ein neuer Button erlaubt es, **30 Sekunden zurückzuspringen**. Perfekt, wenn das Kind kurz abgelenkt war.
+* **🧠 Smart Start:** Wird derselbe NFC-Tag während der Wiedergabe erneut aufgelegt, fängt das Hörspiel nicht mehr von vorne an, sondern läuft einfach weiter (oder pausiert/startet an aktueller Stelle).
 
 ### 🛠️ Admin Power-Up
-* **Admin Grid-Ansicht:** Deine gespeicherten Tags werden jetzt als Kacheln mit Covern angezeigt. Oben rechts kannst du zwischen **Grid (▦)** und **Liste (☰)** umschalten.
-* **In-App Editor:** Du kannst nun **Beschreibung, Altersempfehlung, Genre und Laufzeit** direkt beim Anlernen oder Bearbeiten eines Tags eingeben.
-* **Verbesserte Übersicht:** In der Listenansicht brechen lange Titel nun korrekt um, und im Editor siehst du den echten Dateinamen der verknüpften MP3s.
+* **Smart Scroll:** Ein Klick auf "Bearbeiten" springt nun direkt zum Eingabeformular, ohne dass du scrollen musst.
+* **Admin Grid-Ansicht:** Verwalte Tags als Kacheln mit Covern. Umschaltbar auf Listenansicht (☰).
+* **In-App Editor:** Bearbeite **Beschreibung, Alter, Genre und Laufzeit** direkt in der App. Du siehst nun auch die echten Dateinamen der verknüpften MP3s.
 
 ### 📚 Die Bibliothek (Tigerbox-Style)
-Zusätzlich zur NFC-Steuerung können Kinder nun visuell durch ihre Sammlung stöbern.
-* **Layout Fix:** Robustes Design, das auf allen Displaygrößen funktioniert.
 * **Visuelle Übersicht:** Große Cover-Kacheln in einem übersichtlichen Raster.
-* **🕒 Zuletzt gehört:** Die letzten 3 gestarteten Hörspiele werden oben sofort angezeigt.
-* **ℹ️ Info-Overlay:** Zeigt Beschreibungstext, Laufzeit und Altersempfehlung bei Klick auf den "i"-Button.
-
-### 🛡️ Erweiterte Eltern-Kontrolle
-* **Bibliothek sperren:** Du kannst den Bibliotheks-Button im Kinder-Modus ausblenden.
-* **Start-Modus:** Lege fest, ob die App direkt im gesicherten Kinder-Modus starten soll.
+* **Filter & Verlauf:** Filtere nach Alter ("Ab 3 Jahren") oder Genre und sieh dir die zuletzt gehörten Titel an.
+* **Info-Overlay:** Ein Klick auf das "i" zeigt Details zum Hörspiel.
 
 ---
 
@@ -125,7 +123,7 @@ Die App unterstützt zwei Wege:
 
 ### 2. Einstellungen
 * **Lautstärke:** Stelle sicher, dass die physische Handy-Lautstärke auf 100% steht und regle das Limit in der App.
-* **Kindersicherung:** Deaktiviere den Bibliotheks-Button, falls das Kind zu viel "herumdrückt".
+* **Kindersicherung:** Du kannst den Bibliotheks-Button im Kinder-Modus ausblenden, falls gewünscht.
 
 ### 3. Kinder-Modus verlassen
 Es gibt keinen sichtbaren "Zurück"-Button, damit Kinder nicht aus Versehen rausgehen.
@@ -135,8 +133,8 @@ Es gibt keinen sichtbaren "Zurück"-Button, damit Kinder nicht aus Versehen raus
 
 ## 📂 Dateistruktur
 
-* `index.html` - Der komplette Code (V58).
-* `sw.js` - Offline-Logik (Cache V58).
+* `index.html` - Der komplette Code (V61).
+* `sw.js` - Offline-Logik (Cache V61).
 * `manifest.json` - App-Icon Konfiguration.
 * `assets/` - Bilder und Icons.
 * `jukebox.json` - Deine Datenbank (Optional).
@@ -151,4 +149,4 @@ Es gibt keinen sichtbaren "Zurück"-Button, damit Kinder nicht aus Versehen raus
 
 ## 👨‍💻 Credits
 Entwickelt von Sebastian Rößer.
-Version 58 "Polished".
+Version 61 "Stable".
