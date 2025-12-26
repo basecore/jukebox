@@ -48,23 +48,24 @@ Verwaltung der Inhalte und Einsicht in das Nutzungsverhalten.
 
 ---
 
-## 📲 Installation & Link
+# 📲 Installation (Android)
 
-Die App muss nicht über den App-Store geladen werden. Sie ist eine Webseite, die sich wie eine App installiert.
+Die App muss nicht über den Play Store geladen werden, sondern wird direkt über den Browser installiert.
 
-🔗 **Link zur App:** [https://basecore.github.io/jukebox/](https://basecore.github.io/jukebox/)
+1.  Öffne **Chrome** auf deinem Android-Smartphone.
+2.  Rufe die Webseite auf: **[https://basecore.github.io/jukebox/](https://basecore.github.io/jukebox/)**
+3.  **Warte kurz (bis zu 30 Sekunden):** Oft erscheint am unteren Bildschirmrand automatisch ein Hinweis *"Jukebox zum Startbildschirm hinzufügen"*.
+4.  Falls nicht, folge diesen Schritten:
 
-**So installierst du sie korrekt (Android/Chrome):**
+| **1. Menü öffnen** | **2. Installieren** |
+|:---:|:---:|
+| <img src="docs/screenshots/install-app1.png" width="180"> | <img src="docs/screenshots/install-app2.png" width="180"> |
+| *Tippe oben rechts auf die 3 Punkte* | *Wähle "App installieren"* |
 
-1.  Öffne den Link in **Google Chrome**.
-2.  Tippe oben rechts auf das Menü (die drei Punkte `⋮`).
-3.  Wähle **"App installieren"** oder **"Zum Startbildschirm hinzufügen"**.
-4.  Bestätige die Installation.
-
-| **1. Menü öffnen** | **2. Installieren** | **3. Bestätigen** |
-|:---:|:---:|:---:|
-| <img src="docs/screenshots/Screenshot_20251226-082804_Chrome.png" width="160"> | <img src="docs/screenshots/Screenshot_20251226-082833_Chrome.png" width="160"> | <img src="docs/screenshots/Screenshot_20251226-082846_Chrome.png" width="160"> |
-| *Chrome Menü (3 Punkte)* | *App installieren* | *Automatisch hinzufügen* |
+| **3. Bestätigen** | **4. Widget platzieren** |
+|:---:|:---:|
+| <img src="docs/screenshots/install-app3.png" width="180"> | <img src="docs/screenshots/install-app4.png" width="180"> |
+| *Klicke auf "Installieren"* | *Automatisch oder ziehen* |
 
 *(iOS Nutzer verwenden Safari -> Teilen -> Zum Home-Bildschirm)*
 
