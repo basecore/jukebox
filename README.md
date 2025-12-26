@@ -10,7 +10,7 @@ Dieses Projekt ist eine kinderfreundliche Musik-Player-App, die alte Smartphones
 
 ## ✨ Neue Funktionen in v62
 
-* 📊 **Detaillierte Eltern-Statistik:** Ein neues Dashboard zeigt genau an:
+* 📊 **Detaillierte Eltern-Statistik:** Ein neues Dashboard im Eltern-Modus zeigt genau an:
     * Hördauer (Heute / Woche / Gesamt).
     * Die Top 5 Lieblings-Hörspiele.
     * Tageszeit-Heatmap (Wann wird gehört?).
@@ -22,18 +22,25 @@ Dieses Projekt ist eine kinderfreundliche Musik-Player-App, die alte Smartphones
 
 ---
 
-## 📸 Screenshots
+## 📸 Vorschau
 
-### 👶 Der Kinder-Modus
-Große Bilder, keine komplizierten Menüs. Die Steuerung ist kindersicher.
+Die App ist in zwei Bereiche unterteilt: Den geschützten **Eltern-Modus** (Verwaltung) und den kindersicheren **Player-Modus**.
 
-| **Der Player** | **Die Bibliothek** |
+### 👶 Kinder-Modus & Bibliothek
+Hier spielen die Kinder. Große Bilder, keine Text-Menüs, einfache Bedienung.
+
+| **Der Player (Neu: Rewind)** | **Die Bibliothek** |
 |:---:|:---:|
 | <img src="docs/screenshots/kid-mode1.png" width="180"> | <img src="docs/screenshots/library_grid.png" width="180"> |
-| *Große Tasten & Cover* | *Visuelles Stöbern* |
+| *Große Steuerung & Cover* | *Visuelles Stöbern & Filtern* |
 
-### 🔧 Der Eltern-Modus
-Nur durch einen Trick ("Secret Knock") erreichbar. Hier verwaltest du Inhalte und prüfst die Nutzung.
+| **Info-Overlay** | **Details & Dauer** |
+|:---:|:---:|
+| <img src="docs/screenshots/library_info.png" width="180"> | <img src="docs/screenshots/kid-mode2.png" width="180"> |
+| *Beschreibung & Alter* | *Einfacher Player* |
+
+### 🔧 Eltern-Modus & Statistik
+Verwaltung der Inhalte und Einsicht in das Nutzungsverhalten.
 
 | **Verwaltung** | **Statistik (Neu)** |
 |:---:|:---:|
@@ -57,9 +64,13 @@ Da es eine PWA ist, gibt es keinen App-Store-Download. Die App läuft lokal auf 
 
 ## 📖 Bedienung
 
-### 1. Musik importieren
-* **Massen-Import (Empfohlen):** Klicke auf "📂 Massen-Import" und wähle einen Ordner mit Unterordnern (MP3s + Bilder) aus. Die App erkennt Zusammenhänge automatisch.
-* **Einzeln:** Nutze "🎵 Tag bearbeiten", lade eine Audio-Datei und ein Bild hoch.
+### 1. Musik hinzufügen
+Die App unterstützt zwei Wege:
+
+* **A) Massen-Import (Empfohlen):**
+    Erstelle Ordner mit MP3s und Covern am PC und lade sie über "Massen-Import" hoch. Die App erkennt Zusammenhänge automatisch. Besonders gut funktioniert dies mit der `jukebox.json`, die unser Python-Tool erstellt (siehe unten).
+* **B) Manuell anlernen:**
+    Gehe auf "Neuen Tag anlernen", wähle Audio & Bild und fülle im Menü **"📝 Erweiterte Infos"** Details wie Beschreibung und Alter aus.
 
 ### 2. NFC Tags nutzen (Optional)
 Wenn dein Android-Gerät NFC hat:
@@ -67,30 +78,59 @@ Wenn dein Android-Gerät NFC hat:
 2.  Halte eine NFC-Karte oder Figur an das Handy.
 3.  Die Musik ist nun mit diesem Tag verknüpft. Im Kinder-Modus startet sie sofort beim Auflegen.
 
-### 3. Statistik ansehen
-Klicke im Eltern-Modus oben rechts auf den Button **"📊 Statistik"**. Hier siehst du, was dein Kind wann und wie lange hört.
-
-### 4. Kinder-Modus verlassen
+### 3. Kinder-Modus verlassen
 Es gibt keinen sichtbaren "Zurück"-Button, damit Kinder die App nicht versehentlich schließen.
-➡️ **Tippe 5x schnell hintereinander in die obere rechte Ecke des Bildschirms, um das Passwort-Feld zu umgehen und zum Eltern-Modus zurückzukehren.**
+➡️ **Tippe 5x schnell hintereinander in die obere rechte Ecke des Bildschirms, um in den Eltern-Modus zurückzukehren.**
+
+---
+
+## 🪄 Das Python-Tool: TAF zu Jukebox
+
+Hast du **eigene Tonie-Dateien (.taf)**? Du kannst diese mit dem beiliegenden Skript `taf_jukebox_final.py` (im Ordner `tools/`) vollautomatisch für die App konvertieren.
+
+**Das Script erledigt alles:**
+1.  Wandelt `.taf` (Tonie-Format) in `.mp3` um (inkl. Kapitelmarken in einer `.cue` Datei).
+2.  Lädt das **Original-Cover** herunter.
+3.  Holt **Metadaten** (Beschreibungstext, Altersempfehlung, Genre) von der Tonie-Website.
+4.  Erstellt eine perfekte `jukebox.json` für den Import.
+
+### Anleitung für PC/Mac:
+
+1.  **Vorbereitung:**
+    * Installiere [Python](https://www.python.org/).
+    * Installiere [FFmpeg](https://ffmpeg.org/) (muss im System-Pfad sein).
+2.  **Dateien ablegen:**
+    * Kopiere das Script `taf_jukebox_final.py` und deine `.taf`-Dateien in einen gemeinsamen Ordner.
+3.  **Abhängigkeiten installieren:**
+    Öffne ein Terminal in dem Ordner und führe aus:
+    ```bash
+    pip install requests beautifulsoup4 playwright
+    playwright install
+    ```
+4.  **Script starten:**
+    ```bash
+    python taf_jukebox_final.py
+    ```
+5.  **Ergebnis:**
+    Es entsteht ein Ordner `jukebox_output`. Diesen Ordner kannst du nun direkt über **"📂 Massen-Import"** in die App laden!
 
 ---
 
 ## 📂 Dateistruktur
 
-* `index.html` - Der gesamte Quellcode der Anwendung (Logik & Design).
-* `sw.js` - Der Service Worker für die Offline-Funktionalität.
+* `index.html` - Der gesamte Quellcode der Anwendung (Logik & Design, v62).
+* `sw.js` - Der Service Worker für die Offline-Funktionalität (Cache v62).
 * `manifest.json` - Konfiguration für das App-Icon und den Vollbild-Modus.
 * `assets/` - Ordner für Icons und Test-Sounds.
+* `tools/` - Enthält das Python-Script für den Import von Tonie-Dateien.
 
 ---
 
-## 🔒 Datenschutz & Sicherheit
+## 🔗 Projekt & Support
 
-* **Lokal:** Alle Daten (Datenbank, Bilder, Statistiken) werden in der `IndexedDB` deines Browsers gespeichert. Nichts wird in eine Cloud hochgeladen.
-* **Offline:** Nach dem ersten Laden funktioniert die App komplett ohne Internet.
-* **WakeLock:** Die App verhindert, dass das Display ausgeht, während ein Hörspiel läuft.
+* 🏠 **Projekt:** [github.com/basecore/jukebox](https://github.com/basecore/jukebox/)
+* 🐛 **Fehler melden:** [Issues & Bugs](https://github.com/basecore/jukebox/issues)
 
----
-
-**Projekt erstellt mit Google Gemini 3 Pro.**
+## 👨‍💻 Credits
+Entwickelt von Sebastian Rößer mit Unterstützung von Google Gemini 3 Pro.
+Version 62 "Stats Edition".
