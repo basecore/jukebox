@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jukebox-v61-hotfix'; // <--- Version 61
+const CACHE_NAME = 'jukebox-v62-stats'; // <--- WICHTIG: Version hochgezählt
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -10,8 +10,7 @@ const ASSETS_TO_CACHE = [
   './assets/icons/icon512_rounded.png'
 ];
 
-// ... (Rest der Datei bleibt gleich) ...
-// 1. Install ...
+// 1. Installieren: Dateien in den Cache laden
 self.addEventListener('install', (e) => {
   console.log('[Service Worker] Installiere & Cache Dateien...');
   e.waitUntil(
@@ -19,18 +18,20 @@ self.addEventListener('install', (e) => {
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
+  self.skipWaiting(); // Zwingt den neuen SW sofort aktiv zu werden
 });
 
-// 2. Fetch ...
+// 2. Abrufen (Fetch): Erst Cache, dann Netzwerk
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((cachedResponse) => {
+      // Wenn im Cache, nimm das. Sonst lade aus dem Netz.
       return cachedResponse || fetch(e.request);
     })
   );
 });
 
-// 3. Activate ...
+// 3. Aktivieren: Alte Caches löschen (Aufräumen)
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keyList) => {
