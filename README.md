@@ -110,7 +110,7 @@ Im Repository-Ordner `example/` findest du vorbereitete Beispieldateien, mit den
 
 **Option 1: Einzelne Dateien herunterladen**
 
-Öffne im Browser: `https://github.com/basecore/jukebox/tree/main/example`
+Öffne im Browser: https://github.com/basecore/jukebox/tree/main/example
 
 Lade folgende Dateien herunter:
 - `jukebox.json` – Metadaten-Datei mit allen Informationen
@@ -123,7 +123,7 @@ Lade folgende Dateien herunter:
 
 **Option 2: Komplettes Repository als ZIP (empfohlen)**
 
-1. Gehe auf `https://github.com/basecore/jukebox`
+1. Gehe auf https://github.com/basecore/jukebox
 2. Klicke auf den grünen **„Code"**-Button
 3. Wähle **„Download ZIP"**
 4. Entpacke die Datei und navigiere zum Ordner `jukebox/example/`
