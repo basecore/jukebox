@@ -80,7 +80,7 @@ Die App muss nicht über den Play Store geladen werden, sondern wird direkt übe
 Die App unterstützt zwei Wege:
 
 * **A) Massen-Import (Empfohlen):**
-    Erstelle Ordner mit MP3s und Covern am PC und lade sie über „Massen-Import" hoch. **Tipp:** Wenn du unser Python-Tool (siehe unten) nutzt, wird eine `jukebox.json` erstellt. Wähle diese Datei und den Ordner aus – dann sind alle Titel, Cover und Texte sofort perfekt gesetzt!
+    Erstelle Ordner mit MP3s und Covern am PC und lade sie über „Massen-Import" hoch. **Tipp:** Wenn du unser Python-Tool (siehe unten) mit den TAF-Dateien nutzt, wird eine `jukebox.json` erstellt. Wähle diese Datei und den Ordner aus – dann sind alle Titel, Cover und Texte sofort perfekt gesetzt!
 * **B) Manuell anlernen:**
     Gehe auf „Neuen Tag anlernen", wähle Audio & Bild und fülle im Menü **„📝 Erweiterte Infos"** Details wie Beschreibung und Alter aus.
 
