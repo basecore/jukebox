@@ -1,4 +1,4 @@
-# 🎵 Jukebox PWA (v62 Stats)
+# 🎵 Jukebox PWA (v65 Final)
 
 **Die smarte DIY "Toniebox" fürs Handy – 100% AI-Generated Code.**
 
@@ -8,17 +8,17 @@ Dieses Projekt ist eine kinderfreundliche Musik-Player-App, die alte Smartphones
 
 ---
 
-## ✨ Neue Funktionen in v62
+## ✨ Neue Funktionen in v65
 
-* 📊 **Detaillierte Eltern-Statistik:** Ein neues Dashboard im Eltern-Modus zeigt genau an:
-    * Hördauer (Heute / Woche / Gesamt).
-    * Die Top 5 Lieblings-Hörspiele.
-    * Tageszeit-Heatmap (Wann wird gehört?).
-    * Anzahl der Interaktionen (NFC-Scans, Umdrehen).
-* 🛠️ **Bugfixes:**
-    * Das seitliche "Wackeln" des Bildschirms im Kinder-Modus wurde behoben.
-    * Lange Dateinamen im Editor werden nun korrekt umgebrochen.
-* 💾 **Datenbank Upgrade:** Automatische Migration auf DB-Version 2 für das Event-Logging.
+* ✅ **Fortschritts-Anzeige:** Hörspiele, die komplett zu Ende gehört wurden, erhalten nun einen **grünen Haken** auf dem Cover (in Bibliothek & Admin-Bereich).
+* 📊 **Detaillierte Eltern-Statistik:**
+    * Dashboard repariert (lässt sich nun zuverlässig schließen).
+    * Anzeige: Hördauer, Top 5 Hörspiele, Tageszeit-Nutzung.
+    * Neuer Zähler: "Vollständig gehört".
+* 🛠️ **System-Updates:**
+    * Z-Index Fix für Buttons im Eltern-Modus.
+    * Verbesserter "Wackelschutz" im Kinder-Modus.
+    * Lange Dateinamen werden im Editor nun korrekt umgebrochen.
 
 ---
 
@@ -59,18 +59,7 @@ Die App muss nicht über den App-Store geladen werden. Sie ist eine Webseite, di
 1.  Öffne den Link in **Google Chrome**.
 2.  Warte kurz – oft erscheint unten eine Leiste *"Jukebox zum Startbildschirm hinzufügen"*.
 3.  Falls nicht: Tippe oben rechts auf das Menü (⋮) und wähle **"App installieren"** oder **"Zum Startbildschirm hinzufügen"**.
-4.  Folge den Anweisungen auf dem Bildschirm (siehe Bilder unten).
-5.  Starte die App nun direkt vom Homescreen (sie läuft dann im Vollbild ohne Adressleiste).
-
-| **1. Menü öffnen** | **2. Installieren** |
-|:---:|:---:|
-| <img src="docs/screenshots/install-app1.png" width="180"> | <img src="docs/screenshots/install-app2.png" width="180"> |
-| *Tippe oben rechts auf die 3 Punkte* | *Wähle "App installieren"* |
-
-| **3. Bestätigen** | **4. Widget platzieren** |
-|:---:|:---:|
-| <img src="docs/screenshots/install-app3.png" width="180"> | <img src="docs/screenshots/install-app4.png" width="180"> |
-| *Klicke auf "Installieren"* | *Automatisch oder ziehen* |
+4.  Starte die App nun direkt vom Homescreen (sie läuft dann im Vollbild ohne Adressleiste).
 
 *(iOS Nutzer verwenden Safari -> Teilen -> Zum Home-Bildschirm)*
 
@@ -92,8 +81,8 @@ Wenn dein Android-Gerät NFC hat:
 2.  Halte eine NFC-Karte oder Figur an das Handy.
 3.  Die Musik ist nun mit diesem Tag verknüpft. Im Kinder-Modus startet sie sofort beim Auflegen.
 
-### 3. Statistik ansehen (Neu in v62)
-Klicke im Eltern-Modus oben rechts auf den Button **"📊 Statistik"**. Hier siehst du, was dein Kind wann und wie lange hört.
+### 3. Statistik ansehen (Neu)
+Klicke im Eltern-Modus oben rechts auf den Button **"📊 Statistik"**. Hier siehst du, was dein Kind wann und wie lange hört und welche Hörspiele bereits **vollständig (✅)** gehört wurden.
 
 ### 4. Kinder-Modus verlassen
 Es gibt keinen sichtbaren "Zurück"-Button, damit Kinder die App nicht versehentlich schließen.
@@ -135,8 +124,8 @@ Hast du **eigene Tonie-Dateien (.taf)**? Du kannst diese mit dem beiliegenden Sk
 
 ## 📂 Dateistruktur
 
-* `index.html` - Der gesamte Quellcode der Anwendung (Logik & Design, v62).
-* `sw.js` - Der Service Worker für die Offline-Funktionalität (Cache v62).
+* `index.html` - Der gesamte Quellcode der Anwendung (Logik & Design, v65).
+* `sw.js` - Der Service Worker für die Offline-Funktionalität (Cache v65).
 * `manifest.json` - Konfiguration für das App-Icon und den Vollbild-Modus.
 * `assets/` - Ordner für Icons und Test-Sounds.
 * `tools/` - Enthält das Python-Script für den Import von Tonie-Dateien.
@@ -150,4 +139,4 @@ Hast du **eigene Tonie-Dateien (.taf)**? Du kannst diese mit dem beiliegenden Sk
 
 ## 👨‍💻 Credits
 Entwickelt von Sebastian Rößer mit Unterstützung von **Google Gemini 3 Pro**.
-Version 62 "Stats Edition".
+Version 65 "Final Stats Edition".
