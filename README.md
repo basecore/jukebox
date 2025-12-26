@@ -49,16 +49,30 @@ Verwaltung der Inhalte und Einsicht in das Nutzungsverhalten.
 
 ---
 
-## 🚀 Installation
+## 📲 Installation & Link
 
-Da es eine PWA ist, gibt es keinen App-Store-Download. Die App läuft lokal auf deinem Gerät.
+Die App muss nicht über den App-Store geladen werden. Sie ist eine Webseite, die sich wie eine App installiert.
 
-1.  **Hosting:** Lade die Dateien (`index.html`, `sw.js`, `manifest.json`, `assets/`) auf einen Webspace (https erforderlich) oder starte einen lokalen Server.
-2.  **Öffnen:** Rufe die URL im **Chrome (Android)** oder **Safari (iOS)** auf.
-3.  **Installieren:**
-    * **Android:** Tippe auf das Menü (3 Punkte) -> "Zum Startbildschirm hinzufügen" (oder "App installieren").
-    * **iOS:** Tippe auf "Teilen" -> "Zum Home-Bildschirm".
-4.  **Starten:** Öffne die neue App auf dem Homescreen. Sie läuft nun im Vollbild ohne Browser-Leiste.
+🔗 **Link zur App:** [https://basecore.github.io/jukebox/](https://basecore.github.io/jukebox/)
+
+**So installierst du sie korrekt (Android/Chrome):**
+1.  Öffne den Link in **Google Chrome**.
+2.  Warte kurz – oft erscheint unten eine Leiste *"Jukebox zum Startbildschirm hinzufügen"*.
+3.  Falls nicht: Tippe oben rechts auf das Menü (⋮) und wähle **"App installieren"** oder **"Zum Startbildschirm hinzufügen"**.
+4.  Folge den Anweisungen auf dem Bildschirm (siehe Bilder unten).
+5.  Starte die App nun direkt vom Homescreen (sie läuft dann im Vollbild ohne Adressleiste).
+
+| **1. Menü öffnen** | **2. Installieren** |
+|:---:|:---:|
+| <img src="docs/screenshots/install-app1.png" width="180"> | <img src="docs/screenshots/install-app2.png" width="180"> |
+| *Tippe oben rechts auf die 3 Punkte* | *Wähle "App installieren"* |
+
+| **3. Bestätigen** | **4. Widget platzieren** |
+|:---:|:---:|
+| <img src="docs/screenshots/install-app3.png" width="180"> | <img src="docs/screenshots/install-app4.png" width="180"> |
+| *Klicke auf "Installieren"* | *Automatisch oder ziehen* |
+
+*(iOS Nutzer verwenden Safari -> Teilen -> Zum Home-Bildschirm)*
 
 ---
 
@@ -68,7 +82,7 @@ Da es eine PWA ist, gibt es keinen App-Store-Download. Die App läuft lokal auf 
 Die App unterstützt zwei Wege:
 
 * **A) Massen-Import (Empfohlen):**
-    Erstelle Ordner mit MP3s und Covern am PC und lade sie über "Massen-Import" hoch. Die App erkennt Zusammenhänge automatisch. Besonders gut funktioniert dies mit der `jukebox.json`, die unser Python-Tool erstellt (siehe unten).
+    Erstelle Ordner mit MP3s und Covern am PC und lade sie über "Massen-Import" hoch. **Tipp:** Wenn du unser Python-Tool (siehe unten) nutzt, wird eine `jukebox.json` erstellt. Wähle diese Datei und den Ordner aus – dann sind alle Titel, Cover und Texte sofort perfekt gesetzt!
 * **B) Manuell anlernen:**
     Gehe auf "Neuen Tag anlernen", wähle Audio & Bild und fülle im Menü **"📝 Erweiterte Infos"** Details wie Beschreibung und Alter aus.
 
@@ -78,7 +92,10 @@ Wenn dein Android-Gerät NFC hat:
 2.  Halte eine NFC-Karte oder Figur an das Handy.
 3.  Die Musik ist nun mit diesem Tag verknüpft. Im Kinder-Modus startet sie sofort beim Auflegen.
 
-### 3. Kinder-Modus verlassen
+### 3. Statistik ansehen (Neu in v62)
+Klicke im Eltern-Modus oben rechts auf den Button **"📊 Statistik"**. Hier siehst du, was dein Kind wann und wie lange hört.
+
+### 4. Kinder-Modus verlassen
 Es gibt keinen sichtbaren "Zurück"-Button, damit Kinder die App nicht versehentlich schließen.
 ➡️ **Tippe 5x schnell hintereinander in die obere rechte Ecke des Bildschirms, um in den Eltern-Modus zurückzukehren.**
 
@@ -132,5 +149,5 @@ Hast du **eigene Tonie-Dateien (.taf)**? Du kannst diese mit dem beiliegenden Sk
 * 🐛 **Fehler melden:** [Issues & Bugs](https://github.com/basecore/jukebox/issues)
 
 ## 👨‍💻 Credits
-Entwickelt von Sebastian Rößer mit Unterstützung von Google Gemini 3 Pro.
+Entwickelt von Sebastian Rößer mit Unterstützung von **Google Gemini 3 Pro**.
 Version 62 "Stats Edition".
