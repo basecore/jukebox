@@ -320,8 +320,8 @@
             background: #2ecc71; color: white; border: none; padding: 10px 20px;
             border-radius: 20px; margin-top: 20px; font-weight: bold; width: 100%;
         }
-        
-        /* STATS MODAL (NEU) */
+
+        /* STATS MODAL (NEU & FIXED) */
         #stats-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #2d3436; z-index: 200; /* Ganz oben */
@@ -335,6 +335,7 @@
         .stats-close-btn { 
             background: #e74c3c; border: none; color: white; width: 40px; height: 40px; 
             border-radius: 50%; font-weight: bold; font-size: 1.2rem; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center;
         }
 
         .stat-card {
@@ -344,12 +345,23 @@
         .stat-val-big { font-size: 2rem; font-weight: bold; color: #2ecc71; margin-bottom: 5px; }
         .stat-label { font-size: 0.9rem; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
         
+        /* Stats Toggle Buttons */
+        .stats-toggle-btn {
+            background: #555; color: #ddd; border: none; padding: 10px 15px;
+            border-radius: 20px; font-weight: bold; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.2s; flex: 1; text-align: center;
+        }
+        .stats-toggle-btn.active {
+            background: #3498db; color: white; box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+        }
+        
         /* Balken Diagramm Simple */
         .chart-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.85rem; }
         .chart-label { width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #dfe6e9; }
         .chart-bar-bg { flex: 1; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden; margin-left: 10px; }
         .chart-bar-fill { height: 100%; background: #3498db; width: 0%; border-radius: 6px; transition: width 0.5s; }
         .chart-val { width: 40px; text-align: right; color: #aaa; font-size: 0.8rem; margin-left: 5px; }
+
 
         /* PARENT MODE UI */
         #parent-mode {
@@ -769,19 +781,19 @@
         </div>
     </div>
     
-    <div id="stats-modal">
-        <div class="stats-header">
+    <div id="stats-modal" onclick="closeStats(event)">
+        <div class="stats-header" onclick="event.stopPropagation()">
             <div class="stats-title">📊 Nutzung & Statistik</div>
             <button class="stats-close-btn" onclick="closeStats()">✕</button>
         </div>
         
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-             <button class="btn-mini" style="background:#3498db; padding:10px;" onclick="loadStats('day')">Heute</button>
-             <button class="btn-mini" style="background:#555; padding:10px;" onclick="loadStats('week')">7 Tage</button>
-             <button class="btn-mini" style="background:#555; padding:10px;" onclick="loadStats('all')">Gesamt</button>
+        <div style="display:flex; gap:10px; margin-bottom:15px;" onclick="event.stopPropagation()">
+             <button id="btn-stat-day" class="stats-toggle-btn active" onclick="loadStats('day')">Heute</button>
+             <button id="btn-stat-week" class="stats-toggle-btn" onclick="loadStats('week')">7 Tage</button>
+             <button id="btn-stat-all" class="stats-toggle-btn" onclick="loadStats('all')">Gesamt</button>
         </div>
 
-        <div class="stat-card" style="display:flex; justify-content:space-around; text-align:center;">
+        <div class="stat-card" style="display:flex; justify-content:space-around; text-align:center;" onclick="event.stopPropagation()">
             <div>
                 <div class="stat-val-big" id="stat-total-time">0h</div>
                 <div class="stat-label">Hördauer</div>
@@ -792,17 +804,17 @@
             </div>
         </div>
 
-        <div class="stat-card">
+        <div class="stat-card" onclick="event.stopPropagation()">
              <div class="stat-label" style="margin-bottom:10px;">Lieblings-Hörspiele</div>
              <div id="stats-top-tracks"></div>
         </div>
         
-        <div class="stat-card">
+        <div class="stat-card" onclick="event.stopPropagation()">
              <div class="stat-label" style="margin-bottom:10px;">Tageszeit (Hörverhalten)</div>
              <div id="stats-time-heatmap"></div>
         </div>
         
-        <div class="stat-card">
+        <div class="stat-card" onclick="event.stopPropagation()">
             <div class="chart-row">
                  <div class="chart-label">NFC Scans</div>
                  <div class="chart-val" id="stat-count-scan" style="width:auto; color:white; font-weight:bold;">0</div>
@@ -911,12 +923,16 @@
         const audioPlayer = document.getElementById('audio-player');
         
         let wakeLock = null;
-        let currentSessionStart = null; // STATS LOGGING
+        let currentSessionStart = null; 
         
         // --- HELFER: Safe Element Access ---
         function safeDisplay(id, val) {
             const el = document.getElementById(id);
             if(el) el.style.display = val;
+        }
+        function safeStyle(id, prop, val) {
+            const el = document.getElementById(id);
+            if(el) el.style[prop] = val;
         }
 
         const stubbornVideo = document.getElementById('stubborn-video');
@@ -1146,7 +1162,7 @@
                 if (curtain.style.display !== 'block') {
                     curtain.style.display = 'block';
                     logStatEvent('eco_flip'); // STATS LOG
-                }
+                } 
             } 
             else { if (curtain.style.display === 'block') curtain.style.display = 'none'; }
         }
@@ -1720,20 +1736,29 @@
             };
         }
 
-        // --- STATS VISUALIZATION LOGIC ---
+        // --- STATS VISUALIZATION LOGIC (V62 FIXED UI) ---
         let currentStatsScope = 'day';
 
-        function openStats() {
+        // GLOBAL EXPOSED FOR BUTTONS
+        window.openStats = function() {
             document.getElementById('stats-modal').style.display = 'flex';
-            loadStats('day');
+            window.loadStats('day');
         }
-        function closeStats() {
+        
+        window.closeStats = function(e) {
+            if(e && e.target.id !== 'stats-modal' && !e.target.classList.contains('stats-close-btn')) return;
             document.getElementById('stats-modal').style.display = 'none';
         }
 
-        function loadStats(scope) {
+        window.loadStats = function(scope) {
             currentStatsScope = scope;
-            // Buttons Highlight logic optional
+            
+            // UI Toggle Logic
+            document.querySelectorAll('.stats-toggle-btn').forEach(b => b.classList.remove('active'));
+            if(scope === 'day') document.getElementById('btn-stat-day').classList.add('active');
+            if(scope === 'week') document.getElementById('btn-stat-week').classList.add('active');
+            if(scope === 'all') document.getElementById('btn-stat-all').classList.add('active');
+
             const tx = db.transaction(["stats_log", "tracks"], "readonly");
             const logStore = tx.objectStore("stats_log");
             const trackStore = tx.objectStore("tracks");
@@ -1804,7 +1829,6 @@
                 topListEl.innerHTML = "";
                 const sortedTracks = Object.keys(trackCounts).sort((a,b) => trackCounts[b] - trackCounts[a]).slice(0, 5);
                 
-                // Need to fetch names async
                 if(sortedTracks.length === 0) topListEl.innerHTML = "<div style='color:#777; font-style:italic;'>Keine Daten</div>";
                 
                 sortedTracks.forEach(tagId => {
@@ -1850,6 +1874,9 @@
                 if(maxTime === 0) heatEl.innerHTML = "<div style='color:#777; font-style:italic;'>Keine Daten</div>";
             };
         }
+
+
+        // --- REST OF APP LOGIC ---
 
         function updateInfoText() {
             const infoEl = document.getElementById('playlist-info');
@@ -1906,6 +1933,7 @@
         }
         function restartPlaylist() { if(currentPlayingTagId) { showStatus("Start..."); playPlaylistIndex(0, 0); } }
         function skipForward() { if(audioPlayer.src) { audioPlayer.currentTime += 30; showStatus("+30 Sek"); } }
+        function skipBack() { if(audioPlayer.src) { audioPlayer.currentTime -= 30; showStatus("-30 Sek"); } }
 
         function setPlayButtonState(isPlaying) {
             const btn = document.getElementById('btn-play-main');
@@ -1943,7 +1971,7 @@
         function applyButtonColors() {
             try {
                 const volDown = document.getElementById('btn-vol-down'); const volUp = document.getElementById('btn-vol-up'); const back = document.getElementById('btn-reset'); const skip = document.getElementById('btn-skip'); const next = document.getElementById('btn-next-track');
-                const rewind = document.getElementById('btn-rewind'); // NEU V59
+                const rewind = document.getElementById('btn-rewind'); 
 
                 if (settings && settings.colorfulControls) { 
                     volDown.classList.add('btn-colorful-vol-down'); volUp.classList.add('btn-colorful-vol-up'); back.classList.add('btn-colorful-back'); skip.classList.add('btn-colorful-skip'); next.classList.add('btn-colorful-next');
@@ -1971,7 +1999,7 @@
         });
 
         function toggleTimeDisplayMode() { showRemainingTime = !showRemainingTime; updateTimeDisplay(); }
-        // Fallback: Global click listener startet NFC, falls Autostart fehlschlägt
+        // Fallback: Global click listener startet NFC
         document.body.addEventListener('click', async () => { if(!ndef && "NDEFReader" in window) { try { await startNFC(); } catch(e) {} } }, { once: true });
 
         function goToKidsMode() {
@@ -1985,7 +2013,6 @@
                 applyKidsDesign(); 
                 applyButtonColors();
 
-                // TOGGLE LIBRARY BUTTON BASED ON SETTINGS
                 if(settings.enableLibrary !== false) {
                      document.getElementById('btn-open-lib').style.display = 'flex';
                 } else {
@@ -1995,19 +2022,16 @@
                 if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch((e) => {}); }
                 if(settings.enableEcoMode) updateEcoModeState(false);
                 
-                // WakeLock Start
                 requestWakeLock();
                 startNFC().catch(err => console.log("NFC Error", err));
 
             } catch(e) {
                 alert("Fehler beim Starten: " + e);
-                // NOTFALL RÜCKZUG
                 safeDisplay('kids-mode', 'none');
                 safeDisplay('parent-mode', 'flex');
             }
         }
         
-        // Touch Listener für iOS / Mobile Wake Lock
         document.getElementById('kids-mode').addEventListener('touchstart', () => {
             if(!isParentMode) requestWakeLock();
         }, {passive: true});
@@ -2028,33 +2052,26 @@
             }
         }
 
-        // --- SPEICHERN (UPDATED MIT EDIT-LOGIC V56) ---
+        // --- SPEICHERN ---
         function saveTrackLink(tagId) {
             const audioInput = document.getElementById('audio-input');
             const imgInput = document.getElementById('img-input');
             const cueInput = document.getElementById('cue-input');
             const name = document.getElementById('track-name').value;
-
-            // Meta Inputs
             const metaDesc = document.getElementById('meta-desc').value;
             const metaAge = document.getElementById('meta-age').value;
             const metaGenre = document.getElementById('meta-genre').value;
             const metaRuntime = document.getElementById('meta-runtime').value;
 
-            // Logik: Wir holen uns ggf. die alten Daten, wenn wir im Edit Mode sind
             const finalize = (oldRecord = null, newCueTracks = null) => {
-                
                 let finalAudio = audioInput.files.length > 0 ? Array.from(audioInput.files) : (oldRecord ? oldRecord.playlist : []);
                 let finalFileNames = audioInput.files.length > 0 ? Array.from(audioInput.files).map(f=>f.name) : (oldRecord ? oldRecord.playlistFileNames : []);
-                
                 let finalImg = imgInput.files.length > 0 ? imgInput.files[0] : (oldRecord ? oldRecord.imageBlob : null);
                 let finalImgName = imgInput.files.length > 0 ? imgInput.files[0].name : (oldRecord ? oldRecord.imageFileName : null);
-                
                 let finalCue = newCueTracks ? newCueTracks : (oldRecord ? oldRecord.cueTracks : null);
 
                 if(finalAudio.length === 0) { alert("Kein Audio vorhanden!"); return; }
 
-                // Meta Object bauen
                 const metaObj = {
                     description: metaDesc,
                     age_recommendation: metaAge ? parseInt(metaAge) : 0,
@@ -2070,39 +2087,31 @@
                     imageBlob: finalImg, 
                     imageFileName: finalImgName, 
                     cueTracks: finalCue, 
-                    meta: metaObj, // Updated Meta
+                    meta: metaObj, 
                     lastTrackIndex: oldRecord ? oldRecord.lastTrackIndex : 0, 
                     lastTime: oldRecord ? oldRecord.lastTime : 0 
                 };
 
                 const tx = db.transaction(["tracks"], "readwrite"); 
                 const store = tx.objectStore("tracks");
-                
-                // Neuen Eintrag speichern
                 store.put(record);
 
-                // Wenn wir editiert haben und die Tag ID sich geändert hat (neuer Tag gescannt), alten löschen
                 if (editingOriginalTagId && editingOriginalTagId !== tagId) {
                     store.delete(editingOriginalTagId);
                     showStatus("Tag gewechselt & Update!");
                 } else {
                     showStatus("Gespeichert!");
                 }
-
                 tx.oncomplete = () => { cancelEdit(); loadTagList(); };
             };
 
-            // Workflow Start
             const cueFile = cueInput.files[0];
-            
             const processCueAndSave = (oldRecord) => {
                 if(cueFile) {
                     const reader = new FileReader(); 
                     reader.onload = (e) => { const parsedTracks = parseCueSheet(e.target.result); finalize(oldRecord, parsedTracks); }; 
                     reader.readAsText(cueFile);
-                } else {
-                    finalize(oldRecord, null);
-                }
+                } else { finalize(oldRecord, null); }
             };
 
             if (editingOriginalTagId) {
@@ -2114,38 +2123,111 @@
             }
         }
 
+        // --- ADMIN HELPERS ---
+        function activateLinkMode() {
+            const n = document.getElementById('track-name').value;
+            const hasAudio = document.getElementById('audio-input').files.length > 0;
+            if(!editingOriginalTagId && !hasAudio) { alert("Bitte Audio wählen!"); return; }
+            if(n === "") { alert("Bitte Name eingeben!"); return; }
+            isLinkModeActive = true; document.getElementById('scan-status').innerText = ">>> FIGUR JETZT AUFLEGEN <<<";
+            if (!isNfcScanning) startNFC();
+        }
+        function saveManualTrack() {
+            const n = document.getElementById('track-name').value;
+            const hasAudio = document.getElementById('audio-input').files.length > 0;
+            if(!editingOriginalTagId && !hasAudio) { alert("Bitte Audio wählen!"); return; }
+            if(n === "") { alert("Bitte Name eingeben!"); return; }
+            const targetId = editingOriginalTagId ? editingOriginalTagId : "manual_" + Date.now();
+            saveTrackLink(targetId);
+        }
+        function loadTagForEdit(id) {
+            const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
+            store.get(id).onsuccess = (e) => {
+                const r = e.target.result;
+                if(r) {
+                    editingOriginalTagId = id;
+                    document.getElementById('track-name').value = r.name;
+                    if(r.meta) {
+                        document.getElementById('meta-desc').value = r.meta.description || "";
+                        document.getElementById('meta-age').value = r.meta.age_recommendation || "";
+                        document.getElementById('meta-genre').value = r.meta.genre || "Hörspiel";
+                        document.getElementById('meta-runtime').value = r.meta.runtime || "";
+                    } else {
+                        document.getElementById('meta-desc').value = "";
+                        document.getElementById('meta-age').value = "";
+                        document.getElementById('meta-genre').value = "Hörspiel";
+                        document.getElementById('meta-runtime').value = "";
+                    }
+                    document.getElementById('form-title').innerText = "✏️ Bearbeiten: " + r.name;
+                    document.getElementById('form-title').style.color = "#3498db";
+                    document.getElementById('btn-save-tag').innerText = "Speichern & Neuer Tag (Move)";
+                    document.getElementById('btn-save-manual').innerText = "💾 Speichern (Update)";
+                    document.getElementById('btn-cancel-edit').style.display = "inline-block";
+                    if (r.playlistFileNames && r.playlistFileNames.length > 0) {
+                        const fileListStr = r.playlistFileNames.join(', ');
+                        document.getElementById('audio-info').innerText = fileListStr;
+                        document.getElementById('audio-info').title = fileListStr;
+                    } else { document.getElementById('audio-info').innerText = "Keine Audio-Datei"; }
+                    document.getElementById('cue-info').innerText = r.cueTracks ? "Kapiteldaten vorhanden" : "Keine";
+                    document.getElementById('img-info').innerText = r.imageFileName ? r.imageFileName : "Standard";
+                    document.getElementById('scan-card').classList.add("editing-highlight");
+                    document.getElementById('scan-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            };
+        }
+        function cancelEdit() {
+            editingOriginalTagId = null;
+            document.getElementById('track-name').value = "";
+            document.getElementById('audio-input').value = "";
+            document.getElementById('cue-input').value = "";
+            document.getElementById('img-input').value = "";
+            document.getElementById('meta-desc').value = "";
+            document.getElementById('meta-age').value = "";
+            document.getElementById('meta-runtime').value = "";
+            document.getElementById('audio-info').innerText = "";
+            document.getElementById('cue-info').innerText = "";
+            document.getElementById('img-info').innerText = "";
+            document.getElementById('form-title').innerText = "🎵 Tag bearbeiten / anlernen";
+            document.getElementById('form-title').style.color = "#74b9ff";
+            document.getElementById('btn-save-tag').innerText = "📡 Tag scannen & speichern";
+            document.getElementById('btn-save-manual').innerText = "💾 Ohne NFC speichern";
+            document.getElementById('btn-cancel-edit').style.display = "none";
+            document.getElementById('scan-card').classList.remove("editing-highlight");
+            document.getElementById('scan-status').innerText = "";
+        }
+        function setAdminView(mode) {
+            const container = document.getElementById('tag-list-container');
+            const btnGrid = document.getElementById('btn-view-grid');
+            const btnList = document.getElementById('btn-view-list');
+            if(mode === 'grid') {
+                container.className = 'admin-grid'; btnGrid.classList.add('active'); btnList.classList.remove('active');
+            } else {
+                container.className = 'admin-list'; btnGrid.classList.remove('active'); btnList.classList.add('active');
+            }
+        }
         function loadTagList() {
             const container = document.getElementById('tag-list-container'); 
             if(!container) return; 
             container.innerHTML = "";
-            
             const tx = db.transaction(["tracks"], "readonly"); 
             const store = tx.objectStore("tracks");
-            
             store.openCursor().onsuccess = (event) => {
                 const cursor = event.target.result; 
                 if (cursor) {
                     const track = cursor.value;
                     if(track.tagId !== SYSTEM_BG_ID && track.tagId !== SYSTEM_SETTINGS_ID) {
-                        
-                        // Card erstellen
                         const card = document.createElement('div');
                         card.className = 'admin-card';
-                        
-                        // Bild
                         let imgHtml = `<div style="font-size:30px;">🎵</div>`;
                         if (track.imageBlob) {
                             const url = URL.createObjectURL(track.imageBlob);
                             imgHtml = `<img src="${url}" class="admin-cover-img" loading="lazy">`;
                         }
-
-                        // Meta Info String
                         let metaInfo = "";
                         if(track.meta) {
                             if(track.meta.age_recommendation) metaInfo += `Ab ${track.meta.age_recommendation}J `;
                             if(track.meta.genre) metaInfo += `• ${track.meta.genre}`;
                         }
-
                         card.innerHTML = `
                             <div class="admin-cover-wrap">${imgHtml}</div>
                             <div class="admin-card-body">
@@ -2169,193 +2251,110 @@
         }
         function deleteTrack(id) { if(confirm("Wirklich löschen?")) { const tx = db.transaction(["tracks"], "readwrite"); tx.objectStore("tracks").delete(id); tx.oncomplete = () => loadTagList(); } }
 
-        // --- LIBRARY MODE LOGIC (HOTFIX V61) ---
-
-        let currentLibFilter = 'all';
-
-        function openLibrary() {
-            if(!db) { showStatus("Datenbank lädt..."); return; }
-            // V61 FIX: force visibility against potential cached CSS overrides
-            document.getElementById('library-mode').style.setProperty('display', 'block', 'important');
-            renderLibrary();
-        }
-
-        function closeLibrary() {
-            document.getElementById('library-mode').style.display = 'none';
-        }
-
-        function renderLibrary() {
-            const contentArea = document.getElementById('lib-content-area');
-            const filterContainer = document.getElementById('lib-filters');
-            contentArea.innerHTML = "";
-            
-            if(!db) return; // Safety check
-
-            const tx = db.transaction(["tracks"], "readonly");
-            const store = tx.objectStore("tracks");
-            const request = store.getAll();
-
-            request.onsuccess = (e) => {
-                let tracks = e.target.result;
-                tracks = tracks.filter(t => t.tagId !== "system_bg" && t.tagId !== "system_settings");
-
-                // --- FILTER GENERIEREN (Dynamisch) ---
-                if(filterContainer.children.length <= 2) { 
-                    const genres = new Set();
-                    const ages = new Set();
-                    
-                    tracks.forEach(t => {
-                        if(t.meta && t.meta.genre) genres.add(t.meta.genre);
-                        if(t.meta && t.meta.age_recommendation) ages.add(t.meta.age_recommendation);
-                    });
-
-                    Array.from(ages).sort((a,b) => a-b).forEach(age => {
-                        addFilterChip(`Ab ${age} Jahren`, `age_${age}`);
-                    });
-                    
-                    Array.from(genres).sort().forEach(genre => {
-                         addFilterChip(genre, `genre_${genre}`);
-                    });
+        // --- BULK IMPORT & EXPORT ---
+        async function exportJukeboxJson() {
+            showStatus("Exportiere...");
+            const tx = db.transaction(["tracks"], "readonly"); const store = tx.objectStore("tracks"); const exportData = [];
+            store.openCursor().onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const t = cursor.value;
+                    if(t.tagId !== SYSTEM_BG_ID && t.tagId !== SYSTEM_SETTINGS_ID) {
+                        exportData.push({ tagId: t.tagId, name: t.name, playlistFileNames: t.playlistFileNames || [], imageFileName: t.imageFileName || null, meta: t.meta || {}, tags: t.tags || [], filter_age: t.filter_age || 0 });
+                    }
+                    cursor.continue();
+                } else {
+                    const blob = new Blob([JSON.stringify(exportData, null, 2)], {type: "application/json"});
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "jukebox.json"; document.body.appendChild(a); a.click(); document.body.removeChild(a); showStatus("Export fertig! ✅");
                 }
-
-                // --- ZULETZT GEHÖRT SEKTION ---
-                if (currentLibFilter === 'all' || currentLibFilter === 'recent') {
-                    const recentTracks = [...tracks].filter(t => t.lastPlayedTimestamp).sort((a, b) => b.lastPlayedTimestamp - a.lastPlayedTimestamp).slice(0, 3);
-                    
-                    if (recentTracks.length > 0) {
-                        const recentDiv = document.createElement('div');
-                        recentDiv.innerHTML = `<div class="section-title">Zuletzt gehört 🕒</div><div class="recent-grid" id="recent-grid-target"></div>`;
-                        contentArea.appendChild(recentDiv);
-                        const target = recentDiv.querySelector('#recent-grid-target');
-                        
-                        recentTracks.forEach(t => {
-                            target.appendChild(createLibCard(t, true));
+            };
+        }
+        async function importJukeboxJson(input) {
+            const file = input.files[0]; if(!file) return; showStatus("Lade Datenbank...");
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result); if(!Array.isArray(data)) throw new Error("Format falsch");
+                    const tx = db.transaction(["tracks"], "readwrite"); const store = tx.objectStore("tracks");
+                    let updated = 0; let newEntries = 0;
+                    for(const entry of data) {
+                        await new Promise((resolve) => {
+                            const req = store.get(entry.tagId);
+                            req.onsuccess = () => {
+                                const existing = req.result;
+                                if(existing) { existing.name = entry.name; existing.meta = entry.meta; existing.tags = entry.tags; existing.filter_age = entry.filter_age; store.put(existing); updated++; } 
+                                else { store.put({ tagId: entry.tagId, name: entry.name, playlist: [], playlistFileNames: entry.playlistFileNames, imageBlob: null, imageFileName: entry.imageFileName, cueTracks: null, meta: entry.meta, tags: entry.tags, lastTrackIndex:0, lastTime:0 }); newEntries++; }
+                                resolve();
+                            };
                         });
                     }
-                }
-
-                if (currentLibFilter === 'recent') return; 
-
-                // --- HAUPT GRID ---
-                const gridDiv = document.createElement('div');
-                gridDiv.className = 'library-grid';
-                if(currentLibFilter === 'all') gridDiv.style.marginTop = "10px";
-                
-                // Filtern
-                let filteredTracks = tracks;
-                if (currentLibFilter.startsWith('age_')) {
-                    const age = parseInt(currentLibFilter.split('_')[1]);
-                    filteredTracks = tracks.filter(t => t.meta && t.meta.age_recommendation == age);
-                } else if (currentLibFilter.startsWith('genre_')) {
-                    const g = currentLibFilter.replace('genre_', '');
-                    filteredTracks = tracks.filter(t => t.meta && t.meta.genre === g);
-                }
-
-                filteredTracks.sort((a, b) => a.name.localeCompare(b.name));
-
-                filteredTracks.forEach(t => {
-                    gridDiv.appendChild(createLibCard(t));
+                    alert(`Datenbank geladen!\n\n• ${updated} Einträge aktualisiert\n• ${newEntries} neue Einträge erstellt.`);
+                    const btn = document.getElementById('btn-auto-repair'); if(btn) { btn.style.backgroundColor = "#e74c3c"; btn.style.animation = "pulse 2s infinite"; }
+                    loadTagList(); input.value = "";
+                } catch(e) { alert("Fehler: " + e); }
+            }; reader.readAsText(file);
+        }
+        async function handleBulkImport(input) {
+            const files = Array.from(input.files); if(files.length === 0) return;
+            const jukeboxJsonFile = files.find(f => f.name.toLowerCase().startsWith('jukebox') && f.name.toLowerCase().endsWith('.json'));
+            if (jukeboxJsonFile) {
+                const usedAudioFiles = await handleJukeboxJsonImport(jukeboxJsonFile, files);
+                const audioExtensions = ['.mp3', '.m4a', '.ogg', '.wav', '.flac'];
+                const leftoverAudio = files.filter(f => {
+                    const ext = f.name.substring(f.name.lastIndexOf('.')).toLowerCase();
+                    return audioExtensions.includes(ext) && !usedAudioFiles.has(f.name);
                 });
-                
-                contentArea.appendChild(gridDiv);
-            };
+                if (leftoverAudio.length > 0) { if(confirm(`Smart Import fertig. Noch ${leftoverAudio.length} weitere Audio-Dateien gefunden. Auch importieren?`)) { await handleClassicBulkImport(files.filter(f => !usedAudioFiles.has(f.name))); } }
+            } else { await handleClassicBulkImport(files); }
+            input.value = ""; 
         }
-
-        function addFilterChip(label, value) {
-            const container = document.getElementById('lib-filters');
-            if(container.querySelector(`[data-val="${value}"]`)) return;
-            const chip = document.createElement('div');
-            chip.className = 'filter-chip';
-            chip.innerText = label;
-            chip.dataset.val = value;
-            chip.onclick = function() { applyLibFilter(value, this); };
-            container.appendChild(chip);
-        }
-
-        function applyLibFilter(filterVal, el) {
-            currentLibFilter = filterVal;
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            if(el) el.classList.add('active');
-            renderLibrary();
-        }
-
-        function createLibCard(track, isSmall = false) {
-            const div = document.createElement('div');
-            div.className = isSmall ? 'recent-card' : 'lib-card';
-            div.onclick = () => {
-                closeLibrary();
-                playTrackByTag(track.tagId);
-            };
-
-            let imgHtml = `<div class="lib-placeholder">🎵</div>`;
-            if (track.imageBlob) {
-                const url = URL.createObjectURL(track.imageBlob);
-                imgHtml = `<img src="${url}" class="lib-cover-img" loading="lazy">`;
-            }
-
-            let infoBtnHtml = "";
-            if(!isSmall) { 
-                 infoBtnHtml = `<button class="lib-card-info-btn" onclick="showAlbumInfo(event, '${track.tagId}')">i</button>`;
-            }
-
-            let metaInfo = "";
-            if(!isSmall && track.meta) {
-                 if(track.meta.runtime) metaInfo += `⏱️ ${track.meta.runtime} min`;
-            }
-
-            div.innerHTML = `
-                <div class="lib-cover-wrap" style="${isSmall ? 'border-radius:10px;' : ''}">
-                    ${imgHtml}
-                    ${infoBtnHtml}
-                </div>
-                ${!isSmall ? `
-                <div class="lib-card-body">
-                    <div class="lib-card-title">${track.name}</div>
-                    <span class="lib-meta-tag">${metaInfo}</span>
-                </div>` : ''}
-            `;
-            return div;
-        }
-
-        // --- ALBUM INFO MODAL LOGIC ---
-        function showAlbumInfo(event, tagId) {
-            event.stopPropagation(); 
-            const store = db.transaction(["tracks"], "readonly").objectStore("tracks");
-            store.get(tagId).onsuccess = (e) => {
-                const track = e.target.result;
-                if(!track) return;
-
-                const modal = document.getElementById('lib-info-modal');
-                const imgEl = document.getElementById('info-modal-img');
-                const titleEl = document.getElementById('info-modal-title');
-                const metaEl = document.getElementById('info-modal-meta');
-                const descEl = document.getElementById('info-modal-desc');
-
-                if(track.imageBlob) imgEl.src = URL.createObjectURL(track.imageBlob);
-                else imgEl.src = "";
-
-                titleEl.innerText = track.name;
-                
-                let metaText = [];
-                if(track.meta) {
-                    if(track.meta.age_recommendation) metaText.push(`Ab ${track.meta.age_recommendation} J.`);
-                    if(track.meta.genre) metaText.push(track.meta.genre);
-                    if(track.meta.runtime) metaText.push(`${track.meta.runtime} min`);
+        async function handleJukeboxJsonImport(jsonFile, allFiles) {
+            const readFileAsText = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsText(file); });
+            const usedAudioSet = new Set();
+            try {
+                const jsonText = await readFileAsText(jsonFile); const metadataEntries = JSON.parse(jsonText); let count = 0; const findFile = (name) => allFiles.find(f => f.name === name);
+                for (let i = 0; i < metadataEntries.length; i++) {
+                    const entry = metadataEntries[i]; showStatus(`Smart Import ${i+1}/${metadataEntries.length}: ${entry.name}`);
+                    const audioFiles = []; if (entry.playlistFileNames) { for (const fname of entry.playlistFileNames) { const f = findFile(fname); if (f) { audioFiles.push(f); usedAudioSet.add(f.name); } } }
+                    if (audioFiles.length === 0) continue;
+                    let imageBlob = null; if (entry.imageFileName) imageBlob = findFile(entry.imageFileName);
+                    let cueTracks = null; if(entry.playlistFileNames.length > 0) { const audioBase = entry.playlistFileNames[0].replace(/\.[^/.]+$/, ""); const cueFile = findFile(audioBase + ".cue"); if (cueFile) { try { const cueText = await readFileAsText(cueFile); cueTracks = parseCueSheet(cueText); } catch(e) {} } }
+                    await new Promise((resolve) => { const tx = db.transaction(["tracks"], "readwrite"); const store = tx.objectStore("tracks"); store.put({ tagId: entry.tagId, name: entry.name, playlist: audioFiles, playlistFileNames: entry.playlistFileNames, imageBlob: imageBlob, imageFileName: entry.imageFileName, cueTracks: cueTracks, meta: entry.meta, tags: entry.tags, lastTrackIndex: 0, lastTime: 0 }); tx.oncomplete = () => { count++; resolve(); }; });
                 }
-                metaEl.innerText = metaText.join(" • ");
-
-                if(track.meta && track.meta.description) {
-                    descEl.innerText = track.meta.description;
-                    descEl.style.display = 'block';
-                } else {
-                    descEl.style.display = 'none';
-                }
-                modal.style.display = 'flex';
-            };
+                showStatus(`${count} Smart-Import fertig!`); loadTagList(); return usedAudioSet;
+            } catch (e) { alert("Fehler JSON: " + e); return usedAudioSet; }
         }
-
-        function closeAlbumInfo() {
-            document.getElementById('lib-info-modal').style.display = 'none';
+        async function handleClassicBulkImport(files) {
+            const groups = {};
+            files.forEach(f => {
+                const path = f.webkitRelativePath || f.name; const lastDot = path.lastIndexOf('.'); const basePath = lastDot > 0 ? path.substring(0, lastDot) : path;
+                if (!groups[basePath]) groups[basePath] = { audio: [], img: null, cue: null, name: "" };
+                const ext = f.name.split('.').pop().toLowerCase(); const fileNameOnly = f.name.substring(0, f.name.lastIndexOf('.'));
+                if (!groups[basePath].name) groups[basePath].name = fileNameOnly;
+                if(['mp3', 'm4a', 'ogg', 'wav', 'flac'].includes(ext)) { groups[basePath].audio.push(f); } else if (['jpg', 'jpeg', 'png', 'webp'].includes(ext)) { groups[basePath].img = f; } else if (ext === 'cue') { groups[basePath].cue = f; }
+            });
+            let count = 0; const groupKeys = Object.keys(groups);
+            const readFileAsText = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsText(file); });
+            for (let i = 0; i < groupKeys.length; i++) {
+                const g = groups[groupKeys[i]]; if(g.audio.length === 0) continue;
+                showStatus(`Classic Import ${i+1}/${groupKeys.length}: ${g.name}`);
+                let cueTracks = null; if(g.cue) { try { const text = await readFileAsText(g.cue); cueTracks = parseCueSheet(text); } catch(e) {} }
+                await new Promise((resolve) => { const tx = db.transaction(["tracks"], "readwrite"); const store = tx.objectStore("tracks"); store.put({ tagId: "manual_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5), name: g.name.replace(/_/g, ' '), playlist: g.audio, playlistFileNames: g.audio.map(f => f.name), imageBlob: g.img, imageFileName: g.img ? g.img.name : null, cueTracks: cueTracks, lastTrackIndex: 0, lastTime: 0 }); tx.oncomplete = () => { count++; resolve(); }; });
+            }
+            showStatus(`${count} Importiert! 🎉`); loadTagList();
+        }
+        function parseCueSheet(cueText) {
+            const tracks = []; const lines = cueText.split('\n'); let currentTrack = null;
+            lines.forEach(line => {
+                line = line.trim();
+                if (line.startsWith('TRACK')) { currentTrack = {}; }
+                if (line.startsWith('TITLE') && currentTrack) { const match = line.match(/"([^"]+)"/); if (match) currentTrack.title = match[1]; }
+                if (line.startsWith('INDEX 01') && currentTrack) {
+                    const parts = line.split(' '); const timeStr = parts[parts.length - 1]; const timeParts = timeStr.split(':');
+                    const min = parseInt(timeParts[0], 10); const sec = parseInt(timeParts[1], 10); const frames = parseInt(timeParts[2], 10);
+                    currentTrack.time = (min * 60) + sec + (frames / 75); tracks.push(currentTrack); currentTrack = null;
+                }
+            }); return tracks;
         }
 
         if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
